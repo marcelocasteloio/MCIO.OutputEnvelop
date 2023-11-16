@@ -27,7 +27,7 @@ public readonly record struct OutputMessage
     public static OutputMessage Create(MessageType type, string code, string? description = null)
     {
         // Validate
-        InvalidMessageTypeException.ThrowIfInvalidValue(type);
+        InvalidMessageTypeException.ThrowIfInvalid(type);
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
 
         // Process and return

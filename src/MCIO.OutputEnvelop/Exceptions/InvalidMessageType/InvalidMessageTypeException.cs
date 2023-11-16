@@ -15,7 +15,7 @@ public class InvalidMessageTypeException
     }
 
     // Builders
-    public static void ThrowIfInvalidValue(MessageType messageType)
+    public static void ThrowIfInvalid(MessageType messageType)
     {
         if (!Enum.IsDefined(messageType))
             throw new InvalidMessageTypeException(messageType);
