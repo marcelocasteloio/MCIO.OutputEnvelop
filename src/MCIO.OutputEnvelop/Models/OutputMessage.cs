@@ -6,12 +6,12 @@ namespace MCIO.OutputEnvelop.Models;
 public readonly record struct OutputMessage
 {
     // Properties
-    public MessageType Type { get; }
+    public OutputMessageType Type { get; }
     public string Code { get; }
     public string? Description { get; }
 
     // Constructors
-    private OutputMessage(MessageType type, string code, string? description)
+    private OutputMessage(OutputMessageType type, string code, string? description)
     {
         Type = type;
         Code = code;
@@ -19,12 +19,12 @@ public readonly record struct OutputMessage
     }
 
     // Public Methods
-    public OutputMessage ChangeType(MessageType type) => Create(type, Code, Description);
+    public OutputMessage ChangeType(OutputMessageType type) => Create(type, Code, Description);
     public OutputMessage ChangeDescription(string? description) => Create(Type, Code, description);
-    public OutputMessage ChangeTypeAndDescription(MessageType type, string? description) => Create(type, Code, description);
+    public OutputMessage ChangeTypeAndDescription(OutputMessageType type, string? description) => Create(type, Code, description);
 
     // Builders
-    public static OutputMessage Create(MessageType type, string code, string? description = null)
+    public static OutputMessage Create(OutputMessageType type, string code, string? description = null)
     {
         // Validate
         InvalidMessageTypeException.ThrowIfInvalid(type);
@@ -33,4 +33,7 @@ public readonly record struct OutputMessage
         // Process and return
         return new OutputMessage(type, code, description);
     }
+    public static OutputMessage CreateInformation(string code, string? description = null) => Create(OutputMessageType.Information, code, description);
+    public static OutputMessage CreateWarning(string code, string? description = null) => Create(OutputMessageType.Warning, code, description);
+    public static OutputMessage CreateError(string code, string? description = null) => Create(OutputMessageType.Error, code, description);
 }

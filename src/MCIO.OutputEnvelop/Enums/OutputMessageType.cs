@@ -1,6 +1,6 @@
 ﻿namespace MCIO.OutputEnvelop.Enums;
 
-public enum MessageType
+public enum OutputMessageType
 {
     Information = 1,
     Warning = 2,

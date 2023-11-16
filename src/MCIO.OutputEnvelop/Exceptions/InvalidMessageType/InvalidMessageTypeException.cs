@@ -6,18 +6,18 @@ public class InvalidMessageTypeException
     : Exception
 {
     // Properties
-    public MessageType MessageType { get; }
+    public OutputMessageType MessageType { get; }
 
     // Constructors
-    private InvalidMessageTypeException(MessageType messageType)
+    private InvalidMessageTypeException(OutputMessageType outputMessageType)
     {
-        MessageType = messageType;
+        MessageType = outputMessageType;
     }
 
     // Builders
-    public static void ThrowIfInvalid(MessageType messageType)
+    public static void ThrowIfInvalid(OutputMessageType outputMessageType)
     {
-        if (!Enum.IsDefined(messageType))
-            throw new InvalidMessageTypeException(messageType);
+        if (!Enum.IsDefined(outputMessageType))
+            throw new InvalidMessageTypeException(outputMessageType);
     }
 }
