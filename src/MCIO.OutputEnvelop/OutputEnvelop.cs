@@ -36,6 +36,7 @@ public readonly record struct OutputEnvelop
         );
     }
     public OutputEnvelop AddInformationOutputMessage(string code, string? description) => AddOutputMessage(OutputMessage.CreateInformation(code, description));
+    public OutputEnvelop AddSuccessOutputMessage(string code, string? description) => AddOutputMessage(OutputMessage.CreateSuccess(code, description));
     public OutputEnvelop AddWarningOutputMessage(string code, string? description) => AddOutputMessage(OutputMessage.CreateWarning(code, description));
     public OutputEnvelop AddErrorOutputMessage(string code, string? description) => AddOutputMessage(OutputMessage.CreateError(code, description));
     public OutputEnvelop AddOutputMessageRange(OutputMessage[] outputMessageCollection)
@@ -218,6 +219,52 @@ public readonly record struct OutputEnvelop
             outputMessageCollection: newMessageOutputCollection,
             exceptionCollection: newExceptionCollection
         );
+    }
+    public static OutputEnvelop Create(params OutputEnvelop[] outputEnvelopCollection)
+    {
+        // Analyze Type
+        var hasInformationMessageType = false;
+        var hasSuccessMessageType = false;
+        var hasWarningMessageType = false;
+        var hasErrorMessageType = false;
+        var hasException = false;
+
+        // Analyze all output envelops
+        for (int outputEnvelopIndex = 0; outputEnvelopIndex < outputEnvelopCollection.Length; outputEnvelopIndex++)
+        {
+            var outputEnvelop = outputEnvelopCollection[outputEnvelopIndex];
+
+            // Analyze output messages
+            for (int outputMessageIndex = 0; outputMessageIndex < outputEnvelop.OutputMessageCollection.Length; outputMessageIndex++)
+            {
+                var outputMessage = outputEnvelop.OutputMessageCollection[outputMessageIndex];
+
+                if(!hasInformationMessageType && outputMessage.Type == OutputMessageType.Information)
+                    hasInformationMessageType = true;
+
+                if (!hasSuccessMessageType && outputMessage.Type == OutputMessageType.Success)
+                    hasSuccessMessageType = true;
+
+                if (!hasWarningMessageType && outputMessage.Type == OutputMessageType.Warning)
+                    hasWarningMessageType = true;
+
+                if (!hasErrorMessageType && outputMessage.Type == OutputMessageType.Error)
+                    hasErrorMessageType = true;
+            }
+
+            // Analyze exceptions
+            if (hasException)
+                continue;
+
+            hasException = outputEnvelop.ExceptionCollection.Length > 0;
+        }
+
+        var type =
+            hasSuccessMessageType
+            ? hasErrorMessageType || hasException ? OutputType.Partial : OutputType.Success
+            : hasErrorMessageType || hasException ? OutputType.Error : OutputType.Success;
+
+        return Create(type, outputEnvelopCollection);
     }
 
     public static OutputEnvelop CreateSuccess() => new(type: OutputType.Success, outputMessageCollection: null, exceptionCollection: null);

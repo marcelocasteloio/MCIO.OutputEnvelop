@@ -34,30 +34,6 @@ internal static class ArrayUtils
 
         return newArray;
     }
-    internal static T[] JoinArrayCollection<T>(T[][] sourceArrayCollection)
-    {
-        var targetArray = CreateEmptyArrayFromExistingArrayCollection(sourceArrayCollection);
-
-        var currentOffset = 0;
-        for (int i = 0; i < sourceArrayCollection.Length; i++)
-        {
-            var sourceArray = sourceArrayCollection[i];
-
-            _ = CopyToExistingArray(targetArray, targetIndex: currentOffset, sourceArray);
-
-            currentOffset += sourceArray.Length;
-        }
-
-        return targetArray;
-    }
-    internal static T[] CreateEmptyArrayFromExistingArrayCollection<T>(T[][] sourceArrayCollection)
-    {
-        var targetArrayLenght = 0L;
-        for (int i = 0; i < sourceArrayCollection.Length; i++)
-            targetArrayLenght += sourceArrayCollection[i].Length;
-
-        return targetArrayLenght == 0 ? [] : new T[targetArrayLenght];
-    }
     internal static T[] CopyToExistingArray<T>(T[] targetArray, long targetIndex, T[] sourceArray)
     {
         Array.Copy(

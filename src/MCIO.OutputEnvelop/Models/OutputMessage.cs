@@ -34,6 +34,7 @@ public readonly record struct OutputMessage
         return new OutputMessage(type, code, description);
     }
     public static OutputMessage CreateInformation(string code, string? description = null) => Create(OutputMessageType.Information, code, description);
+    public static OutputMessage CreateSuccess(string code, string? description = null) => Create(OutputMessageType.Success, code, description);
     public static OutputMessage CreateWarning(string code, string? description = null) => Create(OutputMessageType.Warning, code, description);
     public static OutputMessage CreateError(string code, string? description = null) => Create(OutputMessageType.Error, code, description);
 }
