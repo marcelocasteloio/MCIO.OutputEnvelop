@@ -1,7 +1,5 @@
-﻿using FluentAssertions;
-using MCIO.OutputEnvelop.Enums;
+﻿using MCIO.OutputEnvelop.Enums;
 using MCIO.OutputEnvelop.Models;
-using System.Globalization;
 
 namespace MCIO.OutputEnvelop.UnitTests.ModelsTests;
 
@@ -16,7 +14,7 @@ public class OutputMessageTest
     [InlineData(OutputMessageType.Success, "sample_code", null)]
     [InlineData(OutputMessageType.Error, "sample_code", "sample_description")]
     [InlineData(OutputMessageType.Error, "sample_code", null)]
-    public void OutputMessage_Should_Created_From_Type(OutputMessageType type, string code, string? description)
+    public void OutputMessage_Should_Created_From_Type(OutputMessageType type, string code, string description)
     {
         // Act
         var outputMessage = OutputMessage.Create(type, code, description);
@@ -30,7 +28,7 @@ public class OutputMessageTest
     [Theory]
     [InlineData("sample_code", "sample_description")]
     [InlineData("sample_code", null)]
-    public void OutputMessage_Should_Created_As_InformationType(string code, string? description)
+    public void OutputMessage_Should_Created_As_InformationType(string code, string description)
     {
         // Arrange
         var expectedType = OutputMessageType.Information;
@@ -47,7 +45,7 @@ public class OutputMessageTest
     [Theory]
     [InlineData("sample_code", "sample_description")]
     [InlineData("sample_code", null)]
-    public void OutputMessage_Should_Created_As_SuccessType(string code, string? description)
+    public void OutputMessage_Should_Created_As_SuccessType(string code, string description)
     {
         // Arrange
         var expectedType = OutputMessageType.Success;
@@ -64,7 +62,7 @@ public class OutputMessageTest
     [Theory]
     [InlineData("sample_code", "sample_description")]
     [InlineData("sample_code", null)]
-    public void OutputMessage_Should_Created_As_WarningType(string code, string? description)
+    public void OutputMessage_Should_Created_As_WarningType(string code, string description)
     {
         // Arrange
         var expectedType = OutputMessageType.Warning;
@@ -81,7 +79,7 @@ public class OutputMessageTest
     [Theory]
     [InlineData("sample_code", "sample_description")]
     [InlineData("sample_code", null)]
-    public void OutputMessage_Should_Created_As_ErrorType(string code, string? description)
+    public void OutputMessage_Should_Created_As_ErrorType(string code, string description)
     {
         // Arrange
         var expectedType = OutputMessageType.Error;
@@ -104,7 +102,7 @@ public class OutputMessageTest
     [InlineData(OutputMessageType.Success, "sample_code", null)]
     [InlineData(OutputMessageType.Error, "sample_code", "sample_description")]
     [InlineData(OutputMessageType.Error, "sample_code", null)]
-    public void OutputMessage_Should_ChangeType(OutputMessageType type, string code, string? description)
+    public void OutputMessage_Should_ChangeType(OutputMessageType type, string code, string description)
     {
         // Arrange
         var expectedOutputMessageTypeCollection = Enum.GetValues<OutputMessageType>();
@@ -138,7 +136,7 @@ public class OutputMessageTest
     [InlineData(OutputMessageType.Success, "sample_code", null)]
     [InlineData(OutputMessageType.Error, "sample_code", "sample_description")]
     [InlineData(OutputMessageType.Error, "sample_code", null)]
-    public void OutputMessage_Should_ChangeDescription(OutputMessageType type, string code, string? description)
+    public void OutputMessage_Should_ChangeDescription(OutputMessageType type, string code, string description)
     {
         // Arrange
         var expectedNonNullableDescription = Guid.NewGuid().ToString();
@@ -171,7 +169,7 @@ public class OutputMessageTest
     [InlineData(OutputMessageType.Success, "sample_code", null)]
     [InlineData(OutputMessageType.Error, "sample_code", "sample_description")]
     [InlineData(OutputMessageType.Error, "sample_code", null)]
-    public void OutputMessage_Should_ChangeTypeAndDescription(OutputMessageType type, string code, string? description)
+    public void OutputMessage_Should_ChangeTypeAndDescription(OutputMessageType type, string code, string description)
     {
         // Arrange
         var expectedOutputMessageTypeCollection = Enum.GetValues<OutputMessageType>();

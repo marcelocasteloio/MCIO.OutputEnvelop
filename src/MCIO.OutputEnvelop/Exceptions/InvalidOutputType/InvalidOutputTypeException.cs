@@ -1,23 +1,25 @@
 ﻿using MCIO.OutputEnvelop.Enums;
+using System;
 
-namespace MCIO.OutputEnvelop.Exceptions.InvalidOutputType;
-
-public class InvalidOutputTypeException
-    : Exception
+namespace MCIO.OutputEnvelop.Exceptions.InvalidOutputType
 {
-    // Properties
-    public OutputType OutputType { get; }
-
-    // Constructors
-    private InvalidOutputTypeException(OutputType outputType)
+    public class InvalidOutputTypeException
+        : Exception
     {
-        OutputType = outputType;
-    }
+        // Properties
+        public OutputType OutputType { get; }
 
-    // Builders
-    public static void ThrowIfInvalid(OutputType outputType)
-    {
-        if (!Enum.IsDefined(outputType))
-            throw new InvalidOutputTypeException(outputType);
+        // Constructors
+        private InvalidOutputTypeException(OutputType outputType)
+        {
+            OutputType = outputType;
+        }
+
+        // Builders
+        public static void ThrowIfInvalid(OutputType outputType)
+        {
+            if (!Enum.IsDefined(typeof(OutputType), outputType))
+                throw new InvalidOutputTypeException(outputType);
+        }
     }
 }

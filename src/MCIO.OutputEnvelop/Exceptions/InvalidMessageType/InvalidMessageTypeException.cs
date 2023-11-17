@@ -1,23 +1,25 @@
 ﻿using MCIO.OutputEnvelop.Enums;
+using System;
 
-namespace MCIO.OutputEnvelop.Exceptions.InvalidMessageType;
-
-public class InvalidMessageTypeException
-    : Exception
+namespace MCIO.OutputEnvelop.Exceptions.InvalidMessageType
 {
-    // Properties
-    public OutputMessageType MessageType { get; }
-
-    // Constructors
-    private InvalidMessageTypeException(OutputMessageType outputMessageType)
+    public class InvalidMessageTypeException
+        : Exception
     {
-        MessageType = outputMessageType;
-    }
+        // Properties
+        public OutputMessageType MessageType { get; }
 
-    // Builders
-    public static void ThrowIfInvalid(OutputMessageType outputMessageType)
-    {
-        if (!Enum.IsDefined(outputMessageType))
-            throw new InvalidMessageTypeException(outputMessageType);
+        // Constructors
+        private InvalidMessageTypeException(OutputMessageType outputMessageType)
+        {
+            MessageType = outputMessageType;
+        }
+
+        // Builders
+        public static void ThrowIfInvalid(OutputMessageType outputMessageType)
+        {
+            if (!Enum.IsDefined(typeof(OutputMessageType), outputMessageType))
+                throw new InvalidMessageTypeException(outputMessageType);
+        }
     }
 }
