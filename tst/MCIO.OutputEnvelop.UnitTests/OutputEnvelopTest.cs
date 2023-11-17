@@ -564,4 +564,35 @@ public class OutputEnvelopTest
                 existingOutputEnvelop.ExceptionCollection.Should().BeSubsetOf(outputEnvelop.ExceptionCollection);
         }
     }
+
+    [Theory]
+    [InlineData(OutputType.Error)]
+    [InlineData(OutputType.Success)]
+    [InlineData(OutputType.Partial)]
+    public void OutputEnvelop_Should_Change_Type(OutputType outputType)
+    {
+        // Arrange
+        var outputMessageCollection = new[] { OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString()) };
+        var exceptionCollection = new[] { new Exception() };
+        var outputTypeCollection = Enum.GetValues<OutputType>();
+        var outputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
+        var changedOutputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
+
+        for (int i = 0; i < outputTypeCollection.Length; i++)
+            outputEnvelopArray[i] = OutputEnvelop.Create(outputTypeCollection[i], outputMessageCollection, exceptionCollection);
+
+        // Act
+        for (int i = 0; i < outputTypeCollection.Length; i++)
+            changedOutputEnvelopArray[i] = outputEnvelopArray[i].ChangeType(outputType);
+
+        // Assert
+        for (int i = 0; i < outputTypeCollection.Length; i++)
+        {
+            var changedOutputEnvelop = changedOutputEnvelopArray[i];
+
+            changedOutputEnvelop.Type.Should().Be(outputType);
+            changedOutputEnvelop.OutputMessageCollection.Should().BeSameAs(outputMessageCollection);
+            changedOutputEnvelop.ExceptionCollection.Should().BeSameAs(exceptionCollection);
+        }
+    }
 }
