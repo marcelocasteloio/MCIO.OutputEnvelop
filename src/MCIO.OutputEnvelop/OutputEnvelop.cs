@@ -59,7 +59,7 @@ namespace MCIO.OutputEnvelop
                 exceptionCollection: ArrayUtils.AddNewItem(ExceptionCollection, exception)
             );
         }
-        public OutputEnvelop AddExceptionRange(Exception[] exceptionCollection)
+        public OutputEnvelop AddExceptionCollection(Exception[] exceptionCollection)
         {
             return new OutputEnvelop(
                 Type,

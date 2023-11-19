@@ -818,4 +818,71 @@ public class OutputEnvelopTest
         newOutputEnvelopWithoutOutputMessage.OutputMessageCollection[0].Code.Should().Be(messageCode);
         newOutputEnvelopWithoutOutputMessage.OutputMessageCollection[0].Description.Should().Be(messageDescription);
     }
+
+    [Fact]
+    public void OutputEnvelop_Should_AddException()
+    {
+        // Arrange
+        var outputEnvelop = OutputEnvelop.CreateSuccess(
+            outputMessageCollection: null,
+            exceptionCollection: [new Exception()]
+        );
+        var outputEnvelopWithoutOutputMessage = OutputEnvelop.CreateSuccess(
+            outputMessageCollection: null,
+            exceptionCollection: null
+        );
+        var newException = new Exception();
+
+        // Act
+        var newOutputEnvelop = outputEnvelop.AddException(newException);
+        var newOutputEnvelopWithoutException = outputEnvelopWithoutOutputMessage.AddException(newException);
+
+        // Assert
+        newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
+        newOutputEnvelopWithoutException.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
+
+        outputEnvelop.ExceptionCollection.Should().HaveCount(1);
+        outputEnvelopWithoutOutputMessage.ExceptionCollection.Should().HaveCount(0);
+
+        newOutputEnvelop.ExceptionCollection.Should().HaveCount(2);
+        newOutputEnvelopWithoutException.ExceptionCollection.Should().HaveCount(1);
+
+        newOutputEnvelop.ExceptionCollection[1].Should().BeEquivalentTo(newException);
+        newOutputEnvelopWithoutException.ExceptionCollection[0].Should().BeEquivalentTo(newException);
+    }
+
+    [Fact]
+    public void OutputEnvelop_Should_AddExceptionCollection()
+    {
+        // Arrange
+        var outputEnvelop = OutputEnvelop.CreateSuccess(
+            outputMessageCollection: null,
+            exceptionCollection: [new Exception()]
+        );
+        var outputEnvelopWithoutException = OutputEnvelop.CreateSuccess(
+            outputMessageCollection: null,
+            exceptionCollection: null
+        );
+        var newExceptionCollectionCollection = new[] {
+            new Exception(Guid.NewGuid().ToString()),
+            new Exception(Guid.NewGuid().ToString())
+        };
+
+        // Act
+        var newOutputEnvelop = outputEnvelop.AddExceptionCollection(newExceptionCollectionCollection);
+        var newOutputEnvelopWithoutOutputMessage = outputEnvelopWithoutException.AddExceptionCollection(newExceptionCollectionCollection);
+
+        // Assert
+        newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
+        newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutException);
+
+        outputEnvelop.ExceptionCollection.Should().HaveCount(1);
+        outputEnvelopWithoutException.ExceptionCollection.Should().HaveCount(0);
+
+        newOutputEnvelop.ExceptionCollection.Should().HaveCount(3);
+        newOutputEnvelopWithoutOutputMessage.ExceptionCollection.Should().HaveCount(2);
+
+        newExceptionCollectionCollection.Should().BeSubsetOf(newOutputEnvelop.ExceptionCollection);
+        newExceptionCollectionCollection.Should().BeSubsetOf(newOutputEnvelopWithoutOutputMessage.ExceptionCollection);
+    }
 }
