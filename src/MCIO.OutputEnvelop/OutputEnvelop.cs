@@ -96,7 +96,7 @@ namespace MCIO.OutputEnvelop
                     : outputMessage;
             }
 
-            return Create(Type, OutputMessageCollection, ExceptionCollection);
+            return Create(Type, newOutputMessageCollection, ExceptionCollection);
         }
         public OutputEnvelop ChangeOutputMessageTypeAndOutputMessageDescription(string outputMessageCode, OutputMessageType newOutputMessageType, string newOutputMessageDescription)
         {
@@ -111,7 +111,7 @@ namespace MCIO.OutputEnvelop
                     : outputMessage;
             }
 
-            return Create(Type, OutputMessageCollection, ExceptionCollection);
+            return Create(Type, newOutputMessageCollection, ExceptionCollection);
         }
 
         public static OutputEnvelop Execute(Func<OutputEnvelop> handler)

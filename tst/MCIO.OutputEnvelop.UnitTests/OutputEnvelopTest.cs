@@ -930,4 +930,125 @@ public class OutputEnvelopTest
         }
 
     }
+
+    [Fact]
+    public void OutputEnvelop_Should_ChangeOutputMessageDescription_From_NullableDescription()
+    {
+        // Arrange
+        var nonNullableDescription = Guid.NewGuid().ToString();
+        var nullableDescription = (string?)null;
+
+        var nonNullableOutputMessageCode = Guid.NewGuid().ToString();
+        var nullableOutputMessageCode = Guid.NewGuid().ToString();
+
+        var outputMessageCollection = new[] {
+            OutputMessage.Create(OutputMessageType.Success, code: nonNullableOutputMessageCode),
+            OutputMessage.Create(OutputMessageType.Success, code: nullableOutputMessageCode)
+        };
+        var exceptionCollection = new[] { new Exception() };
+
+        var outputEnvelop = OutputEnvelop.CreateSuccess(outputMessageCollection, exceptionCollection);
+
+        // Act
+        var newOutputEvenlopForNonNullableChange = outputEnvelop.ChangeOutputMessageDescription(nonNullableOutputMessageCode, nonNullableDescription);
+        var newOutputEvenlopForNullableChange = outputEnvelop.ChangeOutputMessageDescription(nullableOutputMessageCode, nullableDescription);
+
+        // Assert
+        newOutputEvenlopForNonNullableChange.Should().NotBeEquivalentTo(outputEnvelop);
+        newOutputEvenlopForNullableChange.Should().NotBeEquivalentTo(outputEnvelop);
+
+        outputEnvelop.OutputMessageCollection[0].Description.Should().BeNull();
+        outputEnvelop.OutputMessageCollection[1].Description.Should().BeNull();
+
+        newOutputEvenlopForNonNullableChange.OutputMessageCollection.Should().HaveCount(2);
+        newOutputEvenlopForNullableChange.OutputMessageCollection.Should().HaveCount(2);
+
+        newOutputEvenlopForNonNullableChange.OutputMessageCollection[0].Description.Should().Be(nonNullableDescription);
+        newOutputEvenlopForNullableChange.OutputMessageCollection[1].Description.Should().Be(nullableDescription);
+    }
+
+    [Fact]
+    public void OutputEnvelop_Should_ChangeOutputMessageDescription_From_NonNullableDescription()
+    {
+        // Arrange
+        var nonNullableDescription = Guid.NewGuid().ToString();
+        var nullableDescription = (string?)null;
+
+        var nonNullableOutputMessageCode = Guid.NewGuid().ToString();
+        var nullableOutputMessageCode = Guid.NewGuid().ToString();
+
+        var outputMessageCollection = new[] {
+            OutputMessage.Create(OutputMessageType.Success, code: nonNullableOutputMessageCode, description: Guid.NewGuid().ToString()),
+            OutputMessage.Create(OutputMessageType.Success, code: nullableOutputMessageCode, description: Guid.NewGuid().ToString())
+        };
+        var exceptionCollection = new[] { new Exception() };
+
+        var outputEnvelop = OutputEnvelop.CreateSuccess(outputMessageCollection, exceptionCollection);
+
+        // Act
+        var newOutputEvenlopForNonNullableChange = outputEnvelop.ChangeOutputMessageDescription(nonNullableOutputMessageCode, nonNullableDescription);
+        var newOutputEvenlopForNullableChange = outputEnvelop.ChangeOutputMessageDescription(nullableOutputMessageCode, nullableDescription);
+
+        // Assert
+        newOutputEvenlopForNonNullableChange.Should().NotBeEquivalentTo(outputEnvelop);
+        newOutputEvenlopForNullableChange.Should().NotBeEquivalentTo(outputEnvelop);
+
+        outputEnvelop.OutputMessageCollection[0].Description.Should().NotBeNull();
+        outputEnvelop.OutputMessageCollection[1].Description.Should().NotBeNull();
+
+        newOutputEvenlopForNonNullableChange.OutputMessageCollection.Should().HaveCount(2);
+        newOutputEvenlopForNullableChange.OutputMessageCollection.Should().HaveCount(2);
+
+        newOutputEvenlopForNonNullableChange.OutputMessageCollection[0].Description.Should().Be(nonNullableDescription);
+        newOutputEvenlopForNullableChange.OutputMessageCollection[1].Description.Should().Be(nullableDescription);
+    }
+
+    [Theory]
+    [InlineData(OutputMessageType.Information, "description for information")]
+    [InlineData(OutputMessageType.Information, null)]
+    [InlineData(OutputMessageType.Warning, "description for warning")]
+    [InlineData(OutputMessageType.Warning, null)]
+    [InlineData(OutputMessageType.Error, "description for error")]
+    [InlineData(OutputMessageType.Error, null)]
+    [InlineData(OutputMessageType.Success, "description for success")]
+    [InlineData(OutputMessageType.Success, null)]
+    public void OutputEnvelop_Should_ChangeOutputMessageDescription(OutputMessageType outputMessageType, string? description)
+    {
+        // Arrange
+        var firstOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType, code: "1");
+        var secondOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType, code: "2");
+        var thirdOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType, code: "3");
+
+        var outputMessageCollection = new[] {
+            firstOutputMessage,
+            secondOutputMessage,
+            thirdOutputMessage,
+        };
+        var exceptionCollection = new[] { new Exception() };
+        var outputTypeCollection = Enum.GetValues<OutputType>();
+        var outputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
+        var changedOutputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
+
+        for (int i = 0; i < outputTypeCollection.Length; i++)
+            outputEnvelopArray[i] = OutputEnvelop.Create(outputTypeCollection[i], outputMessageCollection, exceptionCollection);
+
+        // Act
+        for (int i = 0; i < outputTypeCollection.Length; i++)
+            changedOutputEnvelopArray[i] = outputEnvelopArray[i].ChangeOutputMessageTypeAndOutputMessageDescription(secondOutputMessage.Code, outputMessageType, description);
+
+        // Assert
+        for (int i = 0; i < outputTypeCollection.Length; i++)
+        {
+            var changedOutputEnvelop = changedOutputEnvelopArray[i];
+
+            changedOutputEnvelop.OutputMessageCollection.Should().HaveCount(outputMessageCollection.Length);
+            changedOutputEnvelop.ExceptionCollection.Should().BeSameAs(exceptionCollection);
+
+            changedOutputEnvelop.OutputMessageCollection[0].Should().BeEquivalentTo(firstOutputMessage);
+            changedOutputEnvelop.OutputMessageCollection[2].Should().BeEquivalentTo(thirdOutputMessage);
+
+            changedOutputEnvelop.OutputMessageCollection[1].Type.Should().Be(outputMessageType);
+            changedOutputEnvelop.OutputMessageCollection[1].Description.Should().Be(description);
+        }
+    }
 }
