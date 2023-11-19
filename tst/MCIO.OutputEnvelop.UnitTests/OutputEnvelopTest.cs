@@ -149,7 +149,7 @@ public class OutputEnvelopTest
 
         foreach (var existingOutputEnvelop in existingOutputEnvelopCollection)
         {
-            if(existingOutputEnvelop.OutputMessageCollection.Length > 0)
+            if (existingOutputEnvelop.OutputMessageCollection.Length > 0)
                 existingOutputEnvelop.OutputMessageCollection.Should().BeSubsetOf(outputEnvelop.OutputMessageCollection);
 
             if (existingOutputEnvelop.ExceptionCollection.Length > 0)
@@ -643,7 +643,7 @@ public class OutputEnvelopTest
         var newOutputMessageCollection = new[] {
             OutputMessage.CreateInformation(code: Guid.NewGuid().ToString()),
             OutputMessage.CreateError(code: Guid.NewGuid().ToString())
-        }; 
+        };
 
         // Act
         var newOutputEnvelop = outputEnvelop.AddOutputMessageCollection(newOutputMessageCollection);
@@ -884,5 +884,50 @@ public class OutputEnvelopTest
 
         newExceptionCollectionCollection.Should().BeSubsetOf(newOutputEnvelop.ExceptionCollection);
         newExceptionCollectionCollection.Should().BeSubsetOf(newOutputEnvelopWithoutOutputMessage.ExceptionCollection);
+    }
+
+    [Theory]
+    [InlineData(OutputMessageType.Information)]
+    [InlineData(OutputMessageType.Warning)]
+    [InlineData(OutputMessageType.Error)]
+    [InlineData(OutputMessageType.Success)]
+    public void OutputEnvelop_Should_ChangeOutputMessageType(OutputMessageType outputMessageType)
+    {
+        // Arrange
+        var firstOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType,  code: "1");
+        var secondOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType, code: "2");
+        var thirdOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType, code: "3");
+
+        var outputMessageCollection = new[] {
+            firstOutputMessage,
+            secondOutputMessage,
+            thirdOutputMessage,
+        };
+        var exceptionCollection = new[] { new Exception() };
+        var outputTypeCollection = Enum.GetValues<OutputType>();
+        var outputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
+        var changedOutputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
+
+        for (int i = 0; i < outputTypeCollection.Length; i++)
+            outputEnvelopArray[i] = OutputEnvelop.Create(outputTypeCollection[i], outputMessageCollection, exceptionCollection);
+
+        // Act
+        for (int i = 0; i < outputTypeCollection.Length; i++)
+            changedOutputEnvelopArray[i] = outputEnvelopArray[i].ChangeOutputMessageType(secondOutputMessage.Code, outputMessageType);
+
+        // Assert
+        for (int i = 0; i < outputTypeCollection.Length; i++)
+        {
+            var changedOutputEnvelop = changedOutputEnvelopArray[i];
+
+            changedOutputEnvelop.OutputMessageCollection.Should().HaveCount(outputMessageCollection.Length);
+            changedOutputEnvelop.ExceptionCollection.Should().BeSameAs(exceptionCollection);
+
+            changedOutputEnvelop.OutputMessageCollection[0].Should().BeEquivalentTo(firstOutputMessage);
+            changedOutputEnvelop.OutputMessageCollection[2].Should().BeEquivalentTo(thirdOutputMessage);
+
+            changedOutputEnvelop.OutputMessageCollection[1].Type.Should().Be(outputMessageType);
+        }
+
     }
 }

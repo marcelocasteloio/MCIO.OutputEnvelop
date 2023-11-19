@@ -81,7 +81,7 @@ namespace MCIO.OutputEnvelop
                     : outputMessage;
             }
 
-            return Create(Type, OutputMessageCollection, ExceptionCollection);
+            return Create(Type, newOutputMessageCollection, ExceptionCollection);
         }
         public OutputEnvelop ChangeOutputMessageDescription(string outputMessageCode, string newOutputMessageDescription)
         {
