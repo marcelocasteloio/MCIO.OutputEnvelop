@@ -38,11 +38,7 @@ namespace MCIO.OutputEnvelop
                 ExceptionCollection
             );
         }
-        public OutputEnvelop AddInformationOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateInformation(code, description));
-        public OutputEnvelop AddSuccessOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateSuccess(code, description));
-        public OutputEnvelop AddWarningOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateWarning(code, description));
-        public OutputEnvelop AddErrorOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateError(code, description));
-        public OutputEnvelop AddOutputMessageRange(OutputMessage[] outputMessageCollection)
+        public OutputEnvelop AddOutputMessageCollection(OutputMessage[] outputMessageCollection)
         {
             return new OutputEnvelop(
                 Type,
@@ -50,6 +46,10 @@ namespace MCIO.OutputEnvelop
                 ExceptionCollection
             );
         }
+        public OutputEnvelop AddInformationOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateInformation(code, description));
+        public OutputEnvelop AddSuccessOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateSuccess(code, description));
+        public OutputEnvelop AddWarningOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateWarning(code, description));
+        public OutputEnvelop AddErrorOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateError(code, description));
 
         public OutputEnvelop AddException(Exception exception)
         {
