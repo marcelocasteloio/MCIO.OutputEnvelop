@@ -15,7 +15,7 @@ namespace MCIO.OutputEnvelop.Exceptions.InvalidMessageType
             MessageType = outputMessageType;
         }
 
-        // Builders
+        // Public Methods
         public static void ThrowIfInvalid(OutputMessageType outputMessageType)
         {
             /*
