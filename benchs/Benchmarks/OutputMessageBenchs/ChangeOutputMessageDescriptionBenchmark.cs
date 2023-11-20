@@ -16,24 +16,26 @@ namespace MCIO.OutputEnvelop.Benchmarks.OutputMessageBenchs;
     HardwareCounter.BranchInstructions
 )]
 [MemoryDiagnoser]
-public class ChangeOutputMessageTypeBenchmark
+public class ChangeOutputMessageDescriptionBenchmark
     : IBenchmark
 {
     private static readonly OutputMessage _outputMessage = OutputMessage.CreateSuccess(code: new string('a', 50));
+    private static readonly string _newDescription = new('a', 255);
 
-    [Params(1, 5)]
+    [Params(1, 5, 10)]
     public int OutputMessageCount { get; set; }
 
     [Benchmark()]
-    public OutputMessage ChangeOutputMessageType()
+    public OutputMessage ChangeOutputMessageDescription()
     {
         var lastOutputMessage = default(OutputMessage);
 
         for (int i = 0; i < OutputMessageCount; i++)
         {
-            lastOutputMessage = _outputMessage.ChangeType(Enums.OutputMessageType.Error);
+            lastOutputMessage = _outputMessage.ChangeDescription(_newDescription);
         }
 
         return lastOutputMessage;
     }
 }
+
