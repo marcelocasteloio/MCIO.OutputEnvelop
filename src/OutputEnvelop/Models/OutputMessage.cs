@@ -29,7 +29,8 @@ namespace MCIO.OutputEnvelop.Models
         {
             // Validate
             InvalidMessageTypeException.ThrowIfInvalid(type);
-            if(string.IsNullOrWhiteSpace(code))
+
+            if (string.IsNullOrWhiteSpace(code))
                 throw new ArgumentNullException(nameof(code));
 
             // Process and return
