@@ -1051,4 +1051,232 @@ public class OutputEnvelopTest
             changedOutputEnvelop.OutputMessageCollection[1].Description.Should().Be(description);
         }
     }
+
+    [Fact]
+    public void OutputEnvelop_Should_Successfull_Executed()
+    {
+        // Arrange
+        var id = Guid.Empty;
+
+        // Act
+        var outputEnvelop = OutputEnvelop.Execute(
+            handler: () =>
+            {
+                id = Guid.NewGuid();
+
+                return OutputEnvelop.CreateSuccess();
+            }
+        );
+
+        // Assert
+        id.Should().NotBe(default(Guid));
+        outputEnvelop.Type.Should().Be(OutputType.Success);
+    }
+
+    [Fact]
+    public void OutputEnvelop_Should_Executed_TrowingException()
+    {
+        // Arrange
+        var id = Guid.Empty;
+        var exceptionToTrow = new Exception();
+
+        // Act
+        var outputEnvelop = OutputEnvelop.Execute(
+            handler: () =>
+            {
+                throw exceptionToTrow;
+#pragma warning disable CS0162 // Unreachable code detected
+                id = Guid.NewGuid();
+                return OutputEnvelop.CreateSuccess();
+#pragma warning restore CS0162 // Unreachable code detected
+            }
+        );
+
+        // Assert
+        id.Should().Be(default(Guid));
+        outputEnvelop.Type.Should().Be(OutputType.Error);
+        outputEnvelop.ExceptionCollection.Should().HaveCount(1);
+        outputEnvelop.ExceptionCollection[0].Should().Be(exceptionToTrow);
+    }
+
+    [Fact]
+    public void OutputEnvelop_Should_Successfull_ExecutedWithInput()
+    {
+        // Arrange
+        var customer = new {
+            Id = 1
+        };
+        var processedCustomer = (object?)null;
+
+        // Act
+        var outputEnvelop = OutputEnvelop.Execute(
+            input: customer,
+            handler: input =>
+            {
+                processedCustomer = input;
+
+                return OutputEnvelop.CreateSuccess();
+            }
+        );
+
+        // Assert
+        processedCustomer.Should().Be(customer);
+        outputEnvelop.Type.Should().Be(OutputType.Success);
+    }
+    
+    [Fact]
+    public void OutputEnvelop_Should_ExecutedWithInput_TrowingException()
+    {
+        // Arrange
+        var customer = new { 
+            Id = 1
+        };
+        var processedCustomer = (object?)null;
+        var exceptionToTrow = new Exception();
+
+        // Act
+        var outputEnvelop = OutputEnvelop.Execute(
+            input: customer,
+            handler: input =>
+            {
+                throw exceptionToTrow;
+#pragma warning disable CS0162 // Unreachable code detected
+                processedCustomer = input;
+                return OutputEnvelop.CreateSuccess();
+#pragma warning restore CS0162 // Unreachable code detected
+            }
+        );
+
+        // Assert
+        processedCustomer.Should().BeNull();
+        outputEnvelop.Type.Should().Be(OutputType.Error);
+        outputEnvelop.ExceptionCollection.Should().HaveCount(1);
+        outputEnvelop.ExceptionCollection[0].Should().Be(exceptionToTrow);
+    }
+
+    [Fact]
+    public async Task OutputEnvelop_Should_Successfull_ExecutedAsync()
+    {
+        // Arrange
+        var id = Guid.Empty;
+        var cancellationTokenSource = new CancellationTokenSource();
+        var receivedCancellationToken = (CancellationToken?)null;
+
+        // Act
+        var outputEnvelop = await OutputEnvelop.ExecuteAsync(
+            handler: cancellationToken =>
+            {
+                receivedCancellationToken = cancellationToken;
+
+                id = Guid.NewGuid();
+                return Task.FromResult(OutputEnvelop.CreateSuccess());
+
+            },
+            cancellationToken: cancellationTokenSource.Token
+        );
+
+        // Assert
+        id.Should().NotBe(default(Guid));
+        outputEnvelop.Type.Should().Be(OutputType.Success);
+        receivedCancellationToken.Should().Be(cancellationTokenSource.Token);
+    }
+
+    [Fact]
+    public async Task OutputEnvelop_Should_ExecutedAsync_TrowingException()
+    {
+        // Arrange
+        var id = Guid.Empty;
+        var exceptionToTrow = new Exception();
+        var cancellationTokenSource = new CancellationTokenSource();
+        var receivedCancellationToken = (CancellationToken?)null;
+
+        // Act
+        var outputEnvelop = await OutputEnvelop.ExecuteAsync(
+            handler: cancellationToken =>
+            {
+                receivedCancellationToken = cancellationToken;
+
+                throw exceptionToTrow;
+#pragma warning disable CS0162 // Unreachable code detected
+                id = Guid.NewGuid();
+                return Task.FromResult(OutputEnvelop.CreateSuccess());
+#pragma warning restore CS0162 // Unreachable code detected
+            },
+            cancellationToken: cancellationTokenSource.Token
+        );
+
+        // Assert
+        id.Should().Be(default(Guid));
+        outputEnvelop.Type.Should().Be(OutputType.Error);
+        outputEnvelop.ExceptionCollection.Should().HaveCount(1);
+        outputEnvelop.ExceptionCollection[0].Should().Be(exceptionToTrow);
+        receivedCancellationToken.Should().Be(cancellationTokenSource.Token);
+    }
+
+    [Fact]
+    public async Task OutputEnvelop_Should_Successfull_ExecutedWithInputAsync()
+    {
+        // Arrange
+        var customer = new
+        {
+            Id = 1
+        };
+        var processedCustomer = (object?)null;
+        var cancellationTokenSource = new CancellationTokenSource();
+        var receivedCancellationToken = (CancellationToken?)null;
+
+        // Act
+        var outputEnvelop = await OutputEnvelop.ExecuteAsync(
+        input: customer,
+            handler: (input, cancellationToken) =>
+            {
+                receivedCancellationToken = cancellationToken;
+                processedCustomer = input;
+
+                return Task.FromResult(OutputEnvelop.CreateSuccess());
+            },
+            cancellationToken: cancellationTokenSource.Token
+        );
+
+        // Assert
+        processedCustomer.Should().Be(customer);
+        outputEnvelop.Type.Should().Be(OutputType.Success);
+        receivedCancellationToken.Should().Be(cancellationTokenSource.Token);
+    }
+
+    [Fact]
+    public async Task OutputEnvelop_Should_ExecutedWithInputAsync_TrowingException()
+    {
+        // Arrange
+        var customer = new
+        {
+            Id = 1
+        };
+        var processedCustomer = (object?)null;
+        var exceptionToTrow = new Exception();
+        var cancellationTokenSource = new CancellationTokenSource();
+        var receivedCancellationToken = (CancellationToken?)null;
+
+        // Act
+        var outputEnvelop = await OutputEnvelop.ExecuteAsync(
+            input: customer,
+            handler: (input, cancellationToken) =>
+            {
+                receivedCancellationToken = cancellationToken;
+                throw exceptionToTrow;
+#pragma warning disable CS0162 // Unreachable code detected
+                processedCustomer = input;
+                return Task.FromResult(OutputEnvelop.CreateSuccess());
+#pragma warning restore CS0162 // Unreachable code detected
+            },
+            cancellationToken: cancellationTokenSource.Token
+        );
+
+        // Assert
+        processedCustomer.Should().BeNull();
+        outputEnvelop.Type.Should().Be(OutputType.Error);
+        outputEnvelop.ExceptionCollection.Should().HaveCount(1);
+        outputEnvelop.ExceptionCollection[0].Should().Be(exceptionToTrow);
+        receivedCancellationToken.Should().Be(cancellationTokenSource.Token);
+    }
 }

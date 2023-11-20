@@ -136,26 +136,34 @@ namespace MCIO.OutputEnvelop
                 return Create(type: OutputType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex });
             }
         }
-        public static Task<OutputEnvelop> ExecuteAsync(Func<CancellationToken, Task<OutputEnvelop>> handler, CancellationToken cancellationToken)
+        public static async Task<OutputEnvelop> ExecuteAsync(Func<CancellationToken, Task<OutputEnvelop>> handler, CancellationToken cancellationToken)
         {
             try
             {
-                return handler(cancellationToken);
+                /*
+                 * to can capture trowed exception inside handler
+                 * we need await the handler execution
+                 */
+                return await handler(cancellationToken);
             }
             catch (Exception ex)
             {
-                return Task.FromResult(Create(type: OutputType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex }));
+                return Create(type: OutputType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex });
             }
         }
-        public static Task<OutputEnvelop> ExecuteAsync<TInput>(TInput input, Func<TInput, CancellationToken, Task<OutputEnvelop>> handler, CancellationToken cancellationToken)
+        public static async Task<OutputEnvelop> ExecuteAsync<TInput>(TInput input, Func<TInput, CancellationToken, Task<OutputEnvelop>> handler, CancellationToken cancellationToken)
         {
             try
             {
-                return handler(input, cancellationToken);
+                /*
+                 * to can capture trowed exception inside handler
+                 * we need await the handler execution
+                 */
+                return await handler(input, cancellationToken);
             }
             catch (Exception ex)
             {
-                return Task.FromResult(Create(type: OutputType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex }));
+                return Create(type: OutputType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex });
             }
         }
 
