@@ -19,12 +19,15 @@ namespace MCIO.OutputEnvelop.Benchmarks.OutputMessageBenchs;
 public class CreateOutputMessageBenchmark
     : IBenchmark
 {
+    // Fields
     private static readonly string _outputMessageCode = new('a', 50);
     private static readonly string _outputMessageDescription = new('a', 250);
 
+    // Properties
     [Params(1, 5, 10, 20)]
     public int OutputMessageCount { get; set; }
 
+    // Public Methods
     [Benchmark(Baseline = true)]
     public OutputMessage CreateOutputMessageFromTypeWithoutDescription()
     {
@@ -41,6 +44,7 @@ public class CreateOutputMessageBenchmark
 
         return lastOutputMessage;
     }
+
     [Benchmark()]
     public OutputMessage CreateOutputMessageFromType()
     {
@@ -73,6 +77,7 @@ public class CreateOutputMessageBenchmark
 
         return lastOutputMessage;
     }
+
     [Benchmark()]
     public OutputMessage CreateOutputMessage()
     {

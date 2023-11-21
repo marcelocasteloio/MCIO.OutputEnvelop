@@ -19,11 +19,14 @@ namespace MCIO.OutputEnvelop.Benchmarks.OutputMessageBenchs;
 public class ChangeOutputMessageTypeBenchmark
     : IBenchmark
 {
+    // Fields
     private static readonly OutputMessage _outputMessage = OutputMessage.CreateSuccess(code: new string('a', 50));
 
+    // Properties
     [Params(1, 5)]
     public int OutputMessageCount { get; set; }
 
+    // Public Methods
     [Benchmark()]
     public OutputMessage ChangeOutputMessageType()
     {
