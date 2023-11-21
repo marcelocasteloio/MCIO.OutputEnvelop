@@ -86,11 +86,11 @@ public class CreateOutputEnvelopBenchmark
         for (int i = 0; i < OutputEnvelopCount; i++)
         {
             lastOutputEnvelop = OutputEnvelop.CreateSuccess(
-                outputMessageCollection: [
+                outputMessageCollection: new ReadOnlyMemory<OutputMessage>([
                     OutputMessage.CreateInformation(_outputMessageCode),
                     OutputMessage.CreateInformation(_outputMessageCode),
                     OutputMessage.CreateInformation(_outputMessageCode)
-                ],
+                ]),
                 exceptionCollection: null
             );
         }
