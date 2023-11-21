@@ -21,6 +21,14 @@ public class CreateOutputEnvelopBenchmark
 {
     // Fields
     private static readonly string _outputMessageCode = new('a', 50);
+    private static readonly OutputEnvelop _outputEnvelop = OutputEnvelop.CreateSuccess(
+        _outputMessageCollection,
+        exceptionCollection: null
+    );
+    private static readonly OutputEnvelop[] _outputEnvelopCollection = [
+        _outputEnvelop,
+        _outputEnvelop
+    ];
     private static readonly OutputMessage[] _outputMessageCollection = [
         OutputMessage.CreateInformation(_outputMessageCode),
         OutputMessage.CreateInformation(_outputMessageCode),
@@ -93,6 +101,32 @@ public class CreateOutputEnvelopBenchmark
                 ]),
                 exceptionCollection: null
             );
+        }
+
+        return lastOutputEnvelop;
+    }
+
+    [Benchmark]
+    public OutputEnvelop CreateOutputEnvelopFromAnotherOutputEnvelop()
+    {
+        var lastOutputEnvelop = default(OutputEnvelop);
+
+        for (int i = 0; i < OutputEnvelopCount; i++)
+        {
+            lastOutputEnvelop = OutputEnvelop.CreateSuccess(_outputEnvelop);
+        }
+
+        return lastOutputEnvelop;
+    }
+
+    [Benchmark]
+    public OutputEnvelop CreateOutputEnvelopFromAnotherOutputEnvelopCollection()
+    {
+        var lastOutputEnvelop = default(OutputEnvelop);
+
+        for (int i = 0; i < OutputEnvelopCount; i++)
+        {
+            lastOutputEnvelop = OutputEnvelop.CreateSuccess(_outputEnvelopCollection);
         }
 
         return lastOutputEnvelop;
