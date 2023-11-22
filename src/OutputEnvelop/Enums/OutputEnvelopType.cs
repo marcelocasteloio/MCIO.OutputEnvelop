@@ -1,6 +1,6 @@
 ﻿namespace MCIO.OutputEnvelop.Enums
 {
-    public enum OutputType
+    public enum OutputEnvelopType
     {
         Success = 1,
         Partial = 2,

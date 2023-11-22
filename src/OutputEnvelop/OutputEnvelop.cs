@@ -1,5 +1,5 @@
 ﻿using MCIO.OutputEnvelop.Enums;
-using MCIO.OutputEnvelop.Exceptions.InvalidOutputType;
+using MCIO.OutputEnvelop.Exceptions.InvalidOutputEnvelopType;
 using MCIO.OutputEnvelop.Models;
 using MCIO.OutputEnvelop.Utils;
 using System;
@@ -11,13 +11,13 @@ namespace MCIO.OutputEnvelop
     public readonly struct OutputEnvelop
     {
         // Properties
-        public OutputType Type { get; }
+        public OutputEnvelopType Type { get; }
         public ReadOnlyMemory<OutputMessage> OutputMessageCollection { get; }
         public ReadOnlyMemory<Exception> ExceptionCollection { get; }
 
         // Constructors
         private OutputEnvelop(
-            OutputType type,
+            OutputEnvelopType type,
             ReadOnlyMemory<OutputMessage> outputMessageCollection,
             ReadOnlyMemory<Exception> exceptionCollection
         )
@@ -28,7 +28,7 @@ namespace MCIO.OutputEnvelop
         }
 
         // Public Methods
-        public OutputEnvelop ChangeType(OutputType type) => new OutputEnvelop(type, OutputMessageCollection, ExceptionCollection);
+        public OutputEnvelop ChangeType(OutputEnvelopType type) => new OutputEnvelop(type, OutputMessageCollection, ExceptionCollection);
 
         public OutputEnvelop AddOutputMessage(OutputMessage outputMessage)
         {
@@ -126,7 +126,7 @@ namespace MCIO.OutputEnvelop
             }
             catch (Exception ex)
             {
-                return Create(type: OutputType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex });
+                return Create(type: OutputEnvelopType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex });
             }
         }
         public static OutputEnvelop Execute<TInput>(TInput input, Func<TInput, OutputEnvelop> handler)
@@ -137,7 +137,7 @@ namespace MCIO.OutputEnvelop
             }
             catch (Exception ex)
             {
-                return Create(type: OutputType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex });
+                return Create(type: OutputEnvelopType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex });
             }
         }
         public static async Task<OutputEnvelop> ExecuteAsync(Func<CancellationToken, Task<OutputEnvelop>> handler, CancellationToken cancellationToken)
@@ -152,7 +152,7 @@ namespace MCIO.OutputEnvelop
             }
             catch (Exception ex)
             {
-                return Create(type: OutputType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex });
+                return Create(type: OutputEnvelopType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex });
             }
         }
         public static async Task<OutputEnvelop> ExecuteAsync<TInput>(TInput input, Func<TInput, CancellationToken, Task<OutputEnvelop>> handler, CancellationToken cancellationToken)
@@ -167,16 +167,16 @@ namespace MCIO.OutputEnvelop
             }
             catch (Exception ex)
             {
-                return Create(type: OutputType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex });
+                return Create(type: OutputEnvelopType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex });
             }
         }
 
         // Builders
-        public static OutputEnvelop Create(OutputType type) => new OutputEnvelop(type, outputMessageCollection: null, exceptionCollection: null);
-        public static OutputEnvelop Create(OutputType type, ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
+        public static OutputEnvelop Create(OutputEnvelopType type) => Create(type, outputMessageCollection: null, exceptionCollection: null);
+        public static OutputEnvelop Create(OutputEnvelopType type, ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
         {
             // Validate
-            InvalidOutputTypeException.ThrowIfInvalid(type);
+            InvalidOutputEnvelopTypeException.ThrowIfInvalid(type);
 
             // Process and return
             return new OutputEnvelop(
@@ -185,11 +185,11 @@ namespace MCIO.OutputEnvelop
                 exceptionCollection
             );
         }
-        public static OutputEnvelop Create(OutputType type, OutputEnvelop outputEnvelop)
+        public static OutputEnvelop Create(OutputEnvelopType type, OutputEnvelop outputEnvelop)
         {
             return new OutputEnvelop(type, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
         }
-        public static OutputEnvelop Create(OutputType type, params OutputEnvelop[] outputEnvelopCollection)
+        public static OutputEnvelop Create(OutputEnvelopType type, params OutputEnvelop[] outputEnvelopCollection)
         {
             // Create new output message collection and exception message collection
             var newMessageOutputCollectionLength = 0L;
@@ -276,52 +276,52 @@ namespace MCIO.OutputEnvelop
 
             var type =
                 hasSuccessMessageType
-                ? hasErrorMessageType || hasException ? OutputType.Partial : OutputType.Success
-                : hasErrorMessageType || hasException ? OutputType.Error : OutputType.Success;
+                ? hasErrorMessageType || hasException ? OutputEnvelopType.Partial : OutputEnvelopType.Success
+                : hasErrorMessageType || hasException ? OutputEnvelopType.Error : OutputEnvelopType.Success;
 
             return Create(type, outputEnvelopCollection);
         }
 
-        public static OutputEnvelop CreateSuccess() => new OutputEnvelop(type: OutputType.Success, outputMessageCollection: null, exceptionCollection: null);
+        public static OutputEnvelop CreateSuccess() => new OutputEnvelop(type: OutputEnvelopType.Success, outputMessageCollection: null, exceptionCollection: null);
         public static OutputEnvelop CreateSuccess(ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
         {
-            return Create(type: OutputType.Success, outputMessageCollection, exceptionCollection);
+            return Create(type: OutputEnvelopType.Success, outputMessageCollection, exceptionCollection);
         }
         public static OutputEnvelop CreateSuccess(OutputEnvelop outputEnvelop)
         {
-            return new OutputEnvelop(type: OutputType.Success, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
+            return new OutputEnvelop(type: OutputEnvelopType.Success, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
         }
         public static OutputEnvelop CreateSuccess(params OutputEnvelop[] outputEnvelopCollection)
         {
-            return Create(type: OutputType.Success, outputEnvelopCollection);
+            return Create(type: OutputEnvelopType.Success, outputEnvelopCollection);
         }
 
-        public static OutputEnvelop CreatePartial() => new OutputEnvelop(type: OutputType.Partial, outputMessageCollection: null, exceptionCollection: null);
+        public static OutputEnvelop CreatePartial() => new OutputEnvelop(type: OutputEnvelopType.Partial, outputMessageCollection: null, exceptionCollection: null);
         public static OutputEnvelop CreatePartial(ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
         {
-            return Create(type: OutputType.Partial, outputMessageCollection, exceptionCollection);
+            return Create(type: OutputEnvelopType.Partial, outputMessageCollection, exceptionCollection);
         }
         public static OutputEnvelop CreatePartial(OutputEnvelop outputEnvelop)
         {
-            return new OutputEnvelop(type: OutputType.Partial, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
+            return new OutputEnvelop(type: OutputEnvelopType.Partial, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
         }
         public static OutputEnvelop CreatePartial(params OutputEnvelop[] outputEnvelopCollection)
         {
-            return Create(type: OutputType.Partial, outputEnvelopCollection);
+            return Create(type: OutputEnvelopType.Partial, outputEnvelopCollection);
         }
 
-        public static OutputEnvelop CreateError() => new OutputEnvelop(type: OutputType.Error, outputMessageCollection: null, exceptionCollection: null);
+        public static OutputEnvelop CreateError() => new OutputEnvelop(type: OutputEnvelopType.Error, outputMessageCollection: null, exceptionCollection: null);
         public static OutputEnvelop CreateError(ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
         {
-            return Create(type: OutputType.Error, outputMessageCollection, exceptionCollection);
+            return Create(type: OutputEnvelopType.Error, outputMessageCollection, exceptionCollection);
         }
         public static OutputEnvelop CreateError(OutputEnvelop outputEnvelop)
         {
-            return new OutputEnvelop(type: OutputType.Error, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
+            return new OutputEnvelop(type: OutputEnvelopType.Error, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
         }
         public static OutputEnvelop CreateError(params OutputEnvelop[] outputEnvelopCollection)
         {
-            return Create(type: OutputType.Error, outputEnvelopCollection);
+            return Create(type: OutputEnvelopType.Error, outputEnvelopCollection);
         }
     }
 }

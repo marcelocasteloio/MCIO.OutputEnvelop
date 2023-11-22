@@ -1,5 +1,5 @@
 ﻿using MCIO.OutputEnvelop.Enums;
-using MCIO.OutputEnvelop.Exceptions.InvalidMessageType;
+using MCIO.OutputEnvelop.Exceptions.InvalidOutputMessageType;
 using System;
 
 namespace MCIO.OutputEnvelop.Models
@@ -28,7 +28,7 @@ namespace MCIO.OutputEnvelop.Models
         public static OutputMessage Create(OutputMessageType type, string code, string description = null)
         {
             // Validate
-            InvalidMessageTypeException.ThrowIfInvalid(type);
+            InvalidOutputMessageTypeException.ThrowIfInvalid(type);
 
             if (string.IsNullOrWhiteSpace(code))
                 throw new ArgumentNullException(nameof(code));
