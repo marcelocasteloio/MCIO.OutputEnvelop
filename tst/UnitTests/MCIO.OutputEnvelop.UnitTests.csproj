@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MCIO.OutputEnvelop\MCIO.OutputEnvelop.csproj" />
+    <ProjectReference Include="..\..\src\OutputEnvelop\MCIO.OutputEnvelop.csproj" />
   </ItemGroup>
 
 </Project>
