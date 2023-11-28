@@ -1,6 +1,5 @@
 ﻿using MCIO.OutputEnvelop.Enums;
 using MCIO.OutputEnvelop.Exceptions.InvalidOutputEnvelopType;
-using MCIO.OutputEnvelop.Exceptions.InvalidOutputMessageType;
 using MCIO.OutputEnvelop.Models;
 
 namespace MCIO.OutputEnvelop.UnitTests;
@@ -1006,6 +1005,185 @@ public class OutputEnvelopTest
         newOutputEvenlopForNullableChange.OutputMessageCollection.Span[1].Description.Should().Be(nullableDescription);
     }
 
+    [Fact]
+    public void OutputEnvelop_Should_Created_Success_FromExistingOutputEnvelopCollection()
+    {
+        // Arrange
+        var expectedOutputEnvelopType = OutputEnvelopType.Success;
+        var outputEnvelopCollectionA = new[] {
+            OutputEnvelop.CreateSuccess()
+        };
+
+        // Act
+        var outputEnvelop = OutputEnvelop.Create(outputEnvelopCollectionA);
+
+        // Assert
+        outputEnvelop.Type.Should().Be(expectedOutputEnvelopType);
+        outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
+        outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
+    public void OutputEnvelop_Should_Created_Partial_FromExistingOutputEnvelopCollection()
+    {
+        // Arrange
+        var expectedOutputEnvelopType = OutputEnvelopType.Partial;
+        var outputEnvelopCollectionA = new[] {
+            OutputEnvelop.CreateSuccess(),
+            OutputEnvelop.CreateError()
+        };
+        var outputEnvelopCollectionB = new[] {
+            OutputEnvelop.CreateSuccess(),
+            OutputEnvelop.CreateError(),
+            OutputEnvelop.CreatePartial()
+        };
+        var outputEnvelopCollectionC = new[] {
+            OutputEnvelop.CreatePartial()
+        };
+
+        // Act
+        var outputEnvelopCollection = new[]
+        {
+            OutputEnvelop.Create(outputEnvelopCollectionA),
+            OutputEnvelop.Create(outputEnvelopCollectionB),
+            OutputEnvelop.Create(outputEnvelopCollectionC)
+        };
+
+        // Assert
+        foreach (var outputEnvelop in outputEnvelopCollection)
+        {
+            outputEnvelop.Type.Should().Be(expectedOutputEnvelopType);
+            outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
+            outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+        }
+    }
+
+    [Fact]
+    public void OutputEnvelop_Should_Created_Error_FromExistingOutputEnvelopCollection()
+    {
+        // Arrange
+        var expectedOutputEnvelopType = OutputEnvelopType.Error;
+        var outputEnvelopCollectionA = new[] {
+            OutputEnvelop.CreateError()
+        };
+
+        // Act
+        var outputEnvelopCollection = new[]
+        {
+            OutputEnvelop.Create(outputEnvelopCollectionA)
+        };
+
+        // Assert
+        foreach (var outputEnvelop in outputEnvelopCollection)
+        {
+            outputEnvelop.Type.Should().Be(expectedOutputEnvelopType);
+            outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
+            outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+        }
+    }
+
+    [Fact]
+    public void OutputEnvelop_Should_Created_Success_FromMessageCollectionAndExceptionCollection()
+    {
+        // Arrange
+        var expectedOutputEnvelopType = OutputEnvelopType.Success;
+
+        var outputMessageCollectionArray = new[]
+        {
+            [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
+            [OutputMessage.CreateInformation(code: Guid.NewGuid().ToString())],
+            [
+                OutputMessage.CreateInformation(code: Guid.NewGuid().ToString()),
+                OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())
+            ],
+            Array.Empty<OutputMessage>()
+        };
+        var outputEnvelopCollection = new OutputEnvelop[outputMessageCollectionArray.Length];
+
+        // Act
+        for (int i = 0; i < outputEnvelopCollection.Length; i++)
+        {
+            outputEnvelopCollection[i] = OutputEnvelop.Create(
+                outputMessageCollectionArray[i],
+                exceptionCollection: []
+            );
+        }
+
+        // Assert
+        for (int i = 0; i < outputEnvelopCollection.Length; i++)
+        {
+            var outputEnvelop = outputEnvelopCollection[i];
+
+            outputEnvelop.Type.Should().Be(expectedOutputEnvelopType);
+            outputEnvelop.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollectionArray[i]);
+            outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+        }
+    }
+
+    [Fact]
+    public void OutputEnvelop_Should_Created_Partial_FromMessageCollectionAndExceptionCollection()
+    {
+        // Arrange
+        var expectedOutputEnvelopType = OutputEnvelopType.Partial;
+
+        var outputMessageCollectionA = new[]{
+            OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString()),
+            OutputMessage.CreateError(code: Guid.NewGuid().ToString()),
+        };
+        var outputMessageCollectionB = new[]{
+            OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())
+        };
+        var exceptionCollection =  new[] { new Exception() };
+
+        // Act
+        var outputEnvelopA = OutputEnvelop.Create(outputMessageCollectionA, exceptionCollection: []);
+        var outputEnvelopB = OutputEnvelop.Create(outputMessageCollectionB, exceptionCollection);
+        var outputEnvelopC = OutputEnvelop.Create(outputMessageCollectionA, exceptionCollection);
+
+        // Assert
+        outputEnvelopA.Type.Should().Be(expectedOutputEnvelopType);
+        outputEnvelopA.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollectionA);
+        outputEnvelopA.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+        outputEnvelopB.Type.Should().Be(expectedOutputEnvelopType);
+        outputEnvelopB.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollectionB);
+        outputEnvelopB.ExceptionCollection.ToArray().Should().BeEquivalentTo(exceptionCollection);
+
+        outputEnvelopC.Type.Should().Be(expectedOutputEnvelopType);
+        outputEnvelopC.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollectionA);
+        outputEnvelopC.ExceptionCollection.ToArray().Should().BeEquivalentTo(exceptionCollection);
+    }
+
+    [Fact]
+    public void OutputEnvelop_Should_Created_Error_FromMessageCollectionAndExceptionCollection()
+    {
+        // Arrange
+        var expectedOutputEnvelopType = OutputEnvelopType.Error;
+
+        var outputMessageCollection = new[]{
+            OutputMessage.CreateError(code: Guid.NewGuid().ToString())
+        };
+        var exceptionCollection = new[] { new Exception() };
+
+        // Act
+        var outputEnvelopA = OutputEnvelop.Create(outputMessageCollection, exceptionCollection: []);
+        var outputEnvelopB = OutputEnvelop.Create(outputMessageCollection, exceptionCollection);
+        var outputEnvelopC = OutputEnvelop.Create(outputMessageCollection: [], exceptionCollection);
+
+        // Assert
+        outputEnvelopA.Type.Should().Be(expectedOutputEnvelopType);
+        outputEnvelopA.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollection);
+        outputEnvelopA.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+        outputEnvelopB.Type.Should().Be(expectedOutputEnvelopType);
+        outputEnvelopB.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollection);
+        outputEnvelopB.ExceptionCollection.ToArray().Should().BeEquivalentTo(exceptionCollection);
+
+        outputEnvelopC.Type.Should().Be(expectedOutputEnvelopType);
+        outputEnvelopC.OutputMessageCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopC.ExceptionCollection.ToArray().Should().BeEquivalentTo(exceptionCollection);
+    }
+
     [Theory]
     [InlineData(OutputMessageType.Information, "description for information")]
     [InlineData(OutputMessageType.Information, null)]
@@ -1282,7 +1460,6 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.ToArray()[0].Should().Be(exceptionToTrow);
         receivedCancellationToken.Should().Be(cancellationTokenSource.Token);
     }
-
 
     [Theory]
     [InlineData(0)]

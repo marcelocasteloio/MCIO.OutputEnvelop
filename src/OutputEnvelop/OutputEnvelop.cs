@@ -238,48 +238,60 @@ namespace MCIO.OutputEnvelop
         public static OutputEnvelop Create(params OutputEnvelop[] outputEnvelopCollection)
         {
             // Analyze Type
-            var hasInformationMessageType = false;
-            var hasSuccessMessageType = false;
-            var hasWarningMessageType = false;
-            var hasErrorMessageType = false;
-            var hasException = false;
+            var hasSuccessType = false;
+            var hasPartialType = false;
+            var hasErrorType = false;
 
             // Analyze all output envelops
             for (int outputEnvelopIndex = 0; outputEnvelopIndex < outputEnvelopCollection.Length; outputEnvelopIndex++)
             {
                 var outputEnvelop = outputEnvelopCollection[outputEnvelopIndex];
 
-                // Analyze output messages
-                for (int outputMessageIndex = 0; outputMessageIndex < outputEnvelop.OutputMessageCollection.Length; outputMessageIndex++)
-                {
-                    var outputMessage = outputEnvelop.OutputMessageCollection.Span[outputMessageIndex];
-
-                    if(!hasInformationMessageType && outputMessage.Type == OutputMessageType.Information)
-                        hasInformationMessageType = true;
-
-                    if (!hasSuccessMessageType && outputMessage.Type == OutputMessageType.Success)
-                        hasSuccessMessageType = true;
-
-                    if (!hasWarningMessageType && outputMessage.Type == OutputMessageType.Warning)
-                        hasWarningMessageType = true;
-
-                    if (!hasErrorMessageType && outputMessage.Type == OutputMessageType.Error)
-                        hasErrorMessageType = true;
-                }
-
-                // Analyze exceptions
-                if (hasException)
-                    continue;
-
-                hasException = outputEnvelop.ExceptionCollection.Length > 0;
+                if (!hasSuccessType && outputEnvelop.Type == OutputEnvelopType.Success)
+                    hasSuccessType = true;
+                else if (!hasPartialType && outputEnvelop.Type == OutputEnvelopType.Partial)
+                    hasPartialType = true;
+                else if (!hasErrorType && outputEnvelop.Type == OutputEnvelopType.Error)
+                    hasErrorType = true;
             }
+
+            var type = default(OutputEnvelopType);
+
+            if (hasPartialType)
+                type = OutputEnvelopType.Partial;
+            else if(hasSuccessType)
+                type = hasErrorType ? OutputEnvelopType.Partial : OutputEnvelopType.Success;
+            else if(hasErrorType)
+                type = OutputEnvelopType.Error;
+
+            return Create(type, outputEnvelopCollection);
+        }
+        public static OutputEnvelop Create(OutputMessage[] outputMessageCollection, Exception[] exceptionCollection)
+        {
+            // Analyze Type
+            var hasSuccessMessageType = false;
+            var hasErrorMessageType = false;
+
+            // Analyze output messages
+            for (int outputMessageIndex = 0; outputMessageIndex < outputMessageCollection.Length; outputMessageIndex++)
+            {
+                var outputMessage = outputMessageCollection[outputMessageIndex];
+
+                if (!hasSuccessMessageType && outputMessage.Type == OutputMessageType.Success)
+                    hasSuccessMessageType = true;
+
+                if (!hasErrorMessageType && outputMessage.Type == OutputMessageType.Error)
+                    hasErrorMessageType = true;
+            }
+
+            var hasException = exceptionCollection.Length > 0;
 
             var type =
                 hasSuccessMessageType
                 ? hasErrorMessageType || hasException ? OutputEnvelopType.Partial : OutputEnvelopType.Success
                 : hasErrorMessageType || hasException ? OutputEnvelopType.Error : OutputEnvelopType.Success;
 
-            return Create(type, outputEnvelopCollection);
+            return Create(type, outputMessageCollection, exceptionCollection);
         }
 
         public static OutputEnvelop CreateSuccess() => new OutputEnvelop(type: OutputEnvelopType.Success, outputMessageCollection: null, exceptionCollection: null);
