@@ -2,7 +2,7 @@
 
 namespace MCIO.OutputEnvelop.Utils
 {
-    internal class ReadOnlyMemoryUtils
+    internal static class ReadOnlyMemoryUtils
     {
         internal static ReadOnlyMemory<T> AddNewItem<T>(ReadOnlyMemory<T> sourceReadOnlyMemory, T item)
         {
