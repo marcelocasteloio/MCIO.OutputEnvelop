@@ -50,7 +50,7 @@ public class CreateOutputEnvelopBenchmark
         for (int i = 0; i < OutputEnvelopCount; i++)
         {
             lastOutputEnvelop = OutputEnvelop.Create(
-                type: Enums.OutputType.Success
+                type: Enums.OutputEnvelopType.Success
             );
         }
 

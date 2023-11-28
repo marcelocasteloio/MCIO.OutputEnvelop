@@ -1,18 +1,18 @@
 ﻿using MCIO.OutputEnvelop.Enums;
 using System;
 
-namespace MCIO.OutputEnvelop.Exceptions.InvalidMessageType
+namespace MCIO.OutputEnvelop.Exceptions.InvalidOutputMessageType
 {
-    public class InvalidMessageTypeException
+    public class InvalidOutputMessageTypeException
         : Exception
     {
         // Properties
-        public OutputMessageType MessageType { get; }
+        public OutputMessageType OutputMessageType { get; }
 
         // Constructors
-        private InvalidMessageTypeException(OutputMessageType outputMessageType)
+        private InvalidOutputMessageTypeException(OutputMessageType outputMessageType)
         {
-            MessageType = outputMessageType;
+            OutputMessageType = outputMessageType;
         }
 
         // Public Methods
@@ -32,7 +32,7 @@ namespace MCIO.OutputEnvelop.Exceptions.InvalidMessageType
              */
             var value = (int)outputMessageType;
             if (value < 1 || value > 4)
-                throw new InvalidMessageTypeException(outputMessageType);
+                throw new InvalidOutputMessageTypeException(outputMessageType);
         }
     }
 }
