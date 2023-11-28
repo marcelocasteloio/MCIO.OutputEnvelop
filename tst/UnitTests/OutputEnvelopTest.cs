@@ -1038,6 +1038,7 @@ public class OutputEnvelopTest
             OutputEnvelop.CreatePartial()
         };
         var outputEnvelopCollectionC = new[] {
+            OutputEnvelop.CreatePartial(),
             OutputEnvelop.CreatePartial()
         };
 
@@ -1064,6 +1065,7 @@ public class OutputEnvelopTest
         // Arrange
         var expectedOutputEnvelopType = OutputEnvelopType.Error;
         var outputEnvelopCollectionA = new[] {
+            OutputEnvelop.CreateError(),
             OutputEnvelop.CreateError()
         };
 
