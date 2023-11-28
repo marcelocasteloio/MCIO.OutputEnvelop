@@ -286,10 +286,13 @@ namespace MCIO.OutputEnvelop
 
             var hasException = exceptionCollection.Length > 0;
 
-            var type =
-                hasSuccessMessageType
-                ? hasErrorMessageType || hasException ? OutputEnvelopType.Partial : OutputEnvelopType.Success
-                : hasErrorMessageType || hasException ? OutputEnvelopType.Error : OutputEnvelopType.Success;
+            var type = hasSuccessMessageType
+                ? hasErrorMessageType || hasException
+                    ? OutputEnvelopType.Partial
+                    : OutputEnvelopType.Success
+                : hasErrorMessageType || hasException
+                    ? OutputEnvelopType.Error
+                    : OutputEnvelopType.Success;
 
             return Create(type, outputMessageCollection, exceptionCollection);
         }
