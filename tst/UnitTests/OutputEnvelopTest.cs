@@ -1164,6 +1164,7 @@ public class OutputEnvelopTest
         var expectedOutputEnvelopType = OutputEnvelopType.Error;
 
         var outputMessageCollection = new[]{
+            OutputMessage.CreateError(code: Guid.NewGuid().ToString()),
             OutputMessage.CreateError(code: Guid.NewGuid().ToString())
         };
         var exceptionCollection = new[] { new Exception() };
@@ -2777,6 +2778,7 @@ public class OutputEnvelopTest
         var expectedOutputEnvelopType = OutputEnvelopType.Error;
 
         var outputMessageCollection = new[]{
+            OutputMessage.CreateError(code: Guid.NewGuid().ToString()),
             OutputMessage.CreateError(code: Guid.NewGuid().ToString())
         };
         var exceptionCollection = new[] { new Exception() };
