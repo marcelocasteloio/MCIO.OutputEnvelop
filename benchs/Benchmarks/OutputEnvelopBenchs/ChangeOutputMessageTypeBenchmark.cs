@@ -30,13 +30,24 @@ public class ChangeOutputMessageTypeBenchmark
         ]),
         exceptionCollection: null
     );
+    private static readonly OutputEnvelop _outputEnvelopWithOutput = OutputEnvelop<object>.CreateSuccess(
+        output: null!,
+        outputMessageCollection: new ReadOnlyMemory<OutputMessage>([
+            OutputMessage.CreateInformation("A"),
+            OutputMessage.CreateInformation("B"),
+            OutputMessage.CreateInformation("C"),
+            OutputMessage.CreateInformation("D"),
+            OutputMessage.CreateInformation("E")
+        ]),
+        exceptionCollection: null
+    );
 
     // Properties
     [Params(10)]
     public int OutputEnvelopCount { get; set; }
 
     // Public Methods
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public OutputEnvelop OutputEnvelopChangeOutputMessageType()
     {
         var lastOutputEnvelop = default(OutputEnvelop);
@@ -44,6 +55,19 @@ public class ChangeOutputMessageTypeBenchmark
         for (int i = 0; i < OutputEnvelopCount; i++)
         {
             lastOutputEnvelop = _outputEnvelop.ChangeOutputMessageType("C", Enums.OutputMessageType.Error);
+        }
+
+        return lastOutputEnvelop;
+    }
+
+    [Benchmark]
+    public OutputEnvelop OutputEnvelopWithOutputChangeOutputMessageType()
+    {
+        var lastOutputEnvelop = default(OutputEnvelop<object>);
+
+        for (int i = 0; i < OutputEnvelopCount; i++)
+        {
+            lastOutputEnvelop = _outputEnvelopWithOutput.ChangeOutputMessageType("C", Enums.OutputMessageType.Error);
         }
 
         return lastOutputEnvelop;
