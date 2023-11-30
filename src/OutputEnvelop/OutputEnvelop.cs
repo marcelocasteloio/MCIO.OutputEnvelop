@@ -18,6 +18,13 @@ namespace MCIO.OutputEnvelop
         public ReadOnlyMemory<OutputMessage> OutputMessageCollection => _outputEnvelop.OutputMessageCollection;
         public ReadOnlyMemory<Exception> ExceptionCollection => _outputEnvelop.ExceptionCollection;
 
+        public bool IsSuccess => _outputEnvelop.IsSuccess;
+        public bool IsPartial => _outputEnvelop.IsPartial;
+        public bool IsError => _outputEnvelop.IsError;
+
+        public bool HasOutputMessage => _outputEnvelop.HasOutputMessage;
+        public bool HasException => _outputEnvelop.HasException;
+
         // Constructors
         private OutputEnvelop(
             OutputEnvelopType type,
@@ -245,6 +252,14 @@ namespace MCIO.OutputEnvelop
         public OutputEnvelopType Type { get; }
         public ReadOnlyMemory<OutputMessage> OutputMessageCollection { get; }
         public ReadOnlyMemory<Exception> ExceptionCollection { get; }
+
+        public bool IsSuccess => Type == OutputEnvelopType.Success;
+        public bool IsPartial => Type == OutputEnvelopType.Partial;
+        public bool IsError => Type == OutputEnvelopType.Error;
+
+        public bool HasOutput => Output != null;
+        public bool HasOutputMessage => !OutputMessageCollection.IsEmpty;
+        public bool HasException => !ExceptionCollection.IsEmpty;
 
         // Constructors
         private OutputEnvelop(

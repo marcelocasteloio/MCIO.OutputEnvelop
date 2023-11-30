@@ -196,6 +196,13 @@ public class OutputEnvelopTest
         outputEnvelop.Type.Should().Be(expectedOutputType);
         outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
         outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+        outputEnvelop.IsSuccess.Should().BeTrue();
+        outputEnvelop.IsPartial.Should().BeFalse();
+        outputEnvelop.IsError.Should().BeFalse();
+
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasException.Should().BeFalse();
     }
     [Fact]
     public void SuccessOutputEnvelop_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
@@ -229,6 +236,13 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
         outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
         outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+        outputEnvelop.IsSuccess.Should().BeTrue();
+        outputEnvelop.IsPartial.Should().BeFalse();
+        outputEnvelop.IsError.Should().BeFalse();
+
+        outputEnvelop.HasOutputMessage.Should().BeTrue();
+        outputEnvelop.HasException.Should().BeTrue();
     }
     [Fact]
     public void SuccessOutputEnvelop_Should_Created_From_Another_OutputEnvelop()
@@ -350,6 +364,14 @@ public class OutputEnvelopTest
         outputEnvelop.Type.Should().Be(expectedOutputType);
         outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
         outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+
+        outputEnvelop.IsSuccess.Should().BeFalse();
+        outputEnvelop.IsPartial.Should().BeTrue();
+        outputEnvelop.IsError.Should().BeFalse();
+
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasException.Should().BeFalse();
     }
     [Fact]
     public void PartialOutputEnvelop_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
@@ -383,6 +405,14 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
         outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
         outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+
+        outputEnvelop.IsSuccess.Should().BeFalse();
+        outputEnvelop.IsPartial.Should().BeTrue();
+        outputEnvelop.IsError.Should().BeFalse();
+
+        outputEnvelop.HasOutputMessage.Should().BeTrue();
+        outputEnvelop.HasException.Should().BeTrue();
     }
     [Fact]
     public void PartialOutputEnvelop_Should_Created_From_Another_OutputEnvelop()
@@ -486,6 +516,13 @@ public class OutputEnvelopTest
         outputEnvelop.Type.Should().Be(expectedOutputType);
         outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
         outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+        outputEnvelop.IsSuccess.Should().BeFalse();
+        outputEnvelop.IsError.Should().BeTrue();
+        outputEnvelop.IsPartial.Should().BeFalse();
+
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasException.Should().BeFalse();
     }
     [Fact]
     public void ErrorOutputEnvelop_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
@@ -519,6 +556,13 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
         outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
         outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+        outputEnvelop.IsSuccess.Should().BeFalse();
+        outputEnvelop.IsPartial.Should().BeFalse();
+        outputEnvelop.IsError.Should().BeTrue();
+
+        outputEnvelop.HasOutputMessage.Should().BeTrue();
+        outputEnvelop.HasException.Should().BeTrue();
     }
     [Fact]
     public void ErrorOutputEnvelop_Should_Created_From_Another_OutputEnvelop()
@@ -1734,6 +1778,15 @@ public class OutputEnvelopTest
         outputEnvelop.Type.Should().Be(expectedOutputType);
         outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
         outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+        outputEnvelop.HasOutput.Should().BeTrue();
+
+        outputEnvelop.IsSuccess.Should().BeTrue();
+        outputEnvelop.IsPartial.Should().BeFalse();
+        outputEnvelop.IsError.Should().BeFalse();
+
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasException.Should().BeFalse();
     }
     [Fact]
     public void SuccessOutputEnvelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
@@ -1773,6 +1826,15 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
         outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
         outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+        outputEnvelop.HasOutput.Should().BeTrue();
+
+        outputEnvelop.IsSuccess.Should().BeTrue();
+        outputEnvelop.IsPartial.Should().BeFalse();
+        outputEnvelop.IsError.Should().BeFalse();
+
+        outputEnvelop.HasOutputMessage.Should().BeTrue();
+        outputEnvelop.HasException.Should().BeTrue();
     }
     [Fact]
     public void SuccessOutputEnvelopWithOutput_Should_Created_From_Another_OutputEnvelop()
@@ -1912,6 +1974,15 @@ public class OutputEnvelopTest
         outputEnvelop.Type.Should().Be(expectedOutputType);
         outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
         outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+        outputEnvelop.HasOutput.Should().BeTrue();
+
+        outputEnvelop.IsSuccess.Should().BeFalse();
+        outputEnvelop.IsPartial.Should().BeTrue();
+        outputEnvelop.IsError.Should().BeFalse();
+
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasException.Should().BeFalse();
     }
     [Fact]
     public void PartialOutputEnvelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
@@ -1951,6 +2022,15 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
         outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
         outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+        outputEnvelop.HasOutput.Should().BeTrue();
+
+        outputEnvelop.IsSuccess.Should().BeFalse();
+        outputEnvelop.IsPartial.Should().BeTrue();
+        outputEnvelop.IsError.Should().BeFalse();
+
+        outputEnvelop.HasOutputMessage.Should().BeTrue();
+        outputEnvelop.HasException.Should().BeTrue();
     }
     [Fact]
     public void PartialOutputEnvelopWithOutput_Should_Created_From_Another_OutputEnvelop()
@@ -2070,6 +2150,15 @@ public class OutputEnvelopTest
         outputEnvelop.Type.Should().Be(expectedOutputType);
         outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
         outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+        outputEnvelop.HasOutput.Should().BeTrue();
+
+        outputEnvelop.IsSuccess.Should().BeFalse();
+        outputEnvelop.IsPartial.Should().BeFalse();
+        outputEnvelop.IsError.Should().BeTrue();
+
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasException.Should().BeFalse();
     }
     [Fact]
     public void ErrorOutputEnvelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
@@ -2109,6 +2198,15 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
         outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
         outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+        outputEnvelop.HasOutput.Should().BeTrue();
+
+        outputEnvelop.IsSuccess.Should().BeFalse();
+        outputEnvelop.IsPartial.Should().BeFalse();
+        outputEnvelop.IsError.Should().BeTrue();
+
+        outputEnvelop.HasOutputMessage.Should().BeTrue();
+        outputEnvelop.HasException.Should().BeTrue();
     }
     [Fact]
     public void ErrorOutputEnvelopWithOutput_Should_Created_From_Another_OutputEnvelop()
