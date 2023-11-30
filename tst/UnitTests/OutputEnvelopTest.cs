@@ -11,7 +11,7 @@ public class OutputEnvelopTest
     [InlineData(OutputEnvelopType.Error)]
     [InlineData(OutputEnvelopType.Partial)]
     [InlineData(OutputEnvelopType.Success)]
-    public void OutputEvenelop_Should_Created(OutputEnvelopType outputEnvelopType)
+    public void OutputEnvelop_Should_Created(OutputEnvelopType outputEnvelopType)
     {
         // Act
         var outputEnvelop = OutputEnvelop.Create(outputEnvelopType);
@@ -26,7 +26,7 @@ public class OutputEnvelopTest
     [InlineData(OutputEnvelopType.Error)]
     [InlineData(OutputEnvelopType.Partial)]
     [InlineData(OutputEnvelopType.Success)]
-    public void OutputEvenelop_Should_Created_WithOutputMessageCollection_And_ExceptionCollection(OutputEnvelopType outputEnvelopType)
+    public void OutputEnvelop_Should_Created_WithOutputMessageCollection_And_ExceptionCollection(OutputEnvelopType outputEnvelopType)
     {
         // Arrange
         var outputMessageCollection = new ReadOnlyMemory<OutputMessage>(
@@ -64,7 +64,7 @@ public class OutputEnvelopTest
     [InlineData(OutputEnvelopType.Error)]
     [InlineData(OutputEnvelopType.Partial)]
     [InlineData(OutputEnvelopType.Success)]
-    public void OutputEvenelop_Should_Created_From_Another_OutputEnvelop(OutputEnvelopType outputEnvelopType)
+    public void OutputEnvelop_Should_Created_From_Another_OutputEnvelop(OutputEnvelopType outputEnvelopType)
     {
         // Arrange
         var outputMessageCollection = new[]
@@ -101,7 +101,7 @@ public class OutputEnvelopTest
     [InlineData(OutputEnvelopType.Error)]
     [InlineData(OutputEnvelopType.Partial)]
     [InlineData(OutputEnvelopType.Success)]
-    public void OutputEvenelop_Should_Created_From_OutputEnvelopCollection(OutputEnvelopType outputEnvelopType)
+    public void OutputEnvelop_Should_Created_From_OutputEnvelopCollection(OutputEnvelopType outputEnvelopType)
     {
         // Arrange
         var existingOutputEnvelopCollection = new[]
@@ -161,7 +161,32 @@ public class OutputEnvelopTest
     }
 
     [Fact]
-    public void SuccessOutputEvenelop_Should_Created()
+    public void OutputEnvelop_Should_Created_From_MessageCode_And_MessageDescription()
+    {
+        // Arrange
+        var outputEnvelopType = OutputEnvelopType.Success;
+        var outputMessageType = OutputMessageType.Success;
+        var outputMessageCode = Guid.NewGuid().ToString();
+        var outputMessageDescription = Guid.NewGuid().ToString();
+
+        // Act
+        var outputEnvelop = OutputEnvelop.Create(
+            outputEnvelopType,
+            outputMessageType,
+            outputMessageCode,
+            outputMessageDescription
+        );
+
+        // Assert
+        outputEnvelop.Type.Should().Be(outputEnvelopType);
+        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
+        outputEnvelop.OutputMessageCollection.Span[0].Type.Should().Be(outputMessageType);
+        outputEnvelop.OutputMessageCollection.Span[0].Code.Should().Be(outputMessageCode);
+        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().Be(outputMessageDescription);
+    }
+
+    [Fact]
+    public void SuccessOutputEnvelop_Should_Created()
     {
         // Act
         var expectedOutputType = OutputEnvelopType.Success;
@@ -173,7 +198,7 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
     }
     [Fact]
-    public void SuccessOutputEvenelop_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
+    public void SuccessOutputEnvelop_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
     {
         // Arrange
         var outputEnvelopType = OutputEnvelopType.Success;
@@ -206,7 +231,7 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
     }
     [Fact]
-    public void SuccessOutputEvenelop_Should_Created_From_Another_OutputEnvelop()
+    public void SuccessOutputEnvelop_Should_Created_From_Another_OutputEnvelop()
     {
         // Arrange
         var outputMessageCollection = new[]
@@ -237,7 +262,7 @@ public class OutputEnvelopTest
         outputEnvelop.Should().Be(existingOutputEnvelop);
     }
     [Fact]
-    public void SuccessOutputEvenelop_Should_Created_From_OutputEnvelopCollection()
+    public void SuccessOutputEnvelop_Should_Created_From_OutputEnvelopCollection()
     {
         // Arrange
         var outputEnvelopType = OutputEnvelopType.Success;
@@ -295,9 +320,27 @@ public class OutputEnvelopTest
                 existingOutputEnvelop.ExceptionCollection.ToArray().Should().BeSubsetOf(outputEnvelop.ExceptionCollection.ToArray());
         }
     }
+    [Fact]
+    public void SuccessOutputEnvelop_Should_Created_From_MessageCode_And_MessageDescription()
+    {
+        // Arrange
+        var outputEnvelopType = OutputEnvelopType.Success;
+        var outputMessageCode = Guid.NewGuid().ToString();
+        var outputMessageDescription = Guid.NewGuid().ToString();
+
+        // Act
+        var outputEnvelop = OutputEnvelop.CreateSuccess(outputMessageCode, outputMessageDescription);
+
+        // Assert
+        outputEnvelop.Type.Should().Be(outputEnvelopType);
+        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
+        outputEnvelop.OutputMessageCollection.Span[0].Type.Should().Be(OutputMessageType.Success);
+        outputEnvelop.OutputMessageCollection.Span[0].Code.Should().Be(outputMessageCode);
+        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().Be(outputMessageDescription);
+    }
 
     [Fact]
-    public void PartialOutputEvenelop_Should_Created()
+    public void PartialOutputEnvelop_Should_Created()
     {
         // Act
         var expectedOutputType = OutputEnvelopType.Partial;
@@ -309,7 +352,7 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
     }
     [Fact]
-    public void PartialOutputEvenelop_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
+    public void PartialOutputEnvelop_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
     {
         // Arrange
         var outputEnvelopType = OutputEnvelopType.Partial;
@@ -342,7 +385,7 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
     }
     [Fact]
-    public void PartialOutputEvenelop_Should_Created_From_Another_OutputEnvelop()
+    public void PartialOutputEnvelop_Should_Created_From_Another_OutputEnvelop()
     {
         // Arrange
         var outputMessageCollection = new[]
@@ -373,7 +416,7 @@ public class OutputEnvelopTest
         outputEnvelop.Should().Be(existingOutputEnvelop);
     }
     [Fact]
-    public void PartialOutputEvenelop_Should_Created_From_OutputEnvelopCollection()
+    public void PartialOutputEnvelop_Should_Created_From_OutputEnvelopCollection()
     {
         // Arrange
         var outputEnvelopType = OutputEnvelopType.Partial;
@@ -433,7 +476,7 @@ public class OutputEnvelopTest
     }
 
     [Fact]
-    public void ErrorOutputEvenelop_Should_Created()
+    public void ErrorOutputEnvelop_Should_Created()
     {
         // Act
         var expectedOutputType = OutputEnvelopType.Error;
@@ -445,7 +488,7 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
     }
     [Fact]
-    public void ErrorOutputEvenelop_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
+    public void ErrorOutputEnvelop_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
     {
         // Arrange
         var outputEnvelopType = OutputEnvelopType.Error;
@@ -478,7 +521,7 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
     }
     [Fact]
-    public void ErrorOutputEvenelop_Should_Created_From_Another_OutputEnvelop()
+    public void ErrorOutputEnvelop_Should_Created_From_Another_OutputEnvelop()
     {
         // Arrange
         var outputMessageCollection = new[]
@@ -509,7 +552,7 @@ public class OutputEnvelopTest
         outputEnvelop.Should().Be(existingOutputEnvelop);
     }
     [Fact]
-    public void ErrorOutputEvenelop_Should_Created_From_OutputEnvelopCollection()
+    public void ErrorOutputEnvelop_Should_Created_From_OutputEnvelopCollection()
     {
         // Arrange
         var outputEnvelopType = OutputEnvelopType.Error;
@@ -566,6 +609,24 @@ public class OutputEnvelopTest
             if (existingOutputEnvelop.ExceptionCollection.Length > 0)
                 existingOutputEnvelop.ExceptionCollection.ToArray().Should().BeSubsetOf(outputEnvelop.ExceptionCollection.ToArray());
         }
+    }
+    [Fact]
+    public void ErrorOutputEnvelop_Should_Created_From_MessageCode_And_MessageDescription()
+    {
+        // Arrange
+        var outputEnvelopType = OutputEnvelopType.Error;
+        var outputMessageCode = Guid.NewGuid().ToString();
+        var outputMessageDescription = Guid.NewGuid().ToString();
+
+        // Act
+        var outputEnvelop = OutputEnvelop.CreateError(outputMessageCode, outputMessageDescription);
+
+        // Assert
+        outputEnvelop.Type.Should().Be(outputEnvelopType);
+        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
+        outputEnvelop.OutputMessageCollection.Span[0].Type.Should().Be(OutputMessageType.Error);
+        outputEnvelop.OutputMessageCollection.Span[0].Code.Should().Be(outputMessageCode);
+        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().Be(outputMessageDescription);
     }
 
     [Theory]
@@ -1487,7 +1548,7 @@ public class OutputEnvelopTest
     [InlineData(OutputEnvelopType.Error)]
     [InlineData(OutputEnvelopType.Partial)]
     [InlineData(OutputEnvelopType.Success)]
-    public void OutputEvenelopWithOutput_Should_Created(OutputEnvelopType outputEnvelopType)
+    public void OutputEnvelopWithOutput_Should_Created(OutputEnvelopType outputEnvelopType)
     {
         // Assert
         var expectedOutput = 10;
@@ -1506,7 +1567,7 @@ public class OutputEnvelopTest
     [InlineData(OutputEnvelopType.Error)]
     [InlineData(OutputEnvelopType.Partial)]
     [InlineData(OutputEnvelopType.Success)]
-    public void OutputEvenelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection(OutputEnvelopType outputEnvelopType)
+    public void OutputEnvelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection(OutputEnvelopType outputEnvelopType)
     {
         // Arrange
         var expectedOutput = 10;
@@ -1550,7 +1611,7 @@ public class OutputEnvelopTest
     [InlineData(OutputEnvelopType.Error)]
     [InlineData(OutputEnvelopType.Partial)]
     [InlineData(OutputEnvelopType.Success)]
-    public void OutputEvenelopWithOutput_Should_Created_From_Another_OutputEnvelop(OutputEnvelopType outputEnvelopType)
+    public void OutputEnvelopWithOutput_Should_Created_From_Another_OutputEnvelop(OutputEnvelopType outputEnvelopType)
     {
         // Arrange
         var expectedOutput = 10;
@@ -1593,7 +1654,7 @@ public class OutputEnvelopTest
     [InlineData(OutputEnvelopType.Error)]
     [InlineData(OutputEnvelopType.Partial)]
     [InlineData(OutputEnvelopType.Success)]
-    public void OutputEvenelopWithOutput_Should_Created_From_OutputEnvelopCollection(OutputEnvelopType outputEnvelopType)
+    public void OutputEnvelopWithOutput_Should_Created_From_OutputEnvelopCollection(OutputEnvelopType outputEnvelopType)
     {
         // Arrange
         var expectedOutput = 10;
@@ -1659,7 +1720,7 @@ public class OutputEnvelopTest
     }
 
     [Fact]
-    public void SuccessOutputEvenelopWithOutput_Should_Created()
+    public void SuccessOutputEnvelopWithOutput_Should_Created()
     {
         // Arrange
         var expectedOutput = 10;
@@ -1675,7 +1736,7 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
     }
     [Fact]
-    public void SuccessOutputEvenelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
+    public void SuccessOutputEnvelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
     {
         // Arrange
         var expectedOutput = 10;
@@ -1714,7 +1775,7 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
     }
     [Fact]
-    public void SuccessOutputEvenelopWithOutput_Should_Created_From_Another_OutputEnvelop()
+    public void SuccessOutputEnvelopWithOutput_Should_Created_From_Another_OutputEnvelop()
     {
         // Arrange
         var expectedOutput = 10;
@@ -1751,7 +1812,7 @@ public class OutputEnvelopTest
         outputEnvelop.Should().Be(existingOutputEnvelop);
     }
     [Fact]
-    public void SuccessOutputEvenelopWithOutput_Should_Created_From_OutputEnvelopCollection()
+    public void SuccessOutputEnvelopWithOutput_Should_Created_From_OutputEnvelopCollection()
     {
         // Arrange
         var expectedOutput = 10;
@@ -1815,9 +1876,29 @@ public class OutputEnvelopTest
                 existingOutputEnvelop.ExceptionCollection.ToArray().Should().BeSubsetOf(outputEnvelop.ExceptionCollection.ToArray());
         }
     }
+    [Fact]
+    public void SuccessOutputEnvelopWithOutput_Should_Created_From_MessageCode_And_MessageDescription()
+    {
+        // Arrange
+        var expectedOutput = 10;
+        var outputEnvelopType = OutputEnvelopType.Success;
+        var outputMessageCode = Guid.NewGuid().ToString();
+        var outputMessageDescription = Guid.NewGuid().ToString();
+
+        // Act
+        var outputEnvelop = OutputEnvelop<int>.CreateSuccess(expectedOutput, outputMessageCode, outputMessageDescription);
+
+        // Assert
+        outputEnvelop.Output.Should().Be(expectedOutput);
+        outputEnvelop.Type.Should().Be(outputEnvelopType);
+        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
+        outputEnvelop.OutputMessageCollection.Span[0].Type.Should().Be(OutputMessageType.Success);
+        outputEnvelop.OutputMessageCollection.Span[0].Code.Should().Be(outputMessageCode);
+        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().Be(outputMessageDescription);
+    }
 
     [Fact]
-    public void PartialOutputEvenelopWithOutput_Should_Created()
+    public void PartialOutputEnvelopWithOutput_Should_Created()
     {
         //Arrange
         var expectedOutput = 10;
@@ -1833,7 +1914,7 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
     }
     [Fact]
-    public void PartialOutputEvenelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
+    public void PartialOutputEnvelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
     {
         // Arrange
         var expectedOutput = 10;
@@ -1872,7 +1953,7 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
     }
     [Fact]
-    public void PartialOutputEvenelopWithOutput_Should_Created_From_Another_OutputEnvelop()
+    public void PartialOutputEnvelopWithOutput_Should_Created_From_Another_OutputEnvelop()
     {
         // Arrange
         var expectedOutput = 10;
@@ -1909,7 +1990,7 @@ public class OutputEnvelopTest
         outputEnvelop.Should().Be(existingOutputEnvelop);
     }
     [Fact]
-    public void PartialOutputEvenelopWithOutput_Should_Created_From_OutputEnvelopCollection()
+    public void PartialOutputEnvelopWithOutput_Should_Created_From_OutputEnvelopCollection()
     {
         // Arrange
         var expectedOutput = 10;
@@ -1975,7 +2056,7 @@ public class OutputEnvelopTest
     }
 
     [Fact]
-    public void ErrorOutputEvenelopWithOutput_Should_Created()
+    public void ErrorOutputEnvelopWithOutput_Should_Created()
     {
         // Assert
         var expectedOutput = 10;
@@ -1991,7 +2072,7 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
     }
     [Fact]
-    public void ErrorOutputEvenelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
+    public void ErrorOutputEnvelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection()
     {
         // Arrange
         var expectedOutput = 10;
@@ -2030,7 +2111,7 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
     }
     [Fact]
-    public void ErrorOutputEvenelopWithOutput_Should_Created_From_Another_OutputEnvelop()
+    public void ErrorOutputEnvelopWithOutput_Should_Created_From_Another_OutputEnvelop()
     {
         // Arrange
         var expectedOutput = 10;
@@ -2067,7 +2148,7 @@ public class OutputEnvelopTest
         outputEnvelop.Should().Be(existingOutputEnvelop);
     }
     [Fact]
-    public void ErrorOutputEvenelopWithOutput_Should_Created_From_OutputEnvelopCollection()
+    public void ErrorOutputEnvelopWithOutput_Should_Created_From_OutputEnvelopCollection()
     {
         // Arrange
         var expectedOutput = 10;
@@ -2130,6 +2211,54 @@ public class OutputEnvelopTest
             if (existingOutputEnvelop.ExceptionCollection.Length > 0)
                 existingOutputEnvelop.ExceptionCollection.ToArray().Should().BeSubsetOf(outputEnvelop.ExceptionCollection.ToArray());
         }
+    }
+    [Fact]
+    public void ErrorOutputEnvelopWithOutput_Should_Created_From_MessageCode_And_MessageDescription()
+    {
+        // Arrange
+        var expectedOutput = 10;
+        var outputEnvelopType = OutputEnvelopType.Error;
+        var outputMessageCode = Guid.NewGuid().ToString();
+        var outputMessageDescription = Guid.NewGuid().ToString();
+
+        // Act
+        var outputEnvelop = OutputEnvelop<int>.CreateError(expectedOutput, outputMessageCode, outputMessageDescription);
+
+        // Assert
+        outputEnvelop.Output.Should().Be(expectedOutput);
+        outputEnvelop.Type.Should().Be(outputEnvelopType);
+        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
+        outputEnvelop.OutputMessageCollection.Span[0].Type.Should().Be(OutputMessageType.Error);
+        outputEnvelop.OutputMessageCollection.Span[0].Code.Should().Be(outputMessageCode);
+        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().Be(outputMessageDescription);
+    }
+
+    [Fact]
+    public void OutputEnvelopWithOutput_Should_Created_From_MessageCode_And_MessageDescription()
+    {
+        // Arrange
+        var expectedOutput = 10;
+        var outputEnvelopType = OutputEnvelopType.Success;
+        var outputMessageType = OutputMessageType.Success;
+        var outputMessageCode = Guid.NewGuid().ToString();
+        var outputMessageDescription = Guid.NewGuid().ToString();
+
+        // Act
+        var outputEnvelop = OutputEnvelop<int>.Create(
+            expectedOutput,
+            outputEnvelopType,
+            outputMessageType,
+            outputMessageCode,
+            outputMessageDescription
+        );
+
+        // Assert
+        outputEnvelop.Output.Should().Be(expectedOutput);
+        outputEnvelop.Type.Should().Be(outputEnvelopType);
+        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
+        outputEnvelop.OutputMessageCollection.Span[0].Type.Should().Be(outputMessageType);
+        outputEnvelop.OutputMessageCollection.Span[0].Code.Should().Be(outputMessageCode);
+        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().Be(outputMessageDescription);
     }
 
     [Theory]

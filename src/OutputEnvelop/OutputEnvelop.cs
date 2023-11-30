@@ -34,49 +34,94 @@ namespace MCIO.OutputEnvelop
         }
 
         // Public Methods
-        public OutputEnvelop ChangeType(OutputEnvelopType type) => _outputEnvelop.ChangeType(type);
+        public OutputEnvelop ChangeType(OutputEnvelopType type)
+        {
+            return _outputEnvelop.ChangeType(type);
+        }
 
-        public OutputEnvelop AddOutputMessage(OutputMessage outputMessage) => _outputEnvelop.AddOutputMessage(outputMessage);
+        public OutputEnvelop AddOutputMessage(OutputMessage outputMessage)
+        {
+            return _outputEnvelop.AddOutputMessage(outputMessage);
+        }
+        public OutputEnvelop AddOutputMessageCollection(ReadOnlyMemory<OutputMessage> outputMessageCollection)
+        {
+            return _outputEnvelop.AddOutputMessageCollection(outputMessageCollection);
+        }
 
-        public OutputEnvelop AddOutputMessageCollection(ReadOnlyMemory<OutputMessage> outputMessageCollection) 
-            => _outputEnvelop.AddOutputMessageCollection(outputMessageCollection);
+        public OutputEnvelop AddInformationOutputMessage(string code, string description)
+        {
+            return AddOutputMessage(OutputMessage.CreateInformation(code, description));
+        }
+        public OutputEnvelop AddSuccessOutputMessage(string code, string description)
+        {
+            return AddOutputMessage(OutputMessage.CreateSuccess(code, description));
+        }
+        public OutputEnvelop AddWarningOutputMessage(string code, string description)
+        {
+            return AddOutputMessage(OutputMessage.CreateWarning(code, description));
+        }
+        public OutputEnvelop AddErrorOutputMessage(string code, string description)
+        {
+            return AddOutputMessage(OutputMessage.CreateError(code, description));
+        }
 
-        public OutputEnvelop AddInformationOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateInformation(code, description));
-        public OutputEnvelop AddSuccessOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateSuccess(code, description));
-        public OutputEnvelop AddWarningOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateWarning(code, description));
-        public OutputEnvelop AddErrorOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateError(code, description));
+        public OutputEnvelop AddException(Exception exception)
+        {
+            return _outputEnvelop.AddException(exception);
+        }
+        public OutputEnvelop AddExceptionCollection(ReadOnlyMemory<Exception> exceptionCollection)
+        {
+            return _outputEnvelop.AddExceptionCollection(exceptionCollection);
+        }
 
-        public OutputEnvelop AddException(Exception exception) => _outputEnvelop.AddException(exception);
-        public OutputEnvelop AddExceptionCollection(ReadOnlyMemory<Exception> exceptionCollection) => _outputEnvelop.AddExceptionCollection(exceptionCollection);
-
-        public OutputEnvelop ChangeOutputMessageType(string outputMessageCode, OutputMessageType newOutputMessageType) 
-            => _outputEnvelop.ChangeOutputMessageType(outputMessageCode, newOutputMessageType);
-        public OutputEnvelop ChangeOutputMessageDescription(string outputMessageCode, string newOutputMessageDescription) 
-            => _outputEnvelop.ChangeOutputMessageDescription(outputMessageCode, newOutputMessageDescription);
+        public OutputEnvelop ChangeOutputMessageType(string outputMessageCode, OutputMessageType newOutputMessageType)
+        {
+            return _outputEnvelop.ChangeOutputMessageType(outputMessageCode, newOutputMessageType);
+        }
+        public OutputEnvelop ChangeOutputMessageDescription(string outputMessageCode, string newOutputMessageDescription)
+        {
+            return _outputEnvelop.ChangeOutputMessageDescription(outputMessageCode, newOutputMessageDescription);
+        }
         public OutputEnvelop ChangeOutputMessageTypeAndOutputMessageDescription(string outputMessageCode, OutputMessageType newOutputMessageType, string newOutputMessageDescription)
-            => _outputEnvelop.ChangeOutputMessageTypeAndOutputMessageDescription(outputMessageCode, newOutputMessageType, newOutputMessageDescription);
+        {
+            return _outputEnvelop.ChangeOutputMessageTypeAndOutputMessageDescription(outputMessageCode, newOutputMessageType, newOutputMessageDescription);
+        }
 
-        public static OutputEnvelop Execute(Func<OutputEnvelop> handler) 
-            => OutputEnvelop<object>.Execute(() => handler());
-
+        public static OutputEnvelop Execute(Func<OutputEnvelop> handler)
+        {
+            return OutputEnvelop<object>.Execute(() => handler());
+        }
         public static OutputEnvelop Execute<TInput>(TInput input, Func<TInput, OutputEnvelop> handler)
-             => OutputEnvelop<object>.Execute(input, i => handler(i));
-        public static async Task<OutputEnvelop> ExecuteAsync(Func<CancellationToken, Task<OutputEnvelop>> handler, CancellationToken cancellationToken)
-            => await OutputEnvelop<object>.ExecuteAsync(async c => await handler(c), cancellationToken);
+        {
+            return OutputEnvelop<object>.Execute(input, i => handler(i));
+        }
 
+        public static async Task<OutputEnvelop> ExecuteAsync(Func<CancellationToken, Task<OutputEnvelop>> handler, CancellationToken cancellationToken)
+        {
+            return await OutputEnvelop<object>.ExecuteAsync(async c => await handler(c), cancellationToken);
+        }
         public static async Task<OutputEnvelop> ExecuteAsync<TInput>(TInput input, Func<TInput, CancellationToken, Task<OutputEnvelop>> handler, CancellationToken cancellationToken)
-            => await OutputEnvelop<object>.ExecuteAsync(input, async (i, c) => await handler(i, c), cancellationToken);
+        {
+            return await OutputEnvelop<object>.ExecuteAsync(input, async (i, c) => await handler(i, c), cancellationToken);
+        }
 
         // Builders
         public static OutputEnvelop Create<TOutput>(OutputEnvelop<TOutput> outputEnvelopWithOutput)
-            => new OutputEnvelop(outputEnvelopWithOutput.Type, outputEnvelopWithOutput.OutputMessageCollection, outputEnvelopWithOutput.ExceptionCollection);
-
-        public static OutputEnvelop Create(OutputEnvelopType type) 
-            => OutputEnvelop<object>.Create(output: null, type, outputMessageCollection: null, exceptionCollection: null);
+        {
+            return new OutputEnvelop(outputEnvelopWithOutput.Type, outputEnvelopWithOutput.OutputMessageCollection, outputEnvelopWithOutput.ExceptionCollection);
+        }
+        public static OutputEnvelop Create(OutputEnvelopType type)
+        {
+            return OutputEnvelop<object>.Create(output: null, type, outputMessageCollection: null, exceptionCollection: null);
+        }
         public static OutputEnvelop Create(OutputEnvelopType type, ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
-            => OutputEnvelop<object>.Create(output: null, type, outputMessageCollection, exceptionCollection);
+        {
+            return OutputEnvelop<object>.Create(output: null, type, outputMessageCollection, exceptionCollection);
+        }
         public static OutputEnvelop Create(OutputEnvelopType type, OutputEnvelop outputEnvelop)
-            => OutputEnvelop<object>.Create(output: null, type, outputEnvelop);
+        {
+            return OutputEnvelop<object>.Create(output: null, type, outputEnvelop);
+        }
         public static OutputEnvelop Create(OutputEnvelopType type, params OutputEnvelop[] outputEnvelopCollection)
         {
             var newOutputEnvelopCollection = new OutputEnvelop<object>[outputEnvelopCollection.Length];
@@ -84,6 +129,17 @@ namespace MCIO.OutputEnvelop
                 newOutputEnvelopCollection[i] = outputEnvelopCollection[i];
 
             return OutputEnvelop<object>.Create(output: null, type, newOutputEnvelopCollection);
+        }
+        public static OutputEnvelop Create(OutputEnvelopType type, OutputMessageType outputMessageType, string outputMessageCode, string outputMessageDescription)
+        {
+            return Create(
+                type,
+                outputMessageCollection: new OutputMessage[]
+                {
+                    OutputMessage.Create(outputMessageType, outputMessageCode, outputMessageDescription)
+                },
+                exceptionCollection: Array.Empty<Exception>()
+            );
         }
         public static OutputEnvelop Create(params OutputEnvelop[] outputEnvelopCollection)
         {
@@ -94,13 +150,22 @@ namespace MCIO.OutputEnvelop
             return OutputEnvelop<object>.Create(output: null, newOutputEnvelopCollection);
         }
         public static OutputEnvelop Create(OutputMessage[] outputMessageCollection, Exception[] exceptionCollection)
-            => OutputEnvelop<object>.Create(output: null, outputMessageCollection, exceptionCollection);
+        {
+            return OutputEnvelop<object>.Create(output: null, outputMessageCollection, exceptionCollection);
+        }
 
-        public static OutputEnvelop CreateSuccess() => OutputEnvelop<object>.CreateSuccess(output: null);
+        public static OutputEnvelop CreateSuccess()
+        {
+            return OutputEnvelop<object>.CreateSuccess(output: null);
+        }
         public static OutputEnvelop CreateSuccess(ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
-            => OutputEnvelop<object>.CreateSuccess(output: null, outputMessageCollection, exceptionCollection);
+        {
+            return OutputEnvelop<object>.CreateSuccess(output: null, outputMessageCollection, exceptionCollection);
+        }
         public static OutputEnvelop CreateSuccess(OutputEnvelop outputEnvelop)
-            => OutputEnvelop<object>.CreateSuccess(output: null, outputEnvelop);
+        {
+            return OutputEnvelop<object>.CreateSuccess(output: null, outputEnvelop);
+        }
         public static OutputEnvelop CreateSuccess(params OutputEnvelop[] outputEnvelopCollection)
         {
             var newOutputEnvelopCollection = new OutputEnvelop<object>[outputEnvelopCollection.Length];
@@ -109,12 +174,29 @@ namespace MCIO.OutputEnvelop
 
             return OutputEnvelop<object>.CreateSuccess(output: null, newOutputEnvelopCollection);
         }
+        public static OutputEnvelop CreateSuccess(string outputMessageCode, string outputMessageDescription)
+        {
+            return CreateSuccess(
+                outputMessageCollection: new OutputMessage[]
+                {
+                    OutputMessage.CreateSuccess(outputMessageCode, outputMessageDescription)
+                },
+                exceptionCollection: Array.Empty<Exception>()
+            );
+        }
 
-        public static OutputEnvelop CreatePartial() => OutputEnvelop<object>.CreatePartial(output: null);
+        public static OutputEnvelop CreatePartial()
+        {
+            return OutputEnvelop<object>.CreatePartial(output: null);
+        }
         public static OutputEnvelop CreatePartial(ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
-            => OutputEnvelop<object>.CreatePartial(output: null, outputMessageCollection, exceptionCollection);
+        {
+            return OutputEnvelop<object>.CreatePartial(output: null, outputMessageCollection, exceptionCollection);
+        }
         public static OutputEnvelop CreatePartial(OutputEnvelop outputEnvelop)
-            => OutputEnvelop<object>.CreatePartial(output: null, outputEnvelop);
+        {
+            return OutputEnvelop<object>.CreatePartial(output: null, outputEnvelop);
+        }
         public static OutputEnvelop CreatePartial(params OutputEnvelop[] outputEnvelopCollection)
         {
             var newOutputEnvelopCollection = new OutputEnvelop<object>[outputEnvelopCollection.Length];
@@ -124,11 +206,18 @@ namespace MCIO.OutputEnvelop
             return OutputEnvelop<object>.CreatePartial(output: null, newOutputEnvelopCollection);
         }
 
-        public static OutputEnvelop CreateError() => OutputEnvelop<object>.CreateError(output: null);
+        public static OutputEnvelop CreateError()
+        {
+            return OutputEnvelop<object>.CreateError(output: null);
+        }
         public static OutputEnvelop CreateError(ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
-            => OutputEnvelop<object>.CreateError(output: null, outputMessageCollection, exceptionCollection);
+        {
+            return OutputEnvelop<object>.CreateError(output: null, outputMessageCollection, exceptionCollection);
+        }
         public static OutputEnvelop CreateError(OutputEnvelop outputEnvelop)
-            => OutputEnvelop<object>.CreateError(output: null, outputEnvelop);
+        {
+            return OutputEnvelop<object>.CreateError(output: null, outputEnvelop);
+        }
         public static OutputEnvelop CreateError(params OutputEnvelop[] outputEnvelopCollection)
         {
             var newOutputEnvelopCollection = new OutputEnvelop<object>[outputEnvelopCollection.Length];
@@ -136,6 +225,16 @@ namespace MCIO.OutputEnvelop
                 newOutputEnvelopCollection[i] = outputEnvelopCollection[i];
 
             return OutputEnvelop<object>.CreateError(output: null, newOutputEnvelopCollection);
+        }
+        public static OutputEnvelop CreateError(string outputMessageCode, string outputMessageDescription)
+        {
+            return CreateError(
+                outputMessageCollection: new OutputMessage[]
+                {
+                    OutputMessage.CreateError(outputMessageCode, outputMessageDescription)
+                },
+                exceptionCollection: Array.Empty<Exception>()
+            );
         }
     }
 
@@ -162,14 +261,21 @@ namespace MCIO.OutputEnvelop
         }
 
         // Operators
-        public static implicit operator OutputEnvelop<TOutput>(OutputEnvelop outputEnvelop) 
-            => Create(output: default, outputEnvelop.Type, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
+        public static implicit operator OutputEnvelop<TOutput>(OutputEnvelop outputEnvelop)
+        {
+            return Create(output: default, outputEnvelop.Type, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
+        }
 
-        public static implicit operator OutputEnvelop(OutputEnvelop<TOutput> outputEnvelop) 
-            => outputEnvelop.AsProcessResult();
+        public static implicit operator OutputEnvelop(OutputEnvelop<TOutput> outputEnvelop)
+        {
+            return outputEnvelop.AsProcessResult();
+        }
 
         // Public Methods
-        public OutputEnvelop<TOutput> ChangeType(OutputEnvelopType type) => new OutputEnvelop<TOutput>(Output, type, OutputMessageCollection, ExceptionCollection);
+        public OutputEnvelop<TOutput> ChangeType(OutputEnvelopType type)
+        {
+            return new OutputEnvelop<TOutput>(Output, type, OutputMessageCollection, ExceptionCollection);
+        }
 
         public OutputEnvelop<TOutput> AddOutputMessage(OutputMessage outputMessage)
         {
@@ -189,10 +295,23 @@ namespace MCIO.OutputEnvelop
                 ExceptionCollection
             );
         }
-        public OutputEnvelop<TOutput> AddInformationOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateInformation(code, description));
-        public OutputEnvelop<TOutput> AddSuccessOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateSuccess(code, description));
-        public OutputEnvelop<TOutput> AddWarningOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateWarning(code, description));
-        public OutputEnvelop<TOutput> AddErrorOutputMessage(string code, string description) => AddOutputMessage(OutputMessage.CreateError(code, description));
+
+        public OutputEnvelop<TOutput> AddInformationOutputMessage(string code, string description)
+        {
+            return AddOutputMessage(OutputMessage.CreateInformation(code, description));
+        }
+        public OutputEnvelop<TOutput> AddSuccessOutputMessage(string code, string description)
+        {
+            return AddOutputMessage(OutputMessage.CreateSuccess(code, description));
+        }
+        public OutputEnvelop<TOutput> AddWarningOutputMessage(string code, string description)
+        {
+            return AddOutputMessage(OutputMessage.CreateWarning(code, description));
+        }
+        public OutputEnvelop<TOutput> AddErrorOutputMessage(string code, string description)
+        {
+            return AddOutputMessage(OutputMessage.CreateError(code, description));
+        }
 
         public OutputEnvelop<TOutput> AddException(Exception exception)
         {
@@ -286,6 +405,7 @@ namespace MCIO.OutputEnvelop
                 return Create(output: default, type: OutputEnvelopType.Error, outputMessageCollection: null, exceptionCollection: new[] { ex });
             }
         }
+
         public static async Task<OutputEnvelop<TOutput>> ExecuteAsync(Func<CancellationToken, Task<OutputEnvelop<TOutput>>> handler, CancellationToken cancellationToken)
         {
             try
@@ -323,7 +443,11 @@ namespace MCIO.OutputEnvelop
         }
 
         // Builders
-        public static OutputEnvelop<TOutput> Create(TOutput output, OutputEnvelopType type) => Create(output, type, outputMessageCollection: null, exceptionCollection: null);
+        public static OutputEnvelop<TOutput> Create(TOutput output, OutputEnvelopType type)
+        {
+            return Create(output, type, outputMessageCollection: null, exceptionCollection: null);
+        }
+
         public static OutputEnvelop<TOutput> Create(TOutput output, OutputEnvelopType type, ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
         {
             // Validate
@@ -388,6 +512,18 @@ namespace MCIO.OutputEnvelop
                 exceptionCollection: newExceptionCollection
             );
         }
+        public static OutputEnvelop<TOutput> Create(TOutput output, OutputEnvelopType type, OutputMessageType outputMessageType, string outputMessageCode, string outputMessageDescription)
+        {
+            return Create(
+                output,
+                type,
+                outputMessageCollection: new OutputMessage[]
+                {
+                    OutputMessage.Create(outputMessageType, outputMessageCode, outputMessageDescription)
+                },
+                exceptionCollection: Array.Empty<Exception>()
+            );
+        }
         public static OutputEnvelop<TOutput> Create(TOutput output, params OutputEnvelop<TOutput>[] outputEnvelopCollection)
         {
             // Analyze Type
@@ -449,8 +585,12 @@ namespace MCIO.OutputEnvelop
 
             return Create(output, type, outputMessageCollection, exceptionCollection);
         }
+        
 
-        public static OutputEnvelop<TOutput> CreateSuccess(TOutput output) => new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Success, outputMessageCollection: null, exceptionCollection: null);
+        public static OutputEnvelop<TOutput> CreateSuccess(TOutput output)
+        {
+            return new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Success, outputMessageCollection: null, exceptionCollection: null);
+        }
         public static OutputEnvelop<TOutput> CreateSuccess(TOutput output, ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
         {
             return Create(output, type: OutputEnvelopType.Success, outputMessageCollection, exceptionCollection);
@@ -463,8 +603,22 @@ namespace MCIO.OutputEnvelop
         {
             return Create(output, type: OutputEnvelopType.Success, outputEnvelopCollection);
         }
+        public static OutputEnvelop<TOutput> CreateSuccess(TOutput output, string outputMessageCode, string outputMessageDescription)
+        {
+            return CreateSuccess(
+                output,
+                outputMessageCollection: new OutputMessage[]
+                {
+                    OutputMessage.CreateSuccess(outputMessageCode, outputMessageDescription)
+                },
+                exceptionCollection: Array.Empty<Exception>()
+            );
+        }
 
-        public static OutputEnvelop<TOutput> CreatePartial(TOutput output) => new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Partial, outputMessageCollection: null, exceptionCollection: null);
+        public static OutputEnvelop<TOutput> CreatePartial(TOutput output)
+        {
+            return new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Partial, outputMessageCollection: null, exceptionCollection: null);
+        }
         public static OutputEnvelop<TOutput> CreatePartial(TOutput output, ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
         {
             return Create(output, type: OutputEnvelopType.Partial, outputMessageCollection, exceptionCollection);
@@ -478,7 +632,10 @@ namespace MCIO.OutputEnvelop
             return Create(output, type: OutputEnvelopType.Partial, outputEnvelopCollection);
         }
 
-        public static OutputEnvelop<TOutput> CreateError(TOutput output) => new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Error, outputMessageCollection: null, exceptionCollection: null);
+        public static OutputEnvelop<TOutput> CreateError(TOutput output)
+        {
+            return new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Error, outputMessageCollection: null, exceptionCollection: null);
+        }
         public static OutputEnvelop<TOutput> CreateError(TOutput output, ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
         {
             return Create(output, type: OutputEnvelopType.Error, outputMessageCollection, exceptionCollection);
@@ -490,6 +647,17 @@ namespace MCIO.OutputEnvelop
         public static OutputEnvelop<TOutput> CreateError(TOutput output, params OutputEnvelop<TOutput>[] outputEnvelopCollection)
         {
             return Create(output, type: OutputEnvelopType.Error, outputEnvelopCollection);
+        }
+        public static OutputEnvelop<TOutput> CreateError(TOutput output, string outputMessageCode, string outputMessageDescription)
+        {
+            return CreateError(
+                output,
+                outputMessageCollection: new OutputMessage[]
+                {
+                    OutputMessage.CreateError(outputMessageCode, outputMessageDescription)
+                },
+                exceptionCollection: Array.Empty<Exception>()
+            );
         }
     }
 }
