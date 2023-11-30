@@ -1,0 +1,6 @@
+@MCIO.OutputEnvelop.Samples.SampleApi_HostAddress = http://localhost:5193
+
+GET {{MCIO.OutputEnvelop.Samples.SampleApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
