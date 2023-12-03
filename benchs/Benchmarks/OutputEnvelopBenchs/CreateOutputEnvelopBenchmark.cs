@@ -218,7 +218,7 @@ public class CreateOutputEnvelopBenchmark
 
         for (int i = 0; i < OutputEnvelopCount; i++)
         {
-            lastOutputEnvelop = OutputEnvelop.CreateSuccess(_outputEnvelopCollection);
+            lastOutputEnvelop = OutputEnvelop.Create(_outputEnvelopCollection);
         }
 
         return lastOutputEnvelop;
