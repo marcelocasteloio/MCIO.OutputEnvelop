@@ -3351,4 +3351,24 @@ public class OutputEnvelopTest
         // Assert
         actHandler.Should().Throw<InvalidOutputEnvelopTypeException>().Which.OutputEnvelopType.Should().Be(outputEnvelopType);
     }
+
+    [Fact]
+    public void DefaultOutputEnvelop_Should_Not_Have_OutputMessageCollection()
+    {
+        // Arrange and Act
+        var outputEnvelop = OutputEnvelop<int>.CreateSuccess(1);
+
+        // Assert
+        outputEnvelop.OutputMessageCollection.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void DefaultOutputEnvelop_Should_Not_Have_ExceptionCollection()
+    {
+        // Arrange and Act
+        var outputEnvelop = OutputEnvelop<int>.CreateSuccess(1);
+
+        // Assert
+        outputEnvelop.ExceptionCollection.Should().BeEmpty();
+    }
 }
