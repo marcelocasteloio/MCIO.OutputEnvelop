@@ -2,7 +2,6 @@
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Engines;
 using MCIO.OutputEnvelop.Benchmarks.Interfaces;
-using MCIO.OutputEnvelop.Models;
 
 namespace MCIO.OutputEnvelop.Benchmarks.OutputEnvelopBenchs;
 

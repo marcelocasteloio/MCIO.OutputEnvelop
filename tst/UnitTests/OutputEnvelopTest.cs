@@ -1,6 +1,5 @@
 ﻿using MCIO.OutputEnvelop.Enums;
 using MCIO.OutputEnvelop.Exceptions.InvalidOutputEnvelopType;
-using MCIO.OutputEnvelop.Exceptions.InvalidOutputMessageType;
 using MCIO.OutputEnvelop.Models;
 
 namespace MCIO.OutputEnvelop.UnitTests;
