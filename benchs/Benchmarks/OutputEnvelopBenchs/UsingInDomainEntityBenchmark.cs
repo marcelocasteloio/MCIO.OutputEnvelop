@@ -20,7 +20,7 @@ public class UsingInDomainEntityBenchmark
 {
     // Public Methods
     [Benchmark(Baseline = true)]
-    public (CustomerWithoutOutputEnvelop?, IEnumerable<string> messages) SuccessRegisterNewCustomerWithoutOutputEnvelop()
+    public (bool Success, CustomerWithoutOutputEnvelop? Output, string[]? MessageCollection) SuccessRegisterNewCustomerWithoutOutputEnvelop()
     {
         return CustomerWithoutOutputEnvelop.RegisterNew(
             name: "Marcelo",
@@ -39,7 +39,7 @@ public class UsingInDomainEntityBenchmark
     }
 
     [Benchmark()]
-    public (CustomerWithoutOutputEnvelop?, IEnumerable<string> messages) ErrorOnRegisterNewCustomerWithoutOutputEnvelop()
+    public (bool Success, CustomerWithoutOutputEnvelop? Output, string[]? MessageCollection) ErrorOnRegisterNewCustomerWithoutOutputEnvelop()
     {
         return CustomerWithoutOutputEnvelop.RegisterNew(
             name: null!,
@@ -247,83 +247,92 @@ public class UsingInDomainEntityBenchmark
         }
 
         // Public Methods
-        public static (CustomerWithoutOutputEnvelop?, IEnumerable<string> messages) RegisterNew(string name, string email, DateOnly? birthDate)
+        public static (bool Success, CustomerWithoutOutputEnvelop? Output, string[]? MessageCollection) RegisterNew(string name, string email, DateOnly? birthDate)
         {
             // Process
             var customer = new CustomerWithoutOutputEnvelop();
 
             var messages = new List<string>(capacity: 4);
 
-            var generateNewIdMessage = customer.GenerateNewId();
-            var setNameMessage = customer.SetName(name);
-            var setEmailMessage = customer.SetEmail(email);
-            var setBirthDateMessage = customer.SetBirthDate(birthDate);
+            var generateNewIdResult = customer.GenerateNewId();
+            var setNameResult = customer.SetName(name);
+            var setEmailResult = customer.SetEmail(email);
+            var setBirthDateResult = customer.SetBirthDate(birthDate);
 
-            if(!string.IsNullOrEmpty(generateNewIdMessage))
-                messages.Add(generateNewIdMessage);
+            if (generateNewIdResult.Success && generateNewIdResult.MessageCollection is not null)
+                messages.AddRange(generateNewIdResult.MessageCollection);
 
-            if (!string.IsNullOrEmpty(setNameMessage))
-                messages.Add(setNameMessage);
+            if (setNameResult.Success && setNameResult.MessageCollection is not null)
+                messages.AddRange(setNameResult.MessageCollection);
 
-            if (!string.IsNullOrEmpty(setEmailMessage))
-                messages.Add(setEmailMessage);
+            if (setEmailResult.Success && setEmailResult.MessageCollection is not null)
+                messages.AddRange(setEmailResult.MessageCollection);
 
-            if (!string.IsNullOrEmpty(setBirthDateMessage))
-                messages.Add(setBirthDateMessage);
+            if (setBirthDateResult.Success && setBirthDateResult.MessageCollection is not null)
+                messages.AddRange(setBirthDateResult.MessageCollection);
+
+            var isSuccess =
+                generateNewIdResult.Success &&
+                setNameResult.Success &&
+                setEmailResult.Success &&
+                setBirthDateResult.Success;
 
             // Return
-            return (customer, messages);
+            return (
+                Success: isSuccess,
+                Output: isSuccess ? customer : null,
+                MessageCollection: messages.Count == 0 ? null : messages.ToArray()
+            );
         }
-
         // Private Methods
-        private string? SetId(Guid id)
+        private (bool Success, string[]? MessageCollection) SetId(Guid id)
         {
             // Validate
             if (id == Guid.Empty)
-                return IdShouldRequiredMessage;
+                return (Success: false, new[] { IdShouldRequiredMessage });
 
             // Process
             Id = id;
 
             // Return
-            return null;
+            return (Success: true, MessageCollection: null);
         }
-        private string? GenerateNewId()
+        private (bool Success, string[]? MessageCollection) GenerateNewId()
         {
             return SetId(Guid.NewGuid());
         }
 
-        private string? SetName(string name)
+        private (bool Success, string[]? MessageCollection) SetName(string name)
         {
             // Validate
             if (string.IsNullOrWhiteSpace(name))
-                return NameShouldRequiredMessage;
+                return (Success: false, new[] { NameShouldRequiredMessage });
             else if (name.Length > NameMaxLength)
-                return NameShouldLessThanMaxLengthMessage;
+                return (Success: false, new[] { NameShouldLessThanMaxLengthMessage });
 
             // Process
             Name = name;
 
             // Return
-            return null;
+            return (Success: true, MessageCollection: null);
         }
 
-        private string? SetEmail(string email)
+        private (bool Success, string[]? MessageCollection) SetEmail(string email)
         {
             // Validate
             if (string.IsNullOrWhiteSpace(email))
-                return EmailShouldRequiredMessage;
+                return (Success: false, new[] { EmailShouldRequiredMessage });
             else if (email.Length > EmailMaxLength)
-                return EmailShouldLessThanMaxLengthMessage;
+                return (Success: false, new[] { EmailShouldLessThanMaxLengthMessage });
 
             // Process
             Email = email;
 
             // Return
-            return null;
+            return (Success: true, MessageCollection: null);
         }
 
-        private string? SetBirthDate(DateOnly? birthDate)
+        private (bool Success, string[]? MessageCollection) SetBirthDate(DateOnly? birthDate)
         {
             // Validate
             if (birthDate is not null)
@@ -336,16 +345,16 @@ public class UsingInDomainEntityBenchmark
                     age--;
 
                 if (age < BirthDateMinAge)
-                    return BirthDateShouldGreaterThanMinAgeMessage;
+                    return (Success: false, new[] { BirthDateShouldGreaterThanMinAgeMessage });
                 else if (age > BirthDateMaxAge)
-                    return BirthDateShouldLessThanMaxAgeMessage;
+                    return (Success: false, new[] { BirthDateShouldLessThanMaxAgeMessage });
             }
 
             // Process
             BirthDate = birthDate;
 
             // Return
-            return null;
+            return (Success: true, MessageCollection: null);
         }
     }
 }
