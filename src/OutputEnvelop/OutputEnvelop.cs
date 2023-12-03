@@ -608,7 +608,7 @@ namespace MCIO.OutputEnvelop
             var hasErrorMessageType = false;
 
             // Analyze output messages
-            if(outputMessageCollection != null)
+            if (outputMessageCollection != null)
                 for (int outputMessageIndex = 0; outputMessageIndex < outputMessageCollection.Length; outputMessageIndex++)
                 {
                     var outputMessage = outputMessageCollection[outputMessageIndex];
@@ -621,18 +621,10 @@ namespace MCIO.OutputEnvelop
                 }
 
             var hasException = exceptionCollection?.Length > 0;
-
-            var type = hasSuccessMessageType
-                ? hasErrorMessageType || hasException
-                    ? OutputEnvelopType.Partial
-                    : OutputEnvelopType.Success
-                : hasErrorMessageType || hasException
-                    ? OutputEnvelopType.Error
-                    : OutputEnvelopType.Success;
+            var type = CreateOutputEnvelopType(hasSuccessMessageType, hasErrorMessageType, hasException);
 
             return Create(output, type, outputMessageCollection, exceptionCollection);
         }
-        
 
         public static OutputEnvelop<TOutput> CreateSuccess(TOutput output)
         {
@@ -705,6 +697,18 @@ namespace MCIO.OutputEnvelop
                 },
                 exceptionCollection: Array.Empty<Exception>()
             );
+        }
+
+        // Private Methods
+        private static OutputEnvelopType CreateOutputEnvelopType(bool hasSuccessMessageType, bool hasErrorMessageType, bool hasException)
+        {
+            return hasSuccessMessageType
+                ? hasErrorMessageType || hasException
+                    ? OutputEnvelopType.Partial
+                    : OutputEnvelopType.Success
+                : hasErrorMessageType || hasException
+                    ? OutputEnvelopType.Error
+                    : OutputEnvelopType.Success;
         }
     }
 }
