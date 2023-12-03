@@ -523,6 +523,14 @@ namespace MCIO.OutputEnvelop
                 newExceptionCollectionLength += outputEnvelopCollection[i].ExceptionCollectionCount;
             }
 
+            if(newMessageOutputCollectionLength == 0 && newExceptionCollectionLength == 0)
+                return Create(
+                    output,
+                    type,
+                    outputMessageCollection: null,
+                    exceptionCollection: null
+                );
+
             var newMessageOutputCollection = new OutputMessage[newMessageOutputCollectionLength];
             var newExceptionCollection = new Exception[newExceptionCollectionLength];
 
@@ -535,19 +543,21 @@ namespace MCIO.OutputEnvelop
                 var outputEnvelop = outputEnvelopCollection[i];
 
                 // Copy MessageOutputCollection
-                ArrayUtils.CopyToExistingArray(
-                    destinationArray: newMessageOutputCollection,
-                    destinationIndex: lastNewOutputMessageCollectionOffset,
-                    sourceArray: outputEnvelop.OutputMessageCollection
-                );
+                if (outputEnvelop.HasOutputMessage)
+                    ArrayUtils.CopyToExistingArray(
+                        destinationArray: newMessageOutputCollection,
+                        destinationIndex: lastNewOutputMessageCollectionOffset,
+                        sourceArray: outputEnvelop.OutputMessageCollection
+                    );
                 lastNewOutputMessageCollectionOffset += outputEnvelop.OutputMessageCollectionCount;
 
                 // Copy ExceptionCollection
-                ArrayUtils.CopyToExistingArray(
-                    destinationArray: newExceptionCollection,
-                    destinationIndex: lastExceptionMessageCollectionOffset,
-                    sourceArray: outputEnvelop.ExceptionCollection
-                );
+                if (outputEnvelop.HasException)
+                    ArrayUtils.CopyToExistingArray(
+                        destinationArray: newExceptionCollection,
+                        destinationIndex: lastExceptionMessageCollectionOffset,
+                        sourceArray: outputEnvelop.ExceptionCollection
+                    );
                 lastExceptionMessageCollectionOffset += outputEnvelop.ExceptionCollectionCount;
             }
 
