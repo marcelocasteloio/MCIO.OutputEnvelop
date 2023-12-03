@@ -21,24 +21,24 @@ public class ChangeOutputMessageTypeBenchmark
 {
     // Fields
     private static readonly OutputEnvelop _outputEnvelop = OutputEnvelop.CreateSuccess(
-        outputMessageCollection: new ReadOnlyMemory<OutputMessage>([
+        outputMessageCollection: [
             OutputMessage.CreateInformation("A"),
             OutputMessage.CreateInformation("B"),
             OutputMessage.CreateInformation("C"),
             OutputMessage.CreateInformation("D"),
             OutputMessage.CreateInformation("E")
-        ]),
+        ],
         exceptionCollection: null
     );
     private static readonly OutputEnvelop _outputEnvelopWithOutput = OutputEnvelop<object>.CreateSuccess(
         output: null!,
-        outputMessageCollection: new ReadOnlyMemory<OutputMessage>([
+        outputMessageCollection: [
             OutputMessage.CreateInformation("A"),
             OutputMessage.CreateInformation("B"),
             OutputMessage.CreateInformation("C"),
             OutputMessage.CreateInformation("D"),
             OutputMessage.CreateInformation("E")
-        ]),
+        ],
         exceptionCollection: null
     );
 

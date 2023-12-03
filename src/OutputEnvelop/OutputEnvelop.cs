@@ -3,6 +3,9 @@ using MCIO.OutputEnvelop.Exceptions.InvalidOutputEnvelopType;
 using MCIO.OutputEnvelop.Models;
 using MCIO.OutputEnvelop.Utils;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,9 +17,11 @@ namespace MCIO.OutputEnvelop
         private readonly OutputEnvelop<object> _outputEnvelop;
 
         // Properties
+        internal OutputMessage[] OutputMessageCollectionInternal => _outputEnvelop.OutputMessageCollectionInternal;
+        internal Exception[] ExceptionCollectionInternal => _outputEnvelop.ExceptionCollectionInternal;
         public OutputEnvelopType Type => _outputEnvelop.Type;
-        public ReadOnlyMemory<OutputMessage> OutputMessageCollection => _outputEnvelop.OutputMessageCollection;
-        public ReadOnlyMemory<Exception> ExceptionCollection => _outputEnvelop.ExceptionCollection;
+        public IEnumerable<OutputMessage> OutputMessageCollection => _outputEnvelop.OutputMessageCollection;
+        public IEnumerable<Exception> ExceptionCollection => _outputEnvelop.ExceptionCollection;
 
         public bool IsSuccess => _outputEnvelop.IsSuccess;
         public bool IsPartial => _outputEnvelop.IsPartial;
@@ -25,11 +30,14 @@ namespace MCIO.OutputEnvelop
         public bool HasOutputMessage => _outputEnvelop.HasOutputMessage;
         public bool HasException => _outputEnvelop.HasException;
 
+        public int OutputMessageCollectionCount => _outputEnvelop.OutputMessageCollectionCount;
+        public int ExceptionCollectionCount => _outputEnvelop.ExceptionCollectionCount;
+
         // Constructors
         private OutputEnvelop(
             OutputEnvelopType type,
-            ReadOnlyMemory<OutputMessage> outputMessageCollection,
-            ReadOnlyMemory<Exception> exceptionCollection
+            OutputMessage[] outputMessageCollection,
+            Exception[] exceptionCollection
         )
         {
             _outputEnvelop = OutputEnvelop<object>.Create(
@@ -50,7 +58,7 @@ namespace MCIO.OutputEnvelop
         {
             return _outputEnvelop.AddOutputMessage(outputMessage);
         }
-        public OutputEnvelop AddOutputMessageCollection(ReadOnlyMemory<OutputMessage> outputMessageCollection)
+        public OutputEnvelop AddOutputMessageCollection(OutputMessage[] outputMessageCollection)
         {
             return _outputEnvelop.AddOutputMessageCollection(outputMessageCollection);
         }
@@ -76,7 +84,7 @@ namespace MCIO.OutputEnvelop
         {
             return _outputEnvelop.AddException(exception);
         }
-        public OutputEnvelop AddExceptionCollection(ReadOnlyMemory<Exception> exceptionCollection)
+        public OutputEnvelop AddExceptionCollection(Exception[] exceptionCollection)
         {
             return _outputEnvelop.AddExceptionCollection(exceptionCollection);
         }
@@ -115,13 +123,13 @@ namespace MCIO.OutputEnvelop
         // Builders
         public static OutputEnvelop Create<TOutput>(OutputEnvelop<TOutput> outputEnvelopWithOutput)
         {
-            return new OutputEnvelop(outputEnvelopWithOutput.Type, outputEnvelopWithOutput.OutputMessageCollection, outputEnvelopWithOutput.ExceptionCollection);
+            return new OutputEnvelop(outputEnvelopWithOutput.Type, outputEnvelopWithOutput.OutputMessageCollectionInternal, outputEnvelopWithOutput.ExceptionCollectionInternal);
         }
         public static OutputEnvelop Create(OutputEnvelopType type)
         {
             return OutputEnvelop<object>.Create(output: null, type, outputMessageCollection: null, exceptionCollection: null);
         }
-        public static OutputEnvelop Create(OutputEnvelopType type, ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
+        public static OutputEnvelop Create(OutputEnvelopType type, OutputMessage[] outputMessageCollection, Exception[] exceptionCollection)
         {
             return OutputEnvelop<object>.Create(output: null, type, outputMessageCollection, exceptionCollection);
         }
@@ -165,7 +173,7 @@ namespace MCIO.OutputEnvelop
         {
             return OutputEnvelop<object>.CreateSuccess(output: null);
         }
-        public static OutputEnvelop CreateSuccess(ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
+        public static OutputEnvelop CreateSuccess(OutputMessage[] outputMessageCollection, Exception[] exceptionCollection)
         {
             return OutputEnvelop<object>.CreateSuccess(output: null, outputMessageCollection, exceptionCollection);
         }
@@ -196,7 +204,7 @@ namespace MCIO.OutputEnvelop
         {
             return OutputEnvelop<object>.CreatePartial(output: null);
         }
-        public static OutputEnvelop CreatePartial(ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
+        public static OutputEnvelop CreatePartial(OutputMessage[] outputMessageCollection, Exception[] exceptionCollection)
         {
             return OutputEnvelop<object>.CreatePartial(output: null, outputMessageCollection, exceptionCollection);
         }
@@ -217,7 +225,7 @@ namespace MCIO.OutputEnvelop
         {
             return OutputEnvelop<object>.CreateError(output: null);
         }
-        public static OutputEnvelop CreateError(ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
+        public static OutputEnvelop CreateError(OutputMessage[] outputMessageCollection, Exception[] exceptionCollection)
         {
             return OutputEnvelop<object>.CreateError(output: null, outputMessageCollection, exceptionCollection);
         }
@@ -248,37 +256,62 @@ namespace MCIO.OutputEnvelop
     public readonly struct OutputEnvelop<TOutput>
     {
         // Properties
+        internal OutputMessage[] OutputMessageCollectionInternal { get; }
+        internal Exception[] ExceptionCollectionInternal { get; }
         public TOutput Output { get; }
         public OutputEnvelopType Type { get; }
-        public ReadOnlyMemory<OutputMessage> OutputMessageCollection { get; }
-        public ReadOnlyMemory<Exception> ExceptionCollection { get; }
+        public IEnumerable<OutputMessage> OutputMessageCollection
+        {
+            get
+            {
+                if (OutputMessageCollectionInternal is null)
+                    yield break;
+
+                for (int i = 0; i < OutputMessageCollectionInternal.Length; i++)
+                    yield return OutputMessageCollectionInternal[i];
+            }
+        }
+        public IEnumerable<Exception> ExceptionCollection
+        {
+            get
+            {
+                if (ExceptionCollectionInternal is null)
+                    yield break;
+
+                for (int i = 0; i < ExceptionCollectionInternal.Length; i++)
+                    yield return ExceptionCollectionInternal[i];
+            }
+        }
 
         public bool IsSuccess => Type == OutputEnvelopType.Success;
         public bool IsPartial => Type == OutputEnvelopType.Partial;
         public bool IsError => Type == OutputEnvelopType.Error;
 
         public bool HasOutput => Output != null;
-        public bool HasOutputMessage => !OutputMessageCollection.IsEmpty;
-        public bool HasException => !ExceptionCollection.IsEmpty;
+        public bool HasOutputMessage => OutputMessageCollectionInternal?.Length > 0;
+        public bool HasException => ExceptionCollectionInternal?.Length > 0;
+
+        public int OutputMessageCollectionCount => OutputMessageCollectionInternal?.Length ?? 0;
+        public int ExceptionCollectionCount => ExceptionCollectionInternal?.Length ?? 0;
 
         // Constructors
         private OutputEnvelop(
             TOutput output,
             OutputEnvelopType type,
-            ReadOnlyMemory<OutputMessage> outputMessageCollection,
-            ReadOnlyMemory<Exception> exceptionCollection
+            OutputMessage[] outputMessageCollection,
+            Exception[] exceptionCollection
         )
         {
             Output = output;
             Type = type;
-            OutputMessageCollection = outputMessageCollection;
-            ExceptionCollection = exceptionCollection;
+            OutputMessageCollectionInternal = outputMessageCollection;
+            ExceptionCollectionInternal = exceptionCollection;
         }
 
         // Operators
         public static implicit operator OutputEnvelop<TOutput>(OutputEnvelop outputEnvelop)
         {
-            return Create(output: default, outputEnvelop.Type, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
+            return Create(output: default, outputEnvelop.Type, outputEnvelop.OutputMessageCollectionInternal, outputEnvelop.ExceptionCollectionInternal);
         }
 
         public static implicit operator OutputEnvelop(OutputEnvelop<TOutput> outputEnvelop)
@@ -289,7 +322,7 @@ namespace MCIO.OutputEnvelop
         // Public Methods
         public OutputEnvelop<TOutput> ChangeType(OutputEnvelopType type)
         {
-            return new OutputEnvelop<TOutput>(Output, type, OutputMessageCollection, ExceptionCollection);
+            return new OutputEnvelop<TOutput>(Output, type, OutputMessageCollectionInternal, ExceptionCollectionInternal);
         }
 
         public OutputEnvelop<TOutput> AddOutputMessage(OutputMessage outputMessage)
@@ -297,17 +330,17 @@ namespace MCIO.OutputEnvelop
             return new OutputEnvelop<TOutput>(
                 Output,
                 Type,
-                outputMessageCollection: ReadOnlyMemoryUtils.AddNewItem(OutputMessageCollection, outputMessage),
-                ExceptionCollection
+                outputMessageCollection: ArrayUtils.AddNewItem(OutputMessageCollectionInternal, outputMessage),
+                ExceptionCollectionInternal
             );
         }
-        public OutputEnvelop<TOutput> AddOutputMessageCollection(ReadOnlyMemory<OutputMessage> outputMessageCollection)
+        public OutputEnvelop<TOutput> AddOutputMessageCollection(OutputMessage[] outputMessageCollection)
         {
             return new OutputEnvelop<TOutput>(
                 Output,
                 Type,
-                outputMessageCollection: ReadOnlyMemoryUtils.AddRange(OutputMessageCollection, outputMessageCollection),
-                ExceptionCollection
+                outputMessageCollection: ArrayUtils.AddRange(OutputMessageCollectionInternal, outputMessageCollection),
+                ExceptionCollectionInternal
             );
         }
 
@@ -333,27 +366,27 @@ namespace MCIO.OutputEnvelop
             return new OutputEnvelop<TOutput>(
                 Output,
                 Type,
-                OutputMessageCollection,
-                exceptionCollection: ReadOnlyMemoryUtils.AddNewItem(ExceptionCollection, exception)
+                OutputMessageCollectionInternal,
+                exceptionCollection: ArrayUtils.AddNewItem(ExceptionCollectionInternal, exception)
             );
         }
-        public OutputEnvelop<TOutput> AddExceptionCollection(ReadOnlyMemory<Exception> exceptionCollection)
+        public OutputEnvelop<TOutput> AddExceptionCollection(Exception[] exceptionCollection)
         {
             return new OutputEnvelop<TOutput>(
                 Output,
                 Type,
-                OutputMessageCollection,
-                exceptionCollection: ReadOnlyMemoryUtils.AddRange(ExceptionCollection, exceptionCollection)
+                OutputMessageCollectionInternal,
+                exceptionCollection: ArrayUtils.AddRange(ExceptionCollectionInternal, exceptionCollection)
             );
         }
 
         public OutputEnvelop<TOutput> ChangeOutputMessageType(string outputMessageCode, OutputMessageType newOutputMessageType)
         {
-            var newOutputMessageCollection = new OutputMessage[OutputMessageCollection.Length];
+            var newOutputMessageCollection = new OutputMessage[OutputMessageCollectionInternal.Length];
 
-            for (int i = 0; i < OutputMessageCollection.Length; i++)
+            for (int i = 0; i < OutputMessageCollectionInternal.Length; i++)
             {
-                var outputMessage = OutputMessageCollection.Span[i];
+                var outputMessage = OutputMessageCollectionInternal[i];
 
                 newOutputMessageCollection[i] = string.Equals(outputMessage.Code, outputMessageCode, StringComparison.OrdinalIgnoreCase)
                     ? outputMessage.ChangeType(newOutputMessageType)
@@ -363,39 +396,39 @@ namespace MCIO.OutputEnvelop
             return Create(
                 Output,
                 Type, 
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(newOutputMessageCollection), 
-                ExceptionCollection
+                outputMessageCollection: newOutputMessageCollection, 
+                ExceptionCollectionInternal
             );
         }
         public OutputEnvelop<TOutput> ChangeOutputMessageDescription(string outputMessageCode, string newOutputMessageDescription)
         {
-            var newOutputMessageCollection = new OutputMessage[OutputMessageCollection.Length];
+            var newOutputMessageCollection = new OutputMessage[OutputMessageCollectionInternal.Length];
 
-            for (int i = 0; i < OutputMessageCollection.Length; i++)
+            for (int i = 0; i < OutputMessageCollectionInternal.Length; i++)
             {
-                var outputMessage = OutputMessageCollection.Span[i];
+                var outputMessage = OutputMessageCollectionInternal[i];
 
                 newOutputMessageCollection[i] = string.Equals(outputMessage.Code, outputMessageCode, StringComparison.OrdinalIgnoreCase)
                     ? outputMessage.ChangeDescription(newOutputMessageDescription)
                     : outputMessage;
             }
 
-            return Create(Output, Type, newOutputMessageCollection, ExceptionCollection);
+            return Create(Output, Type, newOutputMessageCollection, ExceptionCollectionInternal);
         }
         public OutputEnvelop<TOutput> ChangeOutputMessageTypeAndOutputMessageDescription(string outputMessageCode, OutputMessageType newOutputMessageType, string newOutputMessageDescription)
         {
-            var newOutputMessageCollection = new OutputMessage[OutputMessageCollection.Length];
+            var newOutputMessageCollection = new OutputMessage[OutputMessageCollectionInternal.Length];
 
-            for (int i = 0; i < OutputMessageCollection.Length; i++)
+            for (int i = 0; i < OutputMessageCollectionInternal.Length; i++)
             {
-                var outputMessage = OutputMessageCollection.Span[i];
+                var outputMessage = OutputMessageCollectionInternal[i];
 
                 newOutputMessageCollection[i] = string.Equals(outputMessage.Code, outputMessageCode, StringComparison.OrdinalIgnoreCase)
                     ? outputMessage.ChangeTypeAndDescription(newOutputMessageType, newOutputMessageDescription)
                     : outputMessage;
             }
 
-            return Create( Output, Type, newOutputMessageCollection, ExceptionCollection);
+            return Create( Output, Type, newOutputMessageCollection, ExceptionCollectionInternal);
         }
 
         public static OutputEnvelop<TOutput> Execute(Func<OutputEnvelop<TOutput>> handler)
@@ -463,7 +496,7 @@ namespace MCIO.OutputEnvelop
             return Create(output, type, outputMessageCollection: null, exceptionCollection: null);
         }
 
-        public static OutputEnvelop<TOutput> Create(TOutput output, OutputEnvelopType type, ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
+        public static OutputEnvelop<TOutput> Create(TOutput output, OutputEnvelopType type, OutputMessage[] outputMessageCollection, Exception[] exceptionCollection)
         {
             // Validate
             InvalidOutputEnvelopTypeException.ThrowIfInvalid(type);
@@ -478,7 +511,7 @@ namespace MCIO.OutputEnvelop
         }
         public static OutputEnvelop<TOutput> Create(TOutput output, OutputEnvelopType type, OutputEnvelop<TOutput> outputEnvelop)
         {
-            return new OutputEnvelop<TOutput>(output, type, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
+            return new OutputEnvelop<TOutput>(output, type, outputEnvelop.OutputMessageCollectionInternal, outputEnvelop.ExceptionCollectionInternal);
         }
         public static OutputEnvelop<TOutput> Create(TOutput output, OutputEnvelopType type, params OutputEnvelop<TOutput>[] outputEnvelopCollection)
         {
@@ -488,8 +521,8 @@ namespace MCIO.OutputEnvelop
 
             for (int i = 0; i < outputEnvelopCollection.Length; i++)
             {
-                newMessageOutputCollectionLength += outputEnvelopCollection[i].OutputMessageCollection.Length;
-                newExceptionCollectionLength += outputEnvelopCollection[i].ExceptionCollection.Length;
+                newMessageOutputCollectionLength += outputEnvelopCollection[i].OutputMessageCollectionCount;
+                newExceptionCollectionLength += outputEnvelopCollection[i].ExceptionCollectionCount;
             }
 
             var newMessageOutputCollection = new OutputMessage[newMessageOutputCollectionLength];
@@ -505,19 +538,19 @@ namespace MCIO.OutputEnvelop
 
                 // Copy MessageOutputCollection
                 ArrayUtils.CopyToExistingArray(
-                    targetArray: newMessageOutputCollection,
-                    targetIndex: lastNewOutputMessageCollectionOffset,
-                    readOnlyMemory: outputEnvelop.OutputMessageCollection
+                    destinationArray: newMessageOutputCollection,
+                    destinationIndex: lastNewOutputMessageCollectionOffset,
+                    sourceArray: outputEnvelop.OutputMessageCollection
                 );
-                lastNewOutputMessageCollectionOffset += outputEnvelop.OutputMessageCollection.Length;
+                lastNewOutputMessageCollectionOffset += outputEnvelop.OutputMessageCollectionCount;
 
                 // Copy ExceptionCollection
                 ArrayUtils.CopyToExistingArray(
-                    targetArray: newExceptionCollection,
-                    targetIndex: lastExceptionMessageCollectionOffset,
-                    readOnlyMemory: outputEnvelop.ExceptionCollection
+                    destinationArray: newExceptionCollection,
+                    destinationIndex: lastExceptionMessageCollectionOffset,
+                    sourceArray: outputEnvelop.ExceptionCollection
                 );
-                lastExceptionMessageCollectionOffset += outputEnvelop.ExceptionCollection.Length;
+                lastExceptionMessageCollectionOffset += outputEnvelop.ExceptionCollectionCount;
             }
 
             return Create(
@@ -577,18 +610,19 @@ namespace MCIO.OutputEnvelop
             var hasErrorMessageType = false;
 
             // Analyze output messages
-            for (int outputMessageIndex = 0; outputMessageIndex < outputMessageCollection.Length; outputMessageIndex++)
-            {
-                var outputMessage = outputMessageCollection[outputMessageIndex];
+            if(outputMessageCollection != null)
+                for (int outputMessageIndex = 0; outputMessageIndex < outputMessageCollection.Length; outputMessageIndex++)
+                {
+                    var outputMessage = outputMessageCollection[outputMessageIndex];
 
-                if (!hasSuccessMessageType && outputMessage.Type == OutputMessageType.Success)
-                    hasSuccessMessageType = true;
+                    if (!hasSuccessMessageType && outputMessage.Type == OutputMessageType.Success)
+                        hasSuccessMessageType = true;
 
-                if (!hasErrorMessageType && outputMessage.Type == OutputMessageType.Error)
-                    hasErrorMessageType = true;
-            }
+                    if (!hasErrorMessageType && outputMessage.Type == OutputMessageType.Error)
+                        hasErrorMessageType = true;
+                }
 
-            var hasException = exceptionCollection.Length > 0;
+            var hasException = exceptionCollection?.Length > 0;
 
             var type = hasSuccessMessageType
                 ? hasErrorMessageType || hasException
@@ -606,13 +640,13 @@ namespace MCIO.OutputEnvelop
         {
             return new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Success, outputMessageCollection: null, exceptionCollection: null);
         }
-        public static OutputEnvelop<TOutput> CreateSuccess(TOutput output, ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
+        public static OutputEnvelop<TOutput> CreateSuccess(TOutput output, OutputMessage[] outputMessageCollection, Exception[] exceptionCollection)
         {
             return Create(output, type: OutputEnvelopType.Success, outputMessageCollection, exceptionCollection);
         }
         public static OutputEnvelop<TOutput> CreateSuccess(TOutput output, OutputEnvelop<TOutput> outputEnvelop)
         {
-            return new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Success, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
+            return new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Success, outputEnvelop.OutputMessageCollectionInternal, outputEnvelop.ExceptionCollectionInternal);
         }
         public static OutputEnvelop<TOutput> CreateSuccess(TOutput output, params OutputEnvelop<TOutput>[] outputEnvelopCollection)
         {
@@ -634,13 +668,13 @@ namespace MCIO.OutputEnvelop
         {
             return new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Partial, outputMessageCollection: null, exceptionCollection: null);
         }
-        public static OutputEnvelop<TOutput> CreatePartial(TOutput output, ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
+        public static OutputEnvelop<TOutput> CreatePartial(TOutput output, OutputMessage[] outputMessageCollection, Exception[] exceptionCollection)
         {
             return Create(output, type: OutputEnvelopType.Partial, outputMessageCollection, exceptionCollection);
         }
         public static OutputEnvelop<TOutput> CreatePartial(TOutput output, OutputEnvelop<TOutput> outputEnvelop)
         {
-            return new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Partial, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
+            return new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Partial, outputEnvelop.OutputMessageCollectionInternal, outputEnvelop.ExceptionCollectionInternal);
         }
         public static OutputEnvelop<TOutput> CreatePartial(TOutput output, params OutputEnvelop<TOutput>[] outputEnvelopCollection)
         {
@@ -651,13 +685,13 @@ namespace MCIO.OutputEnvelop
         {
             return new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Error, outputMessageCollection: null, exceptionCollection: null);
         }
-        public static OutputEnvelop<TOutput> CreateError(TOutput output, ReadOnlyMemory<OutputMessage> outputMessageCollection, ReadOnlyMemory<Exception> exceptionCollection)
+        public static OutputEnvelop<TOutput> CreateError(TOutput output, OutputMessage[] outputMessageCollection, Exception[] exceptionCollection)
         {
             return Create(output, type: OutputEnvelopType.Error, outputMessageCollection, exceptionCollection);
         }
         public static OutputEnvelop<TOutput> CreateError(TOutput output, OutputEnvelop<TOutput> outputEnvelop)
         {
-            return new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Error, outputEnvelop.OutputMessageCollection, outputEnvelop.ExceptionCollection);
+            return new OutputEnvelop<TOutput>(output, type: OutputEnvelopType.Error, outputEnvelop.OutputMessageCollectionInternal, outputEnvelop.ExceptionCollectionInternal);
         }
         public static OutputEnvelop<TOutput> CreateError(TOutput output, params OutputEnvelop<TOutput>[] outputEnvelopCollection)
         {

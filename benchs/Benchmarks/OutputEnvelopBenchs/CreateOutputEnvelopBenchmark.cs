@@ -149,11 +149,11 @@ public class CreateOutputEnvelopBenchmark
         for (int i = 0; i < OutputEnvelopCount; i++)
         {
             lastOutputEnvelop = OutputEnvelop.CreateSuccess(
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>([
+                outputMessageCollection: [
                     OutputMessage.CreateInformation(_outputMessageCode),
                     OutputMessage.CreateInformation(_outputMessageCode),
                     OutputMessage.CreateInformation(_outputMessageCode)
-                ]),
+                ],
                 exceptionCollection: null
             );
         }
@@ -170,11 +170,11 @@ public class CreateOutputEnvelopBenchmark
         {
             lastOutputEnvelop = OutputEnvelop<object>.CreateSuccess(
                 output: null!,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>([
+                outputMessageCollection: [
                     OutputMessage.CreateInformation(_outputMessageCode),
                     OutputMessage.CreateInformation(_outputMessageCode),
                     OutputMessage.CreateInformation(_outputMessageCode)
-                ]),
+                ],
                 exceptionCollection: null
             );
         }

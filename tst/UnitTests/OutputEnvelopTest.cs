@@ -18,8 +18,8 @@ public class OutputEnvelopTest
 
         // Assert
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasException.Should().BeFalse();
     }
 
     [Theory]
@@ -29,14 +29,14 @@ public class OutputEnvelopTest
     public void OutputEnvelop_Should_Created_WithOutputMessageCollection_And_ExceptionCollection(OutputEnvelopType outputEnvelopType)
     {
         // Arrange
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>(
-        [
+        var outputMessageCollection = new OutputMessage[]
+        {
             OutputMessage.CreateInformation(code: Guid.NewGuid().ToString(), description: null)
-        ]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>(
-        [
-            new Exception()
-        ]);
+        };
+        var exceptionCollection = new Exception[]
+        {
+            new()
+        };
 
         // Act
         var outputEnvelopWithNullCollections = OutputEnvelop.Create(
@@ -56,8 +56,8 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.Should().BeEquivalentTo(exceptionCollection);
 
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
-        outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopWithNullCollections.HasOutputMessage.Should().BeFalse();
+        outputEnvelopWithNullCollections.HasOutputMessage.Should().BeFalse();
     }
 
     [Theory]
@@ -113,31 +113,31 @@ public class OutputEnvelopTest
             ),
             OutputEnvelop.Create(
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateInformation(code: Guid.NewGuid().ToString())
-                ]),
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                ],
+                exceptionCollection: new Exception[]
+                {
+                    new()
+                }
             ),
             OutputEnvelop.Create(
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateError(code: Guid.NewGuid().ToString()),
                     OutputMessage.CreateWarning(code: Guid.NewGuid().ToString())
-                ]),
+                ],
                 exceptionCollection: null
             ),
             OutputEnvelop.Create(
                 outputEnvelopType,
                 outputMessageCollection: null,
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                exceptionCollection: new Exception[] 
+                {
+                    new()
+                }
             ),
         };
 
@@ -146,16 +146,15 @@ public class OutputEnvelopTest
 
         // Assert
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollection.Length));
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollection.Length));
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollection.Length));
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollectionCount));
+        outputEnvelop.ExceptionCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollectionCount));
 
         foreach (var existingOutputEnvelop in existingOutputEnvelopCollection)
         {
-            if (existingOutputEnvelop.OutputMessageCollection.Length > 0)
+            if (existingOutputEnvelop.HasOutputMessage)
                 existingOutputEnvelop.OutputMessageCollection.ToArray().Should().BeSubsetOf(outputEnvelop.OutputMessageCollection.ToArray());
 
-            if (existingOutputEnvelop.ExceptionCollection.Length > 0)
+            if (existingOutputEnvelop.HasException)
                 existingOutputEnvelop.ExceptionCollection.ToArray().Should().BeSubsetOf(outputEnvelop.ExceptionCollection.ToArray());
         }
     }
@@ -179,10 +178,10 @@ public class OutputEnvelopTest
 
         // Assert
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelop.OutputMessageCollection.Span[0].Type.Should().Be(outputMessageType);
-        outputEnvelop.OutputMessageCollection.Span[0].Code.Should().Be(outputMessageCode);
-        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().Be(outputMessageDescription);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Type.Should().Be(outputMessageType);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Code.Should().Be(outputMessageCode);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Description.Should().Be(outputMessageDescription);
     }
 
     [Fact]
@@ -194,8 +193,8 @@ public class OutputEnvelopTest
 
         // Assert
         outputEnvelop.Type.Should().Be(expectedOutputType);
-        outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
 
         outputEnvelop.IsSuccess.Should().BeTrue();
         outputEnvelop.IsPartial.Should().BeFalse();
@@ -209,14 +208,14 @@ public class OutputEnvelopTest
     {
         // Arrange
         var outputEnvelopType = OutputEnvelopType.Success;
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>(
-        [
+        var outputMessageCollection = new OutputMessage[] 
+        {
             OutputMessage.CreateInformation(code: Guid.NewGuid().ToString(), description: null)
-        ]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>(
-        [
-            new Exception()
-        ]);
+        };
+        var exceptionCollection = new Exception[] 
+        {
+            new()
+        };
 
         // Act
         var outputEnvelopWithNullCollections = OutputEnvelop.CreateSuccess(
@@ -234,8 +233,8 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.Should().BeEquivalentTo(exceptionCollection);
 
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
-        outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopWithNullCollections.HasOutputMessage.Should().BeFalse();
+        outputEnvelopWithNullCollections.HasOutputMessage.Should().BeFalse();
 
         outputEnvelop.IsSuccess.Should().BeTrue();
         outputEnvelop.IsPartial.Should().BeFalse();
@@ -289,31 +288,31 @@ public class OutputEnvelopTest
             ),
             OutputEnvelop.Create(
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateInformation(code: Guid.NewGuid().ToString())
-                ]),
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                ],
+                exceptionCollection: new Exception[]
+                {
+                    new()
+                }
             ),
             OutputEnvelop.Create(
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateError(code: Guid.NewGuid().ToString()),
                     OutputMessage.CreateWarning(code: Guid.NewGuid().ToString())
-                ]),
+                ],
                 exceptionCollection: null
             ),
             OutputEnvelop.Create(
                 outputEnvelopType,
                 outputMessageCollection: null,
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                exceptionCollection: new Exception[]
+                {
+                    new()
+                }
             ),
         };
 
@@ -322,15 +321,15 @@ public class OutputEnvelopTest
 
         // Assert
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollection.Length));
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollection.Length));
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollectionCount));
+        outputEnvelop.ExceptionCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollectionCount));
 
         foreach (var existingOutputEnvelop in existingOutputEnvelopCollection)
         {
-            if (existingOutputEnvelop.OutputMessageCollection.Length > 0)
+            if (existingOutputEnvelop.HasOutputMessage)
                 existingOutputEnvelop.OutputMessageCollection.ToArray().Should().BeSubsetOf(outputEnvelop.OutputMessageCollection.ToArray());
 
-            if (existingOutputEnvelop.ExceptionCollection.Length > 0)
+            if (existingOutputEnvelop.HasException)
                 existingOutputEnvelop.ExceptionCollection.ToArray().Should().BeSubsetOf(outputEnvelop.ExceptionCollection.ToArray());
         }
     }
@@ -347,10 +346,10 @@ public class OutputEnvelopTest
 
         // Assert
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelop.OutputMessageCollection.Span[0].Type.Should().Be(OutputMessageType.Success);
-        outputEnvelop.OutputMessageCollection.Span[0].Code.Should().Be(outputMessageCode);
-        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().Be(outputMessageDescription);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Type.Should().Be(OutputMessageType.Success);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Code.Should().Be(outputMessageCode);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Description.Should().Be(outputMessageDescription);
     }
 
     [Fact]
@@ -362,8 +361,8 @@ public class OutputEnvelopTest
 
         // Assert
         outputEnvelop.Type.Should().Be(expectedOutputType);
-        outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
 
 
         outputEnvelop.IsSuccess.Should().BeFalse();
@@ -378,14 +377,14 @@ public class OutputEnvelopTest
     {
         // Arrange
         var outputEnvelopType = OutputEnvelopType.Partial;
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>(
-        [
+        var outputMessageCollection = new OutputMessage[] 
+        {
             OutputMessage.CreateInformation(code: Guid.NewGuid().ToString(), description: null)
-        ]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>(
-        [
-            new Exception()
-        ]);
+        };
+        var exceptionCollection = new Exception[] 
+        {
+            new()
+        };
 
         // Act
         var outputEnvelopWithNullCollections = OutputEnvelop.CreatePartial(
@@ -403,8 +402,8 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.Should().BeEquivalentTo(exceptionCollection);
 
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
-        outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopWithNullCollections.HasOutputMessage.Should().BeFalse();
+        outputEnvelopWithNullCollections.HasOutputMessage.Should().BeFalse();
 
 
         outputEnvelop.IsSuccess.Should().BeFalse();
@@ -459,31 +458,31 @@ public class OutputEnvelopTest
             ),
             OutputEnvelop.Create(
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateInformation(code: Guid.NewGuid().ToString())
-                ]),
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                ],
+                exceptionCollection: new Exception[]
+                {
+                    new()
+                }
             ),
             OutputEnvelop.Create(
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateError(code: Guid.NewGuid().ToString()),
                     OutputMessage.CreateWarning(code: Guid.NewGuid().ToString())
-                ]),
+                ],
                 exceptionCollection: null
             ),
             OutputEnvelop.Create(
                 outputEnvelopType,
                 outputMessageCollection: null,
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                exceptionCollection: new Exception[] 
+                {
+                    new()
+                }
             ),
         };
 
@@ -492,15 +491,15 @@ public class OutputEnvelopTest
 
         // Assert
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollection.Length));
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollection.Length));
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollectionCount));
+        outputEnvelop.ExceptionCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollectionCount));
 
         foreach (var existingOutputEnvelop in existingOutputEnvelopCollection)
         {
-            if (existingOutputEnvelop.OutputMessageCollection.Length > 0)
+            if (existingOutputEnvelop.HasOutputMessage)
                 existingOutputEnvelop.OutputMessageCollection.ToArray().Should().BeSubsetOf(outputEnvelop.OutputMessageCollection.ToArray());
 
-            if (existingOutputEnvelop.ExceptionCollection.Length > 0)
+            if (existingOutputEnvelop.HasException)
                 existingOutputEnvelop.ExceptionCollection.ToArray().Should().BeSubsetOf(outputEnvelop.ExceptionCollection.ToArray());
         }
     }
@@ -514,8 +513,8 @@ public class OutputEnvelopTest
 
         // Assert
         outputEnvelop.Type.Should().Be(expectedOutputType);
-        outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
 
         outputEnvelop.IsSuccess.Should().BeFalse();
         outputEnvelop.IsError.Should().BeTrue();
@@ -529,14 +528,14 @@ public class OutputEnvelopTest
     {
         // Arrange
         var outputEnvelopType = OutputEnvelopType.Error;
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>(
-        [
+        var outputMessageCollection = new OutputMessage[] 
+        {
             OutputMessage.CreateInformation(code: Guid.NewGuid().ToString(), description: null)
-        ]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>(
-        [
-            new Exception()
-        ]);
+        };
+        var exceptionCollection = new Exception[] 
+        {
+            new()
+        };
 
         // Act
         var outputEnvelopWithNullCollections = OutputEnvelop.CreateError(
@@ -554,8 +553,8 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.Should().BeEquivalentTo(exceptionCollection);
 
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
-        outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopWithNullCollections.HasOutputMessage.Should().BeFalse();
+        outputEnvelopWithNullCollections.HasOutputMessage.Should().BeFalse();
 
         outputEnvelop.IsSuccess.Should().BeFalse();
         outputEnvelop.IsPartial.Should().BeFalse();
@@ -609,31 +608,31 @@ public class OutputEnvelopTest
             ),
             OutputEnvelop.Create(
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateInformation(code: Guid.NewGuid().ToString())
-                ]),
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                ],
+                exceptionCollection: new Exception[]
+                {
+                    new()
+                }
             ),
             OutputEnvelop.Create(
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateError(code: Guid.NewGuid().ToString()),
                     OutputMessage.CreateWarning(code: Guid.NewGuid().ToString())
-                ]),
+                ],
                 exceptionCollection: null
             ),
             OutputEnvelop.Create(
                 outputEnvelopType,
                 outputMessageCollection: null,
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                exceptionCollection: new Exception[] 
+                {
+                    new()
+                }
             ),
         };
 
@@ -642,15 +641,15 @@ public class OutputEnvelopTest
 
         // Assert
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollection.Length));
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollection.Length));
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollectionCount));
+        outputEnvelop.ExceptionCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollectionCount));
 
         foreach (var existingOutputEnvelop in existingOutputEnvelopCollection)
         {
-            if (existingOutputEnvelop.OutputMessageCollection.Length > 0)
+            if (existingOutputEnvelop.HasOutputMessage)
                 existingOutputEnvelop.OutputMessageCollection.ToArray().Should().BeSubsetOf(outputEnvelop.OutputMessageCollection.ToArray());
 
-            if (existingOutputEnvelop.ExceptionCollection.Length > 0)
+            if (existingOutputEnvelop.HasException)
                 existingOutputEnvelop.ExceptionCollection.ToArray().Should().BeSubsetOf(outputEnvelop.ExceptionCollection.ToArray());
         }
     }
@@ -667,10 +666,10 @@ public class OutputEnvelopTest
 
         // Assert
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelop.OutputMessageCollection.Span[0].Type.Should().Be(OutputMessageType.Error);
-        outputEnvelop.OutputMessageCollection.Span[0].Code.Should().Be(outputMessageCode);
-        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().Be(outputMessageDescription);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Type.Should().Be(OutputMessageType.Error);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Code.Should().Be(outputMessageCode);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Description.Should().Be(outputMessageDescription);
     }
 
     [Theory]
@@ -680,8 +679,8 @@ public class OutputEnvelopTest
     public void OutputEnvelop_Should_Change_Type(OutputEnvelopType outputEnvelopType)
     {
         // Arrange
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>([new Exception()]);
+        var outputMessageCollection = new OutputMessage[] { OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString()) };
+        var exceptionCollection = new Exception[] { new() };
         var outputTypeCollection = Enum.GetValues<OutputEnvelopType>();
         var outputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
         var changedOutputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
@@ -709,12 +708,12 @@ public class OutputEnvelopTest
     {
         // Arrange
         var outputEnvelop = OutputEnvelop.CreateSuccess(
-            outputMessageCollection: new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]),
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            outputMessageCollection: [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop.CreateSuccess(
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var newOutputMessage = OutputMessage.CreateInformation(code: Guid.NewGuid().ToString());
 
@@ -726,14 +725,14 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(0);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(1);
+        newOutputEnvelop.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(1);
 
-        newOutputEnvelop.OutputMessageCollection.Span[1].Should().BeEquivalentTo(newOutputMessage);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Should().BeEquivalentTo(newOutputMessage);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Should().BeEquivalentTo(newOutputMessage);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Should().BeEquivalentTo(newOutputMessage);
     }
 
     [Fact]
@@ -741,12 +740,12 @@ public class OutputEnvelopTest
     {
         // Arrange
         var outputEnvelop = OutputEnvelop.CreateSuccess(
-            outputMessageCollection: new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]),
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            outputMessageCollection: [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop.CreateSuccess(
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var newOutputMessageCollection = new[] {
             OutputMessage.CreateInformation(code: Guid.NewGuid().ToString()),
@@ -761,11 +760,11 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(0);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(3);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(2);
+        newOutputEnvelop.OutputMessageCollectionCount.Should().Be(3);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(2);
 
         newOutputMessageCollection.Should().BeSubsetOf(newOutputEnvelop.OutputMessageCollection.ToArray());
         newOutputMessageCollection.Should().BeSubsetOf(newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray());
@@ -776,12 +775,12 @@ public class OutputEnvelopTest
     {
         // Arrange
         var outputEnvelop = OutputEnvelop.CreateSuccess(
-            outputMessageCollection: new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]),
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            outputMessageCollection: [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop.CreateSuccess(
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var expectedMessageType = OutputMessageType.Information;
         var messageCode = Guid.NewGuid().ToString();
@@ -795,19 +794,19 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(0);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(1);
+        newOutputEnvelop.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(1);
 
-        newOutputEnvelop.OutputMessageCollection.Span[1].Type.Should().Be(expectedMessageType);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Code.Should().Be(messageCode);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Description.Should().Be(messageDescription);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Type.Should().Be(expectedMessageType);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Code.Should().Be(messageCode);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().Be(messageDescription);
 
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Type.Should().Be(expectedMessageType);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Code.Should().Be(messageCode);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Description.Should().Be(messageDescription);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Type.Should().Be(expectedMessageType);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Code.Should().Be(messageCode);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Description.Should().Be(messageDescription);
     }
 
     [Fact]
@@ -815,12 +814,12 @@ public class OutputEnvelopTest
     {
         // Arrange
         var outputEnvelop = OutputEnvelop.CreateSuccess(
-            outputMessageCollection: new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]),
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            outputMessageCollection: [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop.CreateSuccess(
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var expectedMessageType = OutputMessageType.Success;
         var messageCode = Guid.NewGuid().ToString();
@@ -834,19 +833,19 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(0);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(1);
+        newOutputEnvelop.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(1);
 
-        newOutputEnvelop.OutputMessageCollection.Span[1].Type.Should().Be(expectedMessageType);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Code.Should().Be(messageCode);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Description.Should().Be(messageDescription);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Type.Should().Be(expectedMessageType);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Code.Should().Be(messageCode);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().Be(messageDescription);
 
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Type.Should().Be(expectedMessageType);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Code.Should().Be(messageCode);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Description.Should().Be(messageDescription);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Type.Should().Be(expectedMessageType);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Code.Should().Be(messageCode);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Description.Should().Be(messageDescription);
     }
 
     [Fact]
@@ -854,12 +853,12 @@ public class OutputEnvelopTest
     {
         // Arrange
         var outputEnvelop = OutputEnvelop.CreateSuccess(
-            outputMessageCollection: new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]),
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            outputMessageCollection: [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop.CreateSuccess(
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var expectedMessageType = OutputMessageType.Warning;
         var messageCode = Guid.NewGuid().ToString();
@@ -873,19 +872,19 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(0);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(1);
+        newOutputEnvelop.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(1);
 
-        newOutputEnvelop.OutputMessageCollection.Span[1].Type.Should().Be(expectedMessageType);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Code.Should().Be(messageCode);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Description.Should().Be(messageDescription);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Type.Should().Be(expectedMessageType);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Code.Should().Be(messageCode);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().Be(messageDescription);
 
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Type.Should().Be(expectedMessageType);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Code.Should().Be(messageCode);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Description.Should().Be(messageDescription);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Type.Should().Be(expectedMessageType);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Code.Should().Be(messageCode);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Description.Should().Be(messageDescription);
     }
 
     [Fact]
@@ -893,12 +892,12 @@ public class OutputEnvelopTest
     {
         // Arrange
         var outputEnvelop = OutputEnvelop.CreateSuccess(
-            outputMessageCollection: new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]),
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            outputMessageCollection: [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop.CreateSuccess(
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var expectedMessageType = OutputMessageType.Error;
         var messageCode = Guid.NewGuid().ToString();
@@ -912,19 +911,19 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(0);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(1);
+        newOutputEnvelop.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(1);
 
-        newOutputEnvelop.OutputMessageCollection.Span[1].Type.Should().Be(expectedMessageType);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Code.Should().Be(messageCode);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Description.Should().Be(messageDescription);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Type.Should().Be(expectedMessageType);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Code.Should().Be(messageCode);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().Be(messageDescription);
 
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Type.Should().Be(expectedMessageType);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Code.Should().Be(messageCode);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Description.Should().Be(messageDescription);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Type.Should().Be(expectedMessageType);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Code.Should().Be(messageCode);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Description.Should().Be(messageDescription);
     }
 
     [Fact]
@@ -933,7 +932,7 @@ public class OutputEnvelopTest
         // Arrange
         var outputEnvelop = OutputEnvelop.CreateSuccess(
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop.CreateSuccess(
             outputMessageCollection: null,
@@ -949,14 +948,14 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutException.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.ExceptionCollection.Span.Length.Should().Be(0);
+        outputEnvelop.ExceptionCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.ExceptionCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.ExceptionCollection.Span.Length.Should().Be(2);
-        newOutputEnvelopWithoutException.ExceptionCollection.Span.Length.Should().Be(1);
+        newOutputEnvelop.ExceptionCollectionCount.Should().Be(2);
+        newOutputEnvelopWithoutException.ExceptionCollectionCount.Should().Be(1);
 
-        newOutputEnvelop.ExceptionCollection.Span[1].Should().BeEquivalentTo(newException);
-        newOutputEnvelopWithoutException.ExceptionCollection.Span[0].Should().BeEquivalentTo(newException);
+        newOutputEnvelop.ExceptionCollection.ToArray()[1].Should().BeEquivalentTo(newException);
+        newOutputEnvelopWithoutException.ExceptionCollection.ToArray()[0].Should().BeEquivalentTo(newException);
     }
 
     [Fact]
@@ -965,7 +964,7 @@ public class OutputEnvelopTest
         // Arrange
         var outputEnvelop = OutputEnvelop.CreateSuccess(
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutException = OutputEnvelop.CreateSuccess(
             outputMessageCollection: null,
@@ -984,11 +983,11 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutException);
 
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutException.ExceptionCollection.Span.Length.Should().Be(0);
+        outputEnvelop.ExceptionCollectionCount.Should().Be(1);
+        outputEnvelopWithoutException.ExceptionCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.ExceptionCollection.Span.Length.Should().Be(3);
-        newOutputEnvelopWithoutOutputMessage.ExceptionCollection.Span.Length.Should().Be(2);
+        newOutputEnvelop.ExceptionCollectionCount.Should().Be(3);
+        newOutputEnvelopWithoutOutputMessage.ExceptionCollectionCount.Should().Be(2);
 
         newExceptionCollectionCollection.Should().BeSubsetOf(newOutputEnvelop.ExceptionCollection.ToArray());
         newExceptionCollectionCollection.Should().BeSubsetOf(newOutputEnvelopWithoutOutputMessage.ExceptionCollection.ToArray());
@@ -1006,12 +1005,12 @@ public class OutputEnvelopTest
         var secondOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType, code: "2");
         var thirdOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType, code: "3");
 
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>([
+        var outputMessageCollection = new OutputMessage[] { 
             firstOutputMessage,
             secondOutputMessage,
             thirdOutputMessage,
-        ]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>([new Exception()]);
+        };
+        var exceptionCollection = new Exception[] { new() };
         var outputTypeCollection = Enum.GetValues<OutputEnvelopType>();
         var outputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
         var changedOutputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
@@ -1028,13 +1027,13 @@ public class OutputEnvelopTest
         {
             var changedOutputEnvelop = changedOutputEnvelopArray[i];
 
-            changedOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(outputMessageCollection.Length);
+            changedOutputEnvelop.OutputMessageCollectionCount.Should().Be(outputMessageCollection.Length);
             changedOutputEnvelop.ExceptionCollection.Should().BeEquivalentTo(exceptionCollection);
 
-            changedOutputEnvelop.OutputMessageCollection.Span[0].Should().BeEquivalentTo(firstOutputMessage);
-            changedOutputEnvelop.OutputMessageCollection.Span[2].Should().BeEquivalentTo(thirdOutputMessage);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[0].Should().BeEquivalentTo(firstOutputMessage);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[2].Should().BeEquivalentTo(thirdOutputMessage);
 
-            changedOutputEnvelop.OutputMessageCollection.Span[1].Type.Should().Be(outputMessageType);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[1].Type.Should().Be(outputMessageType);
         }
 
     }
@@ -1065,14 +1064,14 @@ public class OutputEnvelopTest
         newOutputEvenlopForNonNullableChange.Should().NotBeEquivalentTo(outputEnvelop);
         newOutputEvenlopForNullableChange.Should().NotBeEquivalentTo(outputEnvelop);
 
-        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().BeNull();
-        outputEnvelop.OutputMessageCollection.Span[1].Description.Should().BeNull();
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Description.Should().BeNull();
+        outputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().BeNull();
 
-        newOutputEvenlopForNonNullableChange.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEvenlopForNullableChange.OutputMessageCollection.Span.Length.Should().Be(2);
+        newOutputEvenlopForNonNullableChange.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEvenlopForNullableChange.OutputMessageCollectionCount.Should().Be(2);
 
-        newOutputEvenlopForNonNullableChange.OutputMessageCollection.Span[0].Description.Should().Be(nonNullableDescription);
-        newOutputEvenlopForNullableChange.OutputMessageCollection.Span[1].Description.Should().Be(nullableDescription);
+        newOutputEvenlopForNonNullableChange.OutputMessageCollection.ToArray()[0].Description.Should().Be(nonNullableDescription);
+        newOutputEvenlopForNullableChange.OutputMessageCollection.ToArray()[1].Description.Should().Be(nullableDescription);
     }
 
     [Fact]
@@ -1101,14 +1100,14 @@ public class OutputEnvelopTest
         newOutputEvenlopForNonNullableChange.Should().NotBeEquivalentTo(outputEnvelop);
         newOutputEvenlopForNullableChange.Should().NotBeEquivalentTo(outputEnvelop);
 
-        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().NotBeNull();
-        outputEnvelop.OutputMessageCollection.Span[1].Description.Should().NotBeNull();
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Description.Should().NotBeNull();
+        outputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().NotBeNull();
 
-        newOutputEvenlopForNonNullableChange.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEvenlopForNullableChange.OutputMessageCollection.Span.Length.Should().Be(2);
+        newOutputEvenlopForNonNullableChange.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEvenlopForNullableChange.OutputMessageCollectionCount.Should().Be(2);
 
-        newOutputEvenlopForNonNullableChange.OutputMessageCollection.Span[0].Description.Should().Be(nonNullableDescription);
-        newOutputEvenlopForNullableChange.OutputMessageCollection.Span[1].Description.Should().Be(nullableDescription);
+        newOutputEvenlopForNonNullableChange.OutputMessageCollection.ToArray()[0].Description.Should().Be(nonNullableDescription);
+        newOutputEvenlopForNullableChange.OutputMessageCollection.ToArray()[1].Description.Should().Be(nullableDescription);
     }
 
     [Fact]
@@ -1125,8 +1124,8 @@ public class OutputEnvelopTest
 
         // Assert
         outputEnvelop.Type.Should().Be(expectedOutputEnvelopType);
-        outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
     }
 
     [Fact]
@@ -1160,8 +1159,8 @@ public class OutputEnvelopTest
         foreach (var outputEnvelop in outputEnvelopCollection)
         {
             outputEnvelop.Type.Should().Be(expectedOutputEnvelopType);
-            outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-            outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+            outputEnvelop.HasOutputMessage.Should().BeFalse();
+            outputEnvelop.HasOutputMessage.Should().BeFalse();
         }
     }
 
@@ -1185,8 +1184,8 @@ public class OutputEnvelopTest
         foreach (var outputEnvelop in outputEnvelopCollection)
         {
             outputEnvelop.Type.Should().Be(expectedOutputEnvelopType);
-            outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-            outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+            outputEnvelop.HasOutputMessage.Should().BeFalse();
+            outputEnvelop.HasOutputMessage.Should().BeFalse();
         }
     }
 
@@ -1196,7 +1195,7 @@ public class OutputEnvelopTest
         // Arrange
         var expectedOutputEnvelopType = OutputEnvelopType.Success;
 
-        var outputMessageCollectionArray = new[]
+        var outputMessageCollectionArray = new OutputMessage[][]
         {
             [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
             [OutputMessage.CreateInformation(code: Guid.NewGuid().ToString())],
@@ -1224,7 +1223,12 @@ public class OutputEnvelopTest
 
             outputEnvelop.Type.Should().Be(expectedOutputEnvelopType);
             outputEnvelop.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollectionArray[i]);
-            outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+            if(i == outputEnvelopCollection.Length -1)
+                outputEnvelop.HasOutputMessage.Should().BeFalse();
+            else
+                outputEnvelop.HasOutputMessage.Should().BeTrue();
+
         }
     }
 
@@ -1244,14 +1248,14 @@ public class OutputEnvelopTest
         var exceptionCollection =  new[] { new Exception() };
 
         // Act
-        var outputEnvelopA = OutputEnvelop.Create(outputMessageCollectionA, exceptionCollection: []);
+        var outputEnvelopA = OutputEnvelop.Create(outputMessageCollectionA, exceptionCollection: null);
         var outputEnvelopB = OutputEnvelop.Create(outputMessageCollectionB, exceptionCollection);
         var outputEnvelopC = OutputEnvelop.Create(outputMessageCollectionA, exceptionCollection);
 
         // Assert
         outputEnvelopA.Type.Should().Be(expectedOutputEnvelopType);
         outputEnvelopA.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollectionA);
-        outputEnvelopA.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopA.HasOutputMessage.Should().BeTrue();
 
         outputEnvelopB.Type.Should().Be(expectedOutputEnvelopType);
         outputEnvelopB.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollectionB);
@@ -1275,21 +1279,21 @@ public class OutputEnvelopTest
         var exceptionCollection = new[] { new Exception() };
 
         // Act
-        var outputEnvelopA = OutputEnvelop.Create(outputMessageCollection, exceptionCollection: []);
+        var outputEnvelopA = OutputEnvelop.Create(outputMessageCollection, exceptionCollection: null);
         var outputEnvelopB = OutputEnvelop.Create(outputMessageCollection, exceptionCollection);
         var outputEnvelopC = OutputEnvelop.Create(outputMessageCollection: [], exceptionCollection);
 
         // Assert
         outputEnvelopA.Type.Should().Be(expectedOutputEnvelopType);
         outputEnvelopA.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollection);
-        outputEnvelopA.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopA.HasOutputMessage.Should().BeTrue();
 
         outputEnvelopB.Type.Should().Be(expectedOutputEnvelopType);
         outputEnvelopB.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollection);
         outputEnvelopB.ExceptionCollection.ToArray().Should().BeEquivalentTo(exceptionCollection);
 
         outputEnvelopC.Type.Should().Be(expectedOutputEnvelopType);
-        outputEnvelopC.OutputMessageCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopC.HasOutputMessage.Should().BeFalse();
         outputEnvelopC.ExceptionCollection.ToArray().Should().BeEquivalentTo(exceptionCollection);
     }
 
@@ -1309,12 +1313,12 @@ public class OutputEnvelopTest
         var secondOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType, code: "2");
         var thirdOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType, code: "3");
 
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>([
+        var outputMessageCollection = new OutputMessage[] { 
             firstOutputMessage,
             secondOutputMessage,
             thirdOutputMessage,
-        ]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>([new Exception()]);
+        };
+        var exceptionCollection = new Exception[] { new() };
         var outputTypeCollection = Enum.GetValues<OutputEnvelopType>();
         var outputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
         var changedOutputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
@@ -1331,14 +1335,14 @@ public class OutputEnvelopTest
         {
             var changedOutputEnvelop = changedOutputEnvelopArray[i];
 
-            changedOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(outputMessageCollection.Length);
+            changedOutputEnvelop.OutputMessageCollectionCount.Should().Be(outputMessageCollection.Length);
             changedOutputEnvelop.ExceptionCollection.Should().BeEquivalentTo(exceptionCollection);
 
-            changedOutputEnvelop.OutputMessageCollection.Span[0].Should().BeEquivalentTo(firstOutputMessage);
-            changedOutputEnvelop.OutputMessageCollection.Span[2].Should().BeEquivalentTo(thirdOutputMessage);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[0].Should().BeEquivalentTo(firstOutputMessage);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[2].Should().BeEquivalentTo(thirdOutputMessage);
 
-            changedOutputEnvelop.OutputMessageCollection.Span[1].Type.Should().Be(outputMessageType);
-            changedOutputEnvelop.OutputMessageCollection.Span[1].Description.Should().Be(description);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[1].Type.Should().Be(outputMessageType);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().Be(description);
         }
     }
 
@@ -1385,7 +1389,7 @@ public class OutputEnvelopTest
         // Assert
         id.Should().Be(default(Guid));
         outputEnvelop.Type.Should().Be(OutputEnvelopType.Error);
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(1);
+        outputEnvelop.ExceptionCollectionCount.Should().Be(1);
         outputEnvelop.ExceptionCollection.ToArray()[0].Should().Be(exceptionToTrow);
     }
 
@@ -1440,7 +1444,7 @@ public class OutputEnvelopTest
         // Assert
         processedCustomer.Should().BeNull();
         outputEnvelop.Type.Should().Be(OutputEnvelopType.Error);
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(1);
+        outputEnvelop.ExceptionCollectionCount.Should().Be(1);
         outputEnvelop.ExceptionCollection.ToArray()[0].Should().Be(exceptionToTrow);
     }
 
@@ -1498,7 +1502,7 @@ public class OutputEnvelopTest
         // Assert
         id.Should().Be(default(Guid));
         outputEnvelop.Type.Should().Be(OutputEnvelopType.Error);
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(1);
+        outputEnvelop.ExceptionCollectionCount.Should().Be(1);
         outputEnvelop.ExceptionCollection.ToArray()[0].Should().Be(exceptionToTrow);
         receivedCancellationToken.Should().Be(cancellationTokenSource.Token);
     }
@@ -1565,7 +1569,7 @@ public class OutputEnvelopTest
         // Assert
         processedCustomer.Should().BeNull();
         outputEnvelop.Type.Should().Be(OutputEnvelopType.Error);
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(1);
+        outputEnvelop.ExceptionCollectionCount.Should().Be(1);
         outputEnvelop.ExceptionCollection.ToArray()[0].Should().Be(exceptionToTrow);
         receivedCancellationToken.Should().Be(cancellationTokenSource.Token);
     }
@@ -1603,8 +1607,8 @@ public class OutputEnvelopTest
         // Assert
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasException.Should().BeFalse();
     }
 
     [Theory]
@@ -1615,14 +1619,14 @@ public class OutputEnvelopTest
     {
         // Arrange
         var expectedOutput = 10;
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>(
-        [
+        var outputMessageCollection = new OutputMessage[] 
+        {
             OutputMessage.CreateInformation(code: Guid.NewGuid().ToString(), description: null)
-        ]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>(
-        [
-            new Exception()
-        ]);
+        };
+        var exceptionCollection = new Exception[] 
+        {
+            new()
+        };
 
         // Act
         var outputEnvelopWithNullCollections = OutputEnvelop<int>.Create(
@@ -1647,8 +1651,8 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.Should().BeEquivalentTo(exceptionCollection);
 
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
-        outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopWithNullCollections.HasOutputMessage.Should().BeFalse();
+        outputEnvelopWithNullCollections.HasException.Should().BeFalse();
     }
 
     [Theory]
@@ -1713,33 +1717,33 @@ public class OutputEnvelopTest
             OutputEnvelop<int>.Create(
                 expectedOutput,
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateInformation(code: Guid.NewGuid().ToString())
-                ]),
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                ],
+                exceptionCollection: new Exception[] 
+                {
+                    new()
+                }
             ),
             OutputEnvelop<int>.Create(
                 expectedOutput,
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateError(code: Guid.NewGuid().ToString()),
                     OutputMessage.CreateWarning(code: Guid.NewGuid().ToString())
-                ]),
+                ],
                 exceptionCollection: null
             ),
             OutputEnvelop<int>.Create(
                 expectedOutput,
                 outputEnvelopType,
                 outputMessageCollection: null,
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                exceptionCollection: new Exception[] 
+                {
+                    new()
+                }
             ),
         };
 
@@ -1749,16 +1753,15 @@ public class OutputEnvelopTest
         // Assert
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollection.Length));
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollection.Length));
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollection.Length));
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollectionCount));
+        outputEnvelop.ExceptionCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollectionCount));
 
         foreach (var existingOutputEnvelop in existingOutputEnvelopCollection)
         {
-            if (existingOutputEnvelop.OutputMessageCollection.Length > 0)
+            if (existingOutputEnvelop.OutputMessageCollectionCount > 0)
                 existingOutputEnvelop.OutputMessageCollection.ToArray().Should().BeSubsetOf(outputEnvelop.OutputMessageCollection.ToArray());
 
-            if (existingOutputEnvelop.ExceptionCollection.Length > 0)
+            if (existingOutputEnvelop.ExceptionCollectionCount > 0)
                 existingOutputEnvelop.ExceptionCollection.ToArray().Should().BeSubsetOf(outputEnvelop.ExceptionCollection.ToArray());
         }
     }
@@ -1776,8 +1779,8 @@ public class OutputEnvelopTest
         // Assert
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(expectedOutputType);
-        outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasException.Should().BeFalse();
 
         outputEnvelop.HasOutput.Should().BeTrue();
 
@@ -1794,14 +1797,14 @@ public class OutputEnvelopTest
         // Arrange
         var expectedOutput = 10;
         var outputEnvelopType = OutputEnvelopType.Success;
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>(
-        [
+        var outputMessageCollection = new OutputMessage[] 
+        {
             OutputMessage.CreateInformation(code: Guid.NewGuid().ToString(), description: null)
-        ]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>(
-        [
-            new Exception()
-        ]);
+        };
+        var exceptionCollection = new Exception[] 
+        {
+            new()
+        };
 
         // Act
         var outputEnvelopWithNullCollections = OutputEnvelop<int>.CreateSuccess(
@@ -1824,8 +1827,8 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.Should().BeEquivalentTo(exceptionCollection);
 
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
-        outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopWithNullCollections.HasOutputMessage.Should().BeFalse();
+        outputEnvelopWithNullCollections.HasException.Should().BeFalse();
 
         outputEnvelop.HasOutput.Should().BeTrue();
 
@@ -1890,33 +1893,33 @@ public class OutputEnvelopTest
             OutputEnvelop<int>.Create(
                 expectedOutput,
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateInformation(code: Guid.NewGuid().ToString())
-                ]),
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                ],
+                exceptionCollection: new Exception[] 
+                {
+                    new()
+                }
             ),
             OutputEnvelop<int>.Create(
                 expectedOutput,
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateError(code: Guid.NewGuid().ToString()),
                     OutputMessage.CreateWarning(code: Guid.NewGuid().ToString())
-                ]),
+                ],
                 exceptionCollection: null
             ),
             OutputEnvelop<int>.Create(
                 expectedOutput,
                 outputEnvelopType,
                 outputMessageCollection: null,
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                exceptionCollection: new Exception[] 
+                {
+                    new()
+                }
             ),
         };
 
@@ -1926,15 +1929,15 @@ public class OutputEnvelopTest
         // Assert
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollection.Length));
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollection.Length));
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollectionCount));
+        outputEnvelop.ExceptionCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollectionCount));
 
         foreach (var existingOutputEnvelop in existingOutputEnvelopCollection)
         {
-            if (existingOutputEnvelop.OutputMessageCollection.Length > 0)
+            if (existingOutputEnvelop.OutputMessageCollectionCount > 0)
                 existingOutputEnvelop.OutputMessageCollection.ToArray().Should().BeSubsetOf(outputEnvelop.OutputMessageCollection.ToArray());
 
-            if (existingOutputEnvelop.ExceptionCollection.Length > 0)
+            if (existingOutputEnvelop.ExceptionCollectionCount > 0)
                 existingOutputEnvelop.ExceptionCollection.ToArray().Should().BeSubsetOf(outputEnvelop.ExceptionCollection.ToArray());
         }
     }
@@ -1953,10 +1956,10 @@ public class OutputEnvelopTest
         // Assert
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelop.OutputMessageCollection.Span[0].Type.Should().Be(OutputMessageType.Success);
-        outputEnvelop.OutputMessageCollection.Span[0].Code.Should().Be(outputMessageCode);
-        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().Be(outputMessageDescription);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Type.Should().Be(OutputMessageType.Success);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Code.Should().Be(outputMessageCode);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Description.Should().Be(outputMessageDescription);
     }
 
     [Fact]
@@ -1972,8 +1975,8 @@ public class OutputEnvelopTest
         // Assert
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(expectedOutputType);
-        outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasException.Should().BeFalse();
 
         outputEnvelop.HasOutput.Should().BeTrue();
 
@@ -1990,14 +1993,14 @@ public class OutputEnvelopTest
         // Arrange
         var expectedOutput = 10;
         var outputEnvelopType = OutputEnvelopType.Partial;
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>(
-        [
+        var outputMessageCollection = new OutputMessage[] 
+        {
             OutputMessage.CreateInformation(code: Guid.NewGuid().ToString(), description: null)
-        ]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>(
-        [
-            new Exception()
-        ]);
+        };
+        var exceptionCollection = new Exception[] 
+        {
+            new()
+        };
 
         // Act
         var outputEnvelopWithNullCollections = OutputEnvelop<int>.CreatePartial(
@@ -2020,8 +2023,8 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.Should().BeEquivalentTo(exceptionCollection);
 
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
-        outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopWithNullCollections.HasOutputMessage.Should().BeFalse();
+        outputEnvelopWithNullCollections.HasException.Should().BeFalse();
 
         outputEnvelop.HasOutput.Should().BeTrue();
 
@@ -2086,33 +2089,33 @@ public class OutputEnvelopTest
             OutputEnvelop<int>.Create(
                 expectedOutput,
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateInformation(code: Guid.NewGuid().ToString())
-                ]),
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                ],
+                exceptionCollection: new Exception[] 
+                {
+                    new()
+                }
             ),
             OutputEnvelop<int>.Create(
                 expectedOutput,
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateError(code: Guid.NewGuid().ToString()),
                     OutputMessage.CreateWarning(code: Guid.NewGuid().ToString())
-                ]),
+                ],
                 exceptionCollection: null
             ),
             OutputEnvelop<int>.Create(
                 expectedOutput,
                 outputEnvelopType,
                 outputMessageCollection: null,
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                exceptionCollection: new Exception[] 
+                {
+                    new()
+                }
             ),
         };
 
@@ -2122,15 +2125,15 @@ public class OutputEnvelopTest
         // Assert
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollection.Length));
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollection.Length));
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollectionCount));
+        outputEnvelop.ExceptionCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollectionCount));
 
         foreach (var existingOutputEnvelop in existingOutputEnvelopCollection)
         {
-            if (existingOutputEnvelop.OutputMessageCollection.Length > 0)
+            if (existingOutputEnvelop.OutputMessageCollectionCount > 0)
                 existingOutputEnvelop.OutputMessageCollection.ToArray().Should().BeSubsetOf(outputEnvelop.OutputMessageCollection.ToArray());
 
-            if (existingOutputEnvelop.ExceptionCollection.Length > 0)
+            if (existingOutputEnvelop.ExceptionCollectionCount > 0)
                 existingOutputEnvelop.ExceptionCollection.ToArray().Should().BeSubsetOf(outputEnvelop.ExceptionCollection.ToArray());
         }
     }
@@ -2148,8 +2151,8 @@ public class OutputEnvelopTest
         // Assert
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(expectedOutputType);
-        outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasException.Should().BeFalse();
 
         outputEnvelop.HasOutput.Should().BeTrue();
 
@@ -2166,14 +2169,14 @@ public class OutputEnvelopTest
         // Arrange
         var expectedOutput = 10;
         var outputEnvelopType = OutputEnvelopType.Error;
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>(
-        [
+        var outputMessageCollection = new OutputMessage[] 
+        {
             OutputMessage.CreateInformation(code: Guid.NewGuid().ToString(), description: null)
-        ]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>(
-        [
-            new Exception()
-        ]);
+        };
+        var exceptionCollection = new Exception[] 
+        {
+            new()
+        };
 
         // Act
         var outputEnvelopWithNullCollections = OutputEnvelop<int>.CreateError(
@@ -2196,8 +2199,8 @@ public class OutputEnvelopTest
         outputEnvelop.ExceptionCollection.Should().BeEquivalentTo(exceptionCollection);
 
         outputEnvelopWithNullCollections.Type.Should().Be(outputEnvelopType);
-        outputEnvelopWithNullCollections.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelopWithNullCollections.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopWithNullCollections.HasOutputMessage.Should().BeFalse();
+        outputEnvelopWithNullCollections.HasException.Should().BeFalse();
 
         outputEnvelop.HasOutput.Should().BeTrue();
 
@@ -2262,33 +2265,33 @@ public class OutputEnvelopTest
             OutputEnvelop<int>.Create(
                 expectedOutput,
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateInformation(code: Guid.NewGuid().ToString())
-                ]),
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                ],
+                exceptionCollection: new Exception[] 
+                {
+                    new()
+                }
             ),
             OutputEnvelop<int>.Create(
                 expectedOutput,
                 outputEnvelopType,
-                outputMessageCollection: new ReadOnlyMemory<OutputMessage>(
+                outputMessageCollection:
                 [
                     OutputMessage.CreateError(code: Guid.NewGuid().ToString()),
                     OutputMessage.CreateWarning(code: Guid.NewGuid().ToString())
-                ]),
+                ],
                 exceptionCollection: null
             ),
             OutputEnvelop<int>.Create(
                 expectedOutput,
                 outputEnvelopType,
                 outputMessageCollection: null,
-                exceptionCollection: new ReadOnlyMemory<Exception>(
-                [
-                    new Exception()
-                ])
+                exceptionCollection: new Exception[] 
+                {
+                    new()
+                }
             ),
         };
 
@@ -2298,15 +2301,15 @@ public class OutputEnvelopTest
         // Assert
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollection.Length));
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollection.Length));
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.OutputMessageCollectionCount));
+        outputEnvelop.ExceptionCollectionCount.Should().Be(existingOutputEnvelopCollection.Sum(q => q.ExceptionCollectionCount));
 
         foreach (var existingOutputEnvelop in existingOutputEnvelopCollection)
         {
-            if (existingOutputEnvelop.OutputMessageCollection.Length > 0)
+            if (existingOutputEnvelop.OutputMessageCollectionCount > 0)
                 existingOutputEnvelop.OutputMessageCollection.ToArray().Should().BeSubsetOf(outputEnvelop.OutputMessageCollection.ToArray());
 
-            if (existingOutputEnvelop.ExceptionCollection.Length > 0)
+            if (existingOutputEnvelop.ExceptionCollectionCount > 0)
                 existingOutputEnvelop.ExceptionCollection.ToArray().Should().BeSubsetOf(outputEnvelop.ExceptionCollection.ToArray());
         }
     }
@@ -2325,10 +2328,10 @@ public class OutputEnvelopTest
         // Assert
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelop.OutputMessageCollection.Span[0].Type.Should().Be(OutputMessageType.Error);
-        outputEnvelop.OutputMessageCollection.Span[0].Code.Should().Be(outputMessageCode);
-        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().Be(outputMessageDescription);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Type.Should().Be(OutputMessageType.Error);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Code.Should().Be(outputMessageCode);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Description.Should().Be(outputMessageDescription);
     }
 
     [Fact]
@@ -2353,10 +2356,10 @@ public class OutputEnvelopTest
         // Assert
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(outputEnvelopType);
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelop.OutputMessageCollection.Span[0].Type.Should().Be(outputMessageType);
-        outputEnvelop.OutputMessageCollection.Span[0].Code.Should().Be(outputMessageCode);
-        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().Be(outputMessageDescription);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Type.Should().Be(outputMessageType);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Code.Should().Be(outputMessageCode);
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Description.Should().Be(outputMessageDescription);
     }
 
     [Theory]
@@ -2367,8 +2370,8 @@ public class OutputEnvelopTest
     {
         // Arrange
         var expectedOutput = 10;
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>([new Exception()]);
+        var outputMessageCollection = new OutputMessage[] { OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())};
+        var exceptionCollection = new Exception[] { new() };
         var outputTypeCollection = Enum.GetValues<OutputEnvelopType>();
         var outputEnvelopArray = new OutputEnvelop<int>[outputTypeCollection.Length];
         var changedOutputEnvelopArray = new OutputEnvelop<int>[outputTypeCollection.Length];
@@ -2399,13 +2402,13 @@ public class OutputEnvelopTest
         var expectedOutput = 10;
         var outputEnvelop = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
-            outputMessageCollection: new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]),
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            outputMessageCollection: [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var newOutputMessage = OutputMessage.CreateInformation(code: Guid.NewGuid().ToString());
 
@@ -2420,14 +2423,14 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(0);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(1);
+        newOutputEnvelop.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(1);
 
-        newOutputEnvelop.OutputMessageCollection.Span[1].Should().BeEquivalentTo(newOutputMessage);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Should().BeEquivalentTo(newOutputMessage);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Should().BeEquivalentTo(newOutputMessage);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Should().BeEquivalentTo(newOutputMessage);
     }
 
     [Fact]
@@ -2437,13 +2440,13 @@ public class OutputEnvelopTest
         var expectedOutput = 10;
         var outputEnvelop = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
-            outputMessageCollection: new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]),
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            outputMessageCollection: [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var newOutputMessageCollection = new[] {
             OutputMessage.CreateInformation(code: Guid.NewGuid().ToString()),
@@ -2461,11 +2464,11 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(0);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(3);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(2);
+        newOutputEnvelop.OutputMessageCollectionCount.Should().Be(3);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(2);
 
         newOutputMessageCollection.Should().BeSubsetOf(newOutputEnvelop.OutputMessageCollection.ToArray());
         newOutputMessageCollection.Should().BeSubsetOf(newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray());
@@ -2478,13 +2481,13 @@ public class OutputEnvelopTest
         var expectedOutput = 10;
         var outputEnvelop = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
-            outputMessageCollection: new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]),
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            outputMessageCollection: [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var expectedMessageType = OutputMessageType.Information;
         var messageCode = Guid.NewGuid().ToString();
@@ -2501,19 +2504,19 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(0);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(1);
+        newOutputEnvelop.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(1);
 
-        newOutputEnvelop.OutputMessageCollection.Span[1].Type.Should().Be(expectedMessageType);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Code.Should().Be(messageCode);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Description.Should().Be(messageDescription);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Type.Should().Be(expectedMessageType);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Code.Should().Be(messageCode);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().Be(messageDescription);
 
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Type.Should().Be(expectedMessageType);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Code.Should().Be(messageCode);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Description.Should().Be(messageDescription);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Type.Should().Be(expectedMessageType);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Code.Should().Be(messageCode);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Description.Should().Be(messageDescription);
     }
 
     [Fact]
@@ -2523,13 +2526,13 @@ public class OutputEnvelopTest
         var expectedOutput = 10;
         var outputEnvelop = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
-            outputMessageCollection: new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]),
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            outputMessageCollection: [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var expectedMessageType = OutputMessageType.Success;
         var messageCode = Guid.NewGuid().ToString();
@@ -2546,19 +2549,19 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(0);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(1);
+        newOutputEnvelop.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(1);
 
-        newOutputEnvelop.OutputMessageCollection.Span[1].Type.Should().Be(expectedMessageType);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Code.Should().Be(messageCode);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Description.Should().Be(messageDescription);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Type.Should().Be(expectedMessageType);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Code.Should().Be(messageCode);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().Be(messageDescription);
 
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Type.Should().Be(expectedMessageType);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Code.Should().Be(messageCode);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Description.Should().Be(messageDescription);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Type.Should().Be(expectedMessageType);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Code.Should().Be(messageCode);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Description.Should().Be(messageDescription);
     }
 
     [Fact]
@@ -2568,13 +2571,13 @@ public class OutputEnvelopTest
         var expectedOutput = 10;
         var outputEnvelop = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
-            outputMessageCollection: new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]),
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            outputMessageCollection: [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var expectedMessageType = OutputMessageType.Warning;
         var messageCode = Guid.NewGuid().ToString();
@@ -2591,19 +2594,19 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(0);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(1);
+        newOutputEnvelop.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(1);
 
-        newOutputEnvelop.OutputMessageCollection.Span[1].Type.Should().Be(expectedMessageType);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Code.Should().Be(messageCode);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Description.Should().Be(messageDescription);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Type.Should().Be(expectedMessageType);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Code.Should().Be(messageCode);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().Be(messageDescription);
 
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Type.Should().Be(expectedMessageType);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Code.Should().Be(messageCode);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Description.Should().Be(messageDescription);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Type.Should().Be(expectedMessageType);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Code.Should().Be(messageCode);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Description.Should().Be(messageDescription);
     }
 
     [Fact]
@@ -2613,13 +2616,13 @@ public class OutputEnvelopTest
         var expectedOutput = 10;
         var outputEnvelop = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
-            outputMessageCollection: new ReadOnlyMemory<OutputMessage>([OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())]),
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            outputMessageCollection: [OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString())],
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var expectedMessageType = OutputMessageType.Error;
         var messageCode = Guid.NewGuid().ToString();
@@ -2636,19 +2639,19 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.OutputMessageCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(0);
+        outputEnvelop.OutputMessageCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span.Length.Should().Be(1);
+        newOutputEnvelop.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollectionCount.Should().Be(1);
 
-        newOutputEnvelop.OutputMessageCollection.Span[1].Type.Should().Be(expectedMessageType);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Code.Should().Be(messageCode);
-        newOutputEnvelop.OutputMessageCollection.Span[1].Description.Should().Be(messageDescription);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Type.Should().Be(expectedMessageType);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Code.Should().Be(messageCode);
+        newOutputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().Be(messageDescription);
 
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Type.Should().Be(expectedMessageType);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Code.Should().Be(messageCode);
-        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.Span[0].Description.Should().Be(messageDescription);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Type.Should().Be(expectedMessageType);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Code.Should().Be(messageCode);
+        newOutputEnvelopWithoutOutputMessage.OutputMessageCollection.ToArray()[0].Description.Should().Be(messageDescription);
     }
 
     [Fact]
@@ -2659,7 +2662,7 @@ public class OutputEnvelopTest
         var outputEnvelop = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutOutputMessage = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
@@ -2679,14 +2682,14 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutException.Should().NotBeSameAs(outputEnvelopWithoutOutputMessage);
 
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutOutputMessage.ExceptionCollection.Span.Length.Should().Be(0);
+        outputEnvelop.ExceptionCollectionCount.Should().Be(1);
+        outputEnvelopWithoutOutputMessage.ExceptionCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.ExceptionCollection.Span.Length.Should().Be(2);
-        newOutputEnvelopWithoutException.ExceptionCollection.Span.Length.Should().Be(1);
+        newOutputEnvelop.ExceptionCollectionCount.Should().Be(2);
+        newOutputEnvelopWithoutException.ExceptionCollectionCount.Should().Be(1);
 
-        newOutputEnvelop.ExceptionCollection.Span[1].Should().BeEquivalentTo(newException);
-        newOutputEnvelopWithoutException.ExceptionCollection.Span[0].Should().BeEquivalentTo(newException);
+        newOutputEnvelop.ExceptionCollection.ToArray()[1].Should().BeEquivalentTo(newException);
+        newOutputEnvelopWithoutException.ExceptionCollection.ToArray()[0].Should().BeEquivalentTo(newException);
     }
 
     [Fact]
@@ -2697,7 +2700,7 @@ public class OutputEnvelopTest
         var outputEnvelop = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
             outputMessageCollection: null,
-            exceptionCollection: new ReadOnlyMemory<Exception>([new Exception()])
+            exceptionCollection: new Exception[] { new() }
         );
         var outputEnvelopWithoutException = OutputEnvelop<int>.CreateSuccess(
             expectedOutput,
@@ -2720,11 +2723,11 @@ public class OutputEnvelopTest
         newOutputEnvelop.Should().NotBeSameAs(outputEnvelop);
         newOutputEnvelopWithoutOutputMessage.Should().NotBeSameAs(outputEnvelopWithoutException);
 
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(1);
-        outputEnvelopWithoutException.ExceptionCollection.Span.Length.Should().Be(0);
+        outputEnvelop.ExceptionCollectionCount.Should().Be(1);
+        outputEnvelopWithoutException.ExceptionCollectionCount.Should().Be(0);
 
-        newOutputEnvelop.ExceptionCollection.Span.Length.Should().Be(3);
-        newOutputEnvelopWithoutOutputMessage.ExceptionCollection.Span.Length.Should().Be(2);
+        newOutputEnvelop.ExceptionCollectionCount.Should().Be(3);
+        newOutputEnvelopWithoutOutputMessage.ExceptionCollectionCount.Should().Be(2);
 
         newExceptionCollectionCollection.Should().BeSubsetOf(newOutputEnvelop.ExceptionCollection.ToArray());
         newExceptionCollectionCollection.Should().BeSubsetOf(newOutputEnvelopWithoutOutputMessage.ExceptionCollection.ToArray());
@@ -2742,12 +2745,12 @@ public class OutputEnvelopTest
         var secondOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType, code: "2");
         var thirdOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType, code: "3");
 
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>([
+        var outputMessageCollection = new OutputMessage[] { 
             firstOutputMessage,
             secondOutputMessage,
             thirdOutputMessage,
-        ]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>([new Exception()]);
+        };
+        var exceptionCollection = new Exception[] { new() };
         var outputTypeCollection = Enum.GetValues<OutputEnvelopType>();
         var outputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
         var changedOutputEnvelopArray = new OutputEnvelop[outputTypeCollection.Length];
@@ -2764,13 +2767,13 @@ public class OutputEnvelopTest
         {
             var changedOutputEnvelop = changedOutputEnvelopArray[i];
 
-            changedOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(outputMessageCollection.Length);
+            changedOutputEnvelop.OutputMessageCollectionCount.Should().Be(outputMessageCollection.Length);
             changedOutputEnvelop.ExceptionCollection.Should().BeEquivalentTo(exceptionCollection);
 
-            changedOutputEnvelop.OutputMessageCollection.Span[0].Should().BeEquivalentTo(firstOutputMessage);
-            changedOutputEnvelop.OutputMessageCollection.Span[2].Should().BeEquivalentTo(thirdOutputMessage);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[0].Should().BeEquivalentTo(firstOutputMessage);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[2].Should().BeEquivalentTo(thirdOutputMessage);
 
-            changedOutputEnvelop.OutputMessageCollection.Span[1].Type.Should().Be(outputMessageType);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[1].Type.Should().Be(outputMessageType);
         }
 
     }
@@ -2801,14 +2804,14 @@ public class OutputEnvelopTest
         newOutputEvenlopForNonNullableChange.Should().NotBeEquivalentTo(outputEnvelop);
         newOutputEvenlopForNullableChange.Should().NotBeEquivalentTo(outputEnvelop);
 
-        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().BeNull();
-        outputEnvelop.OutputMessageCollection.Span[1].Description.Should().BeNull();
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Description.Should().BeNull();
+        outputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().BeNull();
 
-        newOutputEvenlopForNonNullableChange.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEvenlopForNullableChange.OutputMessageCollection.Span.Length.Should().Be(2);
+        newOutputEvenlopForNonNullableChange.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEvenlopForNullableChange.OutputMessageCollectionCount.Should().Be(2);
 
-        newOutputEvenlopForNonNullableChange.OutputMessageCollection.Span[0].Description.Should().Be(nonNullableDescription);
-        newOutputEvenlopForNullableChange.OutputMessageCollection.Span[1].Description.Should().Be(nullableDescription);
+        newOutputEvenlopForNonNullableChange.OutputMessageCollection.ToArray()[0].Description.Should().Be(nonNullableDescription);
+        newOutputEvenlopForNullableChange.OutputMessageCollection.ToArray()[1].Description.Should().Be(nullableDescription);
     }
 
     [Fact]
@@ -2837,14 +2840,14 @@ public class OutputEnvelopTest
         newOutputEvenlopForNonNullableChange.Should().NotBeEquivalentTo(outputEnvelop);
         newOutputEvenlopForNullableChange.Should().NotBeEquivalentTo(outputEnvelop);
 
-        outputEnvelop.OutputMessageCollection.Span[0].Description.Should().NotBeNull();
-        outputEnvelop.OutputMessageCollection.Span[1].Description.Should().NotBeNull();
+        outputEnvelop.OutputMessageCollection.ToArray()[0].Description.Should().NotBeNull();
+        outputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().NotBeNull();
 
-        newOutputEvenlopForNonNullableChange.OutputMessageCollection.Span.Length.Should().Be(2);
-        newOutputEvenlopForNullableChange.OutputMessageCollection.Span.Length.Should().Be(2);
+        newOutputEvenlopForNonNullableChange.OutputMessageCollectionCount.Should().Be(2);
+        newOutputEvenlopForNullableChange.OutputMessageCollectionCount.Should().Be(2);
 
-        newOutputEvenlopForNonNullableChange.OutputMessageCollection.Span[0].Description.Should().Be(nonNullableDescription);
-        newOutputEvenlopForNullableChange.OutputMessageCollection.Span[1].Description.Should().Be(nullableDescription);
+        newOutputEvenlopForNonNullableChange.OutputMessageCollection.ToArray()[0].Description.Should().Be(nonNullableDescription);
+        newOutputEvenlopForNullableChange.OutputMessageCollection.ToArray()[1].Description.Should().Be(nullableDescription);
     }
 
     [Fact]
@@ -2861,8 +2864,8 @@ public class OutputEnvelopTest
 
         // Assert
         outputEnvelop.Type.Should().Be(expectedOutputEnvelopType);
-        outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-        outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
+        outputEnvelop.HasOutputMessage.Should().BeFalse();
     }
 
     [Fact]
@@ -2896,8 +2899,8 @@ public class OutputEnvelopTest
         foreach (var outputEnvelop in outputEnvelopCollection)
         {
             outputEnvelop.Type.Should().Be(expectedOutputEnvelopType);
-            outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-            outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+            outputEnvelop.HasOutputMessage.Should().BeFalse();
+            outputEnvelop.HasOutputMessage.Should().BeFalse();
         }
     }
 
@@ -2921,8 +2924,8 @@ public class OutputEnvelopTest
         foreach (var outputEnvelop in outputEnvelopCollection)
         {
             outputEnvelop.Type.Should().Be(expectedOutputEnvelopType);
-            outputEnvelop.OutputMessageCollection.IsEmpty.Should().BeTrue();
-            outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+            outputEnvelop.HasOutputMessage.Should().BeFalse();
+            outputEnvelop.HasOutputMessage.Should().BeFalse();
         }
     }
 
@@ -2960,7 +2963,11 @@ public class OutputEnvelopTest
 
             outputEnvelop.Type.Should().Be(expectedOutputEnvelopType);
             outputEnvelop.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollectionArray[i]);
-            outputEnvelop.ExceptionCollection.IsEmpty.Should().BeTrue();
+
+            if(i == outputEnvelopCollection.Length - 1)
+                outputEnvelop.HasOutputMessage.Should().BeFalse();
+            else
+                outputEnvelop.HasOutputMessage.Should().BeTrue();
         }
     }
 
@@ -2980,14 +2987,14 @@ public class OutputEnvelopTest
         var exceptionCollection = new[] { new Exception() };
 
         // Act
-        var outputEnvelopA = OutputEnvelop.Create(outputMessageCollectionA, exceptionCollection: []);
+        var outputEnvelopA = OutputEnvelop.Create(outputMessageCollectionA, exceptionCollection: null);
         var outputEnvelopB = OutputEnvelop.Create(outputMessageCollectionB, exceptionCollection);
         var outputEnvelopC = OutputEnvelop.Create(outputMessageCollectionA, exceptionCollection);
 
         // Assert
         outputEnvelopA.Type.Should().Be(expectedOutputEnvelopType);
         outputEnvelopA.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollectionA);
-        outputEnvelopA.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopA.HasOutputMessage.Should().BeTrue();
 
         outputEnvelopB.Type.Should().Be(expectedOutputEnvelopType);
         outputEnvelopB.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollectionB);
@@ -3011,21 +3018,21 @@ public class OutputEnvelopTest
         var exceptionCollection = new[] { new Exception() };
 
         // Act
-        var outputEnvelopA = OutputEnvelop.Create(outputMessageCollection, exceptionCollection: []);
+        var outputEnvelopA = OutputEnvelop.Create(outputMessageCollection, exceptionCollection: null);
         var outputEnvelopB = OutputEnvelop.Create(outputMessageCollection, exceptionCollection);
         var outputEnvelopC = OutputEnvelop.Create(outputMessageCollection: [], exceptionCollection);
 
         // Assert
         outputEnvelopA.Type.Should().Be(expectedOutputEnvelopType);
         outputEnvelopA.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollection);
-        outputEnvelopA.ExceptionCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopA.HasOutputMessage.Should().BeTrue();
 
         outputEnvelopB.Type.Should().Be(expectedOutputEnvelopType);
         outputEnvelopB.OutputMessageCollection.ToArray().Should().BeEquivalentTo(outputMessageCollection);
         outputEnvelopB.ExceptionCollection.ToArray().Should().BeEquivalentTo(exceptionCollection);
 
         outputEnvelopC.Type.Should().Be(expectedOutputEnvelopType);
-        outputEnvelopC.OutputMessageCollection.IsEmpty.Should().BeTrue();
+        outputEnvelopC.HasOutputMessage.Should().BeFalse();
         outputEnvelopC.ExceptionCollection.ToArray().Should().BeEquivalentTo(exceptionCollection);
     }
 
@@ -3046,12 +3053,12 @@ public class OutputEnvelopTest
         var secondOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType, code: "2");
         var thirdOutputMessage = OutputMessage.Create(outputMessageType == OutputMessageType.Success ? OutputMessageType.Error : outputMessageType, code: "3");
 
-        var outputMessageCollection = new ReadOnlyMemory<OutputMessage>([
+        var outputMessageCollection = new OutputMessage[] { 
             firstOutputMessage,
             secondOutputMessage,
             thirdOutputMessage,
-        ]);
-        var exceptionCollection = new ReadOnlyMemory<Exception>([new Exception()]);
+        };
+        var exceptionCollection = new Exception[] { new() };
         var outputTypeCollection = Enum.GetValues<OutputEnvelopType>();
         var outputEnvelopArray = new OutputEnvelop<int>[outputTypeCollection.Length];
         var changedOutputEnvelopArray = new OutputEnvelop<int>[outputTypeCollection.Length];
@@ -3070,14 +3077,14 @@ public class OutputEnvelopTest
 
             changedOutputEnvelop.Output.Should().Be(expectedOutput);
 
-            changedOutputEnvelop.OutputMessageCollection.Span.Length.Should().Be(outputMessageCollection.Length);
+            changedOutputEnvelop.OutputMessageCollectionCount.Should().Be(outputMessageCollection.Length);
             changedOutputEnvelop.ExceptionCollection.Should().BeEquivalentTo(exceptionCollection);
 
-            changedOutputEnvelop.OutputMessageCollection.Span[0].Should().BeEquivalentTo(firstOutputMessage);
-            changedOutputEnvelop.OutputMessageCollection.Span[2].Should().BeEquivalentTo(thirdOutputMessage);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[0].Should().BeEquivalentTo(firstOutputMessage);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[2].Should().BeEquivalentTo(thirdOutputMessage);
 
-            changedOutputEnvelop.OutputMessageCollection.Span[1].Type.Should().Be(outputMessageType);
-            changedOutputEnvelop.OutputMessageCollection.Span[1].Description.Should().Be(description);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[1].Type.Should().Be(outputMessageType);
+            changedOutputEnvelop.OutputMessageCollection.ToArray()[1].Description.Should().Be(description);
         }
     }
 
@@ -3128,7 +3135,7 @@ public class OutputEnvelopTest
         id.Should().Be(default(Guid));
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(OutputEnvelopType.Error);
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(1);
+        outputEnvelop.ExceptionCollectionCount.Should().Be(1);
         outputEnvelop.ExceptionCollection.ToArray()[0].Should().Be(exceptionToTrow);
     }
 
@@ -3189,7 +3196,7 @@ public class OutputEnvelopTest
         processedCustomer.Should().BeNull();
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(OutputEnvelopType.Error);
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(1);
+        outputEnvelop.ExceptionCollectionCount.Should().Be(1);
         outputEnvelop.ExceptionCollection.ToArray()[0].Should().Be(exceptionToTrow);
     }
 
@@ -3251,7 +3258,7 @@ public class OutputEnvelopTest
         id.Should().Be(default(Guid));
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(OutputEnvelopType.Error);
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(1);
+        outputEnvelop.ExceptionCollectionCount.Should().Be(1);
         outputEnvelop.ExceptionCollection.ToArray()[0].Should().Be(exceptionToTrow);
         receivedCancellationToken.Should().Be(cancellationTokenSource.Token);
     }
@@ -3322,7 +3329,7 @@ public class OutputEnvelopTest
         processedCustomer.Should().BeNull();
         outputEnvelop.Output.Should().Be(expectedOutput);
         outputEnvelop.Type.Should().Be(OutputEnvelopType.Error);
-        outputEnvelop.ExceptionCollection.Span.Length.Should().Be(1);
+        outputEnvelop.ExceptionCollectionCount.Should().Be(1);
         outputEnvelop.ExceptionCollection.ToArray()[0].Should().Be(exceptionToTrow);
         receivedCancellationToken.Should().Be(cancellationTokenSource.Token);
     }
