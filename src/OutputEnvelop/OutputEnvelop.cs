@@ -294,13 +294,9 @@ namespace MCIO.OutputEnvelop
 
             hasException = exceptionCollection?.Length > 0;
 
-            return hasSuccessOutputMessage
-                ? hasErrorOutputMessage || hasException
-                    ? OutputEnvelopType.Partial
-                    : OutputEnvelopType.Success
-                : hasErrorOutputMessage || hasException
-                    ? OutputEnvelopType.Error
-                    : OutputEnvelopType.Success;
+            return hasErrorOutputMessage || hasException
+                ? (hasSuccessOutputMessage ? OutputEnvelopType.Partial : OutputEnvelopType.Error)
+                : OutputEnvelopType.Success;
         }
 
         // Private Methods
@@ -339,10 +335,8 @@ namespace MCIO.OutputEnvelop
                 return OutputEnvelopType.Partial;
             else if (hasSuccessType)
                 return hasErrorType ? OutputEnvelopType.Partial : OutputEnvelopType.Success;
-            else if (hasErrorType)
-                return OutputEnvelopType.Error;
             else
-                return default;
+                return OutputEnvelopType.Error;
         }        
     }
 
