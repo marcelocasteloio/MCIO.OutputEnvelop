@@ -1,5 +1,6 @@
 ﻿using MCIO.OutputEnvelop.Samples.SampleApi.Domain.Entities;
 using MCIO.OutputEnvelop.Samples.SampleApi.Domain.Repositoes;
+using System.Collections.Concurrent;
 
 namespace MCIO.OutputEnvelop.Samples.SampleApi.Infra.Data.Repositories;
 
@@ -7,7 +8,7 @@ public class CustomerRepository
     : ICustomerRepository
 {
     // Fields
-    private static List<Customer> _customerCollection = [];
+    private static ConcurrentBag<Customer> _customerCollection = [];
 
     // Public Methods
     public Task<OutputEnvelop> RegisterNewAsync(Customer customer, CancellationToken cancellationToken)
