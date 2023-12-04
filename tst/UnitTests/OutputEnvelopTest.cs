@@ -1170,7 +1170,28 @@ public class OutputEnvelopTest
         var expectedOutputEnvelopType = OutputEnvelopType.Error;
         var outputEnvelopCollectionA = new[] {
             OutputEnvelop.CreateError(),
-            OutputEnvelop.CreateError()
+            OutputEnvelop.CreateError(
+                outputMessageCollection:
+                [
+                    OutputMessage.CreateError(code: Guid.NewGuid().ToString())
+                ],
+                exceptionCollection:
+                [
+                    new Exception()
+                ]
+            ),
+            OutputEnvelop.CreateError(
+                outputMessageCollection:
+                [
+                    OutputMessage.CreateError(code: Guid.NewGuid().ToString()),
+                    OutputMessage.CreateError(code: Guid.NewGuid().ToString())
+                ],
+                exceptionCollection: 
+                [
+                    new Exception(),
+                    new Exception()
+                ]
+            )
         };
 
         // Act
@@ -1180,11 +1201,13 @@ public class OutputEnvelopTest
         };
 
         // Assert
-        foreach (var outputEnvelop in outputEnvelopCollection)
+        for (int i = 0; i < outputEnvelopCollection.Length; i++)
         {
+            var outputEnvelop = outputEnvelopCollection[i];
+
             outputEnvelop.Type.Should().Be(expectedOutputEnvelopType);
-            outputEnvelop.HasOutputMessage.Should().BeFalse();
-            outputEnvelop.HasOutputMessage.Should().BeFalse();
+            outputEnvelop.HasOutputMessage.Should().BeTrue();
+            outputEnvelop.HasOutputMessage.Should().BeTrue();
         }
     }
 
