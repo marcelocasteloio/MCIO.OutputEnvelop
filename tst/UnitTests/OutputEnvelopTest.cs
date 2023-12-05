@@ -1778,6 +1778,44 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.HasException.Should().BeFalse();
     }
 
+    [Fact]
+    public void OutputEnvelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection_WithoutType()
+    {
+        // Arrange
+        var expectedOutput = 10;
+        var existingSuccessOutputEnvelop = OutputEnvelop.CreateSuccess();
+        var existingPartialOutputEnvelop = OutputEnvelop.CreatePartial();
+        var existingErrorOutputEnvelop = OutputEnvelop.CreateError();
+
+        // Act
+        var successOutputEnvelop = OutputEnvelop<int>.Create(
+            expectedOutput,
+            existingSuccessOutputEnvelop,
+            existingSuccessOutputEnvelop
+        );
+        var partialOutputEnvelop = OutputEnvelop<int>.Create(
+            expectedOutput,
+            existingPartialOutputEnvelop,
+            existingPartialOutputEnvelop
+        );
+        var errorOutputEnvelop = OutputEnvelop<int>.Create(
+            expectedOutput,
+            existingErrorOutputEnvelop,
+            existingErrorOutputEnvelop
+        );
+
+        // Assert
+        successOutputEnvelop.Output.Should().Be(expectedOutput);
+        successOutputEnvelop.Type.Should().Be(OutputEnvelopType.Success);
+
+        partialOutputEnvelop.Output.Should().Be(expectedOutput);
+        partialOutputEnvelop.Type.Should().Be(OutputEnvelopType.Partial);
+
+        errorOutputEnvelop.Output.Should().Be(expectedOutput);
+        errorOutputEnvelop.Type.Should().Be(OutputEnvelopType.Error);
+    }
+
+
     [Theory]
     [InlineData(OutputEnvelopType.Error)]
     [InlineData(OutputEnvelopType.Partial)]
