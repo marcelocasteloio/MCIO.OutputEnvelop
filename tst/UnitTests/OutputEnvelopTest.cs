@@ -1778,6 +1778,42 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.HasException.Should().BeFalse();
     }
 
+    [Fact]
+    public void OutputEnvelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection_WithoutType()
+    {
+        // Arrange
+        var expectedOutput = 10;
+
+        // Act
+        var outputEnvelopA = OutputEnvelop<int>.Create(
+            expectedOutput,
+            outputMessageCollection: null,
+            exceptionCollection: null
+        );
+        var outputEnvelopB = OutputEnvelop<int>.Create(
+            expectedOutput,
+            outputMessageCollection: [ OutputMessage.CreateSuccess(code: Guid.NewGuid().ToString()) ],
+            exceptionCollection: null
+        );
+        var outputEnvelopC = OutputEnvelop<int>.Create(
+            expectedOutput,
+            outputMessageCollection: null,
+            exceptionCollection: [ new Exception() ]
+        );
+
+        // Assert
+        outputEnvelopA.Output.Should().Be(expectedOutput);
+        outputEnvelopA.HasOutputMessage.Should().BeFalse();
+        outputEnvelopA.HasException.Should().BeFalse();
+
+        outputEnvelopB.Output.Should().Be(expectedOutput);
+        outputEnvelopB.HasOutputMessage.Should().BeTrue();
+        outputEnvelopB.HasException.Should().BeFalse();
+
+        outputEnvelopC.Output.Should().Be(expectedOutput);
+        outputEnvelopC.HasOutputMessage.Should().BeFalse();
+        outputEnvelopC.HasException.Should().BeTrue();
+    }
 
     [Theory]
     [InlineData(OutputEnvelopType.Error)]
