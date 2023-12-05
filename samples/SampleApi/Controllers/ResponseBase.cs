@@ -4,6 +4,11 @@ public abstract class ResponseBase
 {
     public IEnumerable<Message> Messages { get; set; }
 }
+public abstract class ResponseBase<TData>
+    : ResponseBase
+{
+    public TData Data { get; set; }
+}
 
 public class Message
 {

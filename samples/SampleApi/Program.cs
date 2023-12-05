@@ -1,3 +1,5 @@
+using MCIO.OutputEnvelop.Samples.SampleApi.Application.Queries.GetAllCustomers;
+using MCIO.OutputEnvelop.Samples.SampleApi.Application.Queries.GetCustomerByEmail;
 using MCIO.OutputEnvelop.Samples.SampleApi.Application.UseCases.RegisterNewCustomer;
 using MCIO.OutputEnvelop.Samples.SampleApi.Domain.Repositoes;
 using MCIO.OutputEnvelop.Samples.SampleApi.Domain.Services.Customers;
@@ -10,7 +12,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerDomainService, CustomerDomainService>();
+
 builder.Services.AddScoped<IRegisterNewCustomerUseCase, RegisterNewCustomerUseCase>();
+
+builder.Services.AddScoped<IGetAllCustomersQuery, GetAllCustomersQuery>();
+builder.Services.AddScoped<IGetCustomerByEmailQuery, GetCustomerByEmailQuery>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEventPublisher, EventPublisher>();
