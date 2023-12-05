@@ -1778,43 +1778,6 @@ public class OutputEnvelopTest
         outputEnvelopWithNullCollections.HasException.Should().BeFalse();
     }
 
-    [Fact]
-    public void OutputEnvelopWithOutput_Should_Created_WithOutputMessageCollection_And_ExceptionCollection_WithoutType()
-    {
-        // Arrange
-        var expectedOutput = 10;
-        var existingSuccessOutputEnvelop = OutputEnvelop.CreateSuccess();
-        var existingPartialOutputEnvelop = OutputEnvelop.CreatePartial();
-        var existingErrorOutputEnvelop = OutputEnvelop.CreateError();
-
-        // Act
-        var successOutputEnvelop = OutputEnvelop<int>.Create(
-            expectedOutput,
-            existingSuccessOutputEnvelop,
-            existingSuccessOutputEnvelop
-        );
-        var partialOutputEnvelop = OutputEnvelop<int>.Create(
-            expectedOutput,
-            existingPartialOutputEnvelop,
-            existingPartialOutputEnvelop
-        );
-        var errorOutputEnvelop = OutputEnvelop<int>.Create(
-            expectedOutput,
-            existingErrorOutputEnvelop,
-            existingErrorOutputEnvelop
-        );
-
-        // Assert
-        successOutputEnvelop.Output.Should().Be(expectedOutput);
-        successOutputEnvelop.Type.Should().Be(OutputEnvelopType.Success);
-
-        partialOutputEnvelop.Output.Should().Be(expectedOutput);
-        partialOutputEnvelop.Type.Should().Be(OutputEnvelopType.Partial);
-
-        errorOutputEnvelop.Output.Should().Be(expectedOutput);
-        errorOutputEnvelop.Type.Should().Be(OutputEnvelopType.Error);
-    }
-
 
     [Theory]
     [InlineData(OutputEnvelopType.Error)]
@@ -1925,6 +1888,53 @@ public class OutputEnvelopTest
             if (existingOutputEnvelop.ExceptionCollectionCount > 0)
                 existingOutputEnvelop.ExceptionCollection.ToArray().Should().BeSubsetOf(outputEnvelop.ExceptionCollection.ToArray());
         }
+    }
+
+    [Fact]
+    public void OutputEnvelopWithOutput_Should_Created_From_OutputEnvelopCollection_WithoutType()
+    {
+        // Arrange
+        var expectedOutput = 10;
+        var existingSuccessOutputEnvelop = OutputEnvelop.CreateSuccess();
+        var existingPartialOutputEnvelop = OutputEnvelop.CreatePartial();
+        var existingErrorOutputEnvelop = OutputEnvelop.CreateError();
+
+        // Act
+        var successOutputEnvelop = OutputEnvelop<int>.Create(
+            expectedOutput,
+            existingSuccessOutputEnvelop,
+            existingSuccessOutputEnvelop
+        );
+        var partialOutputEnvelopA = OutputEnvelop<int>.Create(
+            expectedOutput,
+            existingPartialOutputEnvelop,
+            existingPartialOutputEnvelop
+        );
+        var partialOutputEnvelopB = OutputEnvelop<int>.Create(
+            expectedOutput,
+            existingSuccessOutputEnvelop,
+            existingSuccessOutputEnvelop,
+            existingErrorOutputEnvelop,
+            existingErrorOutputEnvelop
+        );
+        var errorOutputEnvelop = OutputEnvelop<int>.Create(
+            expectedOutput,
+            existingErrorOutputEnvelop,
+            existingErrorOutputEnvelop
+        );
+
+        // Assert
+        successOutputEnvelop.Output.Should().Be(expectedOutput);
+        successOutputEnvelop.Type.Should().Be(OutputEnvelopType.Success);
+
+        partialOutputEnvelopA.Output.Should().Be(expectedOutput);
+        partialOutputEnvelopA.Type.Should().Be(OutputEnvelopType.Partial);
+
+        partialOutputEnvelopB.Output.Should().Be(expectedOutput);
+        partialOutputEnvelopB.Type.Should().Be(OutputEnvelopType.Partial);
+
+        errorOutputEnvelop.Output.Should().Be(expectedOutput);
+        errorOutputEnvelop.Type.Should().Be(OutputEnvelopType.Error);
     }
 
     [Fact]
