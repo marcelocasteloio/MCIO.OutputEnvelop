@@ -1900,10 +1900,14 @@ public class OutputEnvelopTest
         var existingErrorOutputEnvelop = OutputEnvelop.CreateError();
 
         // Act
-        var successOutputEnvelop = OutputEnvelop<int>.Create(
+        var successOutputEnvelopA = OutputEnvelop<int>.Create(
             expectedOutput,
             existingSuccessOutputEnvelop,
             existingSuccessOutputEnvelop
+        );
+        var successOutputEnvelopB = OutputEnvelop<int>.Create(
+            expectedOutput,
+            Array.Empty<OutputEnvelop<int>>()
         );
         var partialOutputEnvelopA = OutputEnvelop<int>.Create(
             expectedOutput,
@@ -1924,8 +1928,11 @@ public class OutputEnvelopTest
         );
 
         // Assert
-        successOutputEnvelop.Output.Should().Be(expectedOutput);
-        successOutputEnvelop.Type.Should().Be(OutputEnvelopType.Success);
+        successOutputEnvelopA.Output.Should().Be(expectedOutput);
+        successOutputEnvelopA.Type.Should().Be(OutputEnvelopType.Success);
+
+        successOutputEnvelopB.Output.Should().Be(expectedOutput);
+        successOutputEnvelopB.Type.Should().Be(OutputEnvelopType.Success);
 
         partialOutputEnvelopA.Output.Should().Be(expectedOutput);
         partialOutputEnvelopA.Type.Should().Be(OutputEnvelopType.Partial);

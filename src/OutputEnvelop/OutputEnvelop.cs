@@ -810,7 +810,7 @@ namespace MCIO.OutputEnvelop
             else if (hasErrorType)
                 return OutputEnvelopType.Error;
             else
-                return default; 
+                return OutputEnvelopType.Success; 
         }
         
     }
