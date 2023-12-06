@@ -57,8 +57,7 @@ jobs:
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
          # Check SonarQube Quality Gate status
-        curl -s "https://sonarcloud.io/api/qualitygates/project_status?projectKey=marcelocasteloio_MCIO.OutputEnvelop" \
-          -u "${{ secrets.SONAR_TOKEN }}:" jq '.projectStatus.status' | grep -q "ERROR" && exit 1 || exit 0
+        curl -s "https://sonarcloud.io/api/qualitygates/project_status?projectKey=marcelocasteloio_MCIO.OutputEnvelop" jq '.projectStatus.status' | grep -q "ERROR" && exit 1 || exit 0
 
     - name: Install Stryker
       shell: pwsh
