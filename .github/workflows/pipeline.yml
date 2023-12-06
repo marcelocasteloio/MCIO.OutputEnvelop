@@ -10,9 +10,9 @@ on:
 
 jobs:
 
-  build-and-deploy:    
+  build:    
     runs-on: ubuntu-latest
-    name: Build and Deploy
+    name: Build
     steps:
 
     - name: Set up JDK 17
@@ -60,10 +60,10 @@ jobs:
         $qualityGateStatus = Invoke-RestMethod -Uri "https://sonarcloud.io/api/qualitygates/project_status?projectKey=marcelocasteloio_MCIO.OutputEnvelop" -Method Get
         
         if ($qualityGateStatus.projectStatus.status -eq "ERROR") {
-          Write-Host "SonarQube Quality Gate check failed."
+          Write-Error "[MCIO] SonarQube Quality Gate check failed."
           exit 1
         } else {
-          Write-Host "SonarQube Quality Gate check passed."
+          Write-Host "[MCIO] SonarQube Quality Gate check passed."
           exit 0
         }
 
@@ -84,10 +84,10 @@ jobs:
         $survivingMutants = Get-Content .stryker-output/reports/mutation-report.json
 
         if ($survivingMutants) {
-          Write-Host "Stryker detected surviving mutants. Pipeline failed."
+          Write-Error "[MCIO] Stryker detected surviving mutants. Pipeline failed."
           exit 1
         } else {
-          Write-Host "Stryker mutant check passed. No surviving mutants found."
+          Write-Host "[MCIO] Stryker mutant check passed. No surviving mutants found."
           exit 0
         }
 
