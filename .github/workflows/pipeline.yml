@@ -57,7 +57,7 @@ jobs:
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
         # Check SonarQube Quality Gate status
-        $qualityGateStatus = Invoke-RestMethod -Uri "https://sonarcloud.io/api/qualitygates/project_status?projectKey=marcelocasteloio_MCIO.OutputEnvelop" -Method Get -Headers @{Authorization=("Basic {0}" -f [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes((":${{ secrets.SONAR_TOKEN }}")))}
+        $qualityGateStatus = Invoke-RestMethod -Uri "https://sonarcloud.io/api/qualitygates/project_status?projectKey=marcelocasteloio_MCIO.OutputEnvelop" -Method Get
         
         if ($qualityGateStatus.projectStatus.status -eq "ERROR") {
           Write-Host "SonarQube Quality Gate check failed."
