@@ -78,12 +78,12 @@ jobs:
       run: |
         # Run Stryker for mutation testing
         cd ./tst/UnitTests
-        ../../.stryker/stryker/dotnet-stryker --reporter "cleartext"
+        ../../.stryker/stryker/dotnet-stryker --reporters "json" --outputPath ".stryker-output"
 
         # Check for surviving mutants
-        $survivingMutants = ../../.stryker/stryker/dotnet-stryker status --reporters "json" | ConvertFrom-Json
+        $survivingMutants = Get-Content .stryker-output/mutation-report.json
 
-        if ($survivingMutants.Mutants.Count -gt 0) {
+        if ($survivingMutants) {
           Write-Host "Stryker detected surviving mutants. Pipeline failed."
           exit 1
         } else {
