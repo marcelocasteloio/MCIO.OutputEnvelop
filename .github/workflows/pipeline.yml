@@ -49,9 +49,15 @@ jobs:
         dotnet build --no-restore
         dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="Coverage/" ./tst/UnitTests/MCIO.OutputEnvelop.UnitTests.csproj
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+    - name: SonarQube Quality Gate Check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
+      timeout-minutes: 5
+      env:
+       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     - name: Mutant Tests
       shell: pwsh
       run: |
         cd ./tst/UnitTests
-        ../../.stryker/stryker/dotnet-stryker
+        ../../.stryker/stryker/dotnet-stryker --reporter "cleartext"
 
