@@ -10,36 +10,81 @@ on:
 
 jobs:
 
-  SAST:    
+  build:    
     runs-on: ubuntu-latest
+    name: Build
     steps:
+
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
         java-version: 17
         distribution: 'zulu'
+
     - name: Checkout
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
+
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 8.x.x
-    - name: Install Sonar Scanner
-      shell: pwsh
-      run: |
-        New-Item -Path ./.sonar/scanner -ItemType Directory
-        dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
+
     - name: Restore Dependencies
       run: dotnet restore
-    - name: Build And Test
+
+    - name: Build, Unit Tests and SAST
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       shell: pwsh
       run: |
-        .\.sonar\scanner\dotnet-sonarscanner begin /k:"marcelocasteloio_MCIO.OutputEnvelop" /o:"marcelocasteloio" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.coverage.exclusions="tst/**,benchs/**,samples/**" /d:sonar.exclusions="tst/**,benchs/**,samples/**"
+        # Install SonarScanner
+        New-Item -Path ./.sonar/scanner -ItemType Directory
+        dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
+
+        # Begin SonarQube analysis
+        ./.sonar/scanner/dotnet-sonarscanner begin /k:"marcelocasteloio_MCIO.OutputEnvelop" /o:"marcelocasteloio" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.coverage.exclusions="tst/**,benchs/**,samples/**" /d:sonar.exclusions="tst/**,benchs/**,samples/**"
+        
+        # Build and test
         dotnet build --no-restore
         dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="Coverage/" ./tst/UnitTests/MCIO.OutputEnvelop.UnitTests.csproj
+        
+        # End SonarQube analysis
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+        # Check SonarQube Quality Gate status
+        $qualityGateStatus = Invoke-RestMethod -Uri "https://sonarcloud.io/api/qualitygates/project_status?projectKey=marcelocasteloio_MCIO.OutputEnvelop" -Method Get
+        
+        if ($qualityGateStatus.projectStatus.status -eq "ERROR") {
+          Write-Error "[MCIO] SonarQube Quality Gate check failed."
+          exit 1
+        } else {
+          Write-Host "[MCIO] SonarQube Quality Gate check passed."
+          exit 0
+        }
+
+    - name: Mutant Tests
+      shell: pwsh
+      run: |
+        # Install stryker
+        New-Item -Path ./.stryker/stryker -ItemType Directory
+        dotnet tool update dotnet-stryker --tool-path ./.stryker/stryker
+
+        # Run Stryker for mutation testing
+        cd ./tst/UnitTests
+        ../../.stryker/stryker/dotnet-stryker --reporter "json" --output ".stryker-output"
+
+        # Check for surviving mutants
+        $survivingMutants = Get-Content .stryker-output/reports/mutation-report.json
+
+        if ($survivingMutants) {
+          Write-Error "[MCIO] Stryker detected surviving mutants. Pipeline failed."
+          exit 1
+        } else {
+          Write-Host "[MCIO] Stryker mutant check passed. No surviving mutants found."
+          exit 0
+        }
+
+
