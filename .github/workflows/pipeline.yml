@@ -56,8 +56,16 @@ jobs:
         # End SonarQube analysis
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
-         # Check SonarQube Quality Gate status
-        curl -s "https://sonarcloud.io/api/qualitygates/project_status?projectKey=marcelocasteloio_MCIO.OutputEnvelop" jq '.projectStatus.status' | grep -q "ERROR" && exit 1 || exit 0
+        # Check SonarQube Quality Gate status
+        $qualityGateStatus = Invoke-RestMethod -Uri "https://sonarcloud.io/api/qualitygates/project_status?projectKey=marcelocasteloio_MCIO.OutputEnvelop" -Method Get -Headers @{Authorization=("Basic {0}" -f [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes((":${{ secrets.SONAR_TOKEN }}")))}
+        
+        if ($qualityGateStatus.projectStatus.status -eq "ERROR") {
+          Write-Host "SonarQube Quality Gate check failed."
+          exit 1
+        } else {
+          Write-Host "SonarQube Quality Gate check passed."
+          exit 0
+        }
 
     - name: Install Stryker
       shell: pwsh
