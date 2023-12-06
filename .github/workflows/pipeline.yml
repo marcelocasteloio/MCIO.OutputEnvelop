@@ -76,6 +76,19 @@ jobs:
     - name: Mutant Tests
       shell: pwsh
       run: |
+        # Run Stryker for mutation testing
         cd ./tst/UnitTests
         ../../.stryker/stryker/dotnet-stryker --reporter "cleartext"
+
+        # Check for surviving mutants
+        $survivingMutants = ../../.stryker/stryker/dotnet-stryker status --reporters "json" | ConvertFrom-Json
+
+        if ($survivingMutants.Mutants.Count -gt 0) {
+          Write-Host "Stryker detected surviving mutants. Pipeline failed."
+          exit 1
+        } else {
+          Write-Host "Stryker mutant check passed. No surviving mutants found."
+          exit 0
+        }
+
 
