@@ -10,8 +10,9 @@ on:
 
 jobs:
 
-  SAST:    
+  build-and-deploy:    
     runs-on: ubuntu-latest
+    name: Build and Deploy
     steps:
     - name: Set up JDK 17
       uses: actions/setup-java@v3
@@ -31,6 +32,11 @@ jobs:
       run: |
         New-Item -Path ./.sonar/scanner -ItemType Directory
         dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
+    - name: Install Stryker
+      shell: pwsh
+      run: |
+        New-Item -Path ./.stryker/stryker -ItemType Directory
+        dotnet tool update dotnet-stryker --tool-path ./.stryker/stryker
     - name: Restore Dependencies
       run: dotnet restore
     - name: Build And Test
@@ -43,3 +49,8 @@ jobs:
         dotnet build --no-restore
         dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="Coverage/" ./tst/UnitTests/MCIO.OutputEnvelop.UnitTests.csproj
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+    - name: Mutant Rest
+      shell: pwsh
+      run: |
+        dotnet stryker --reporter "html" --test-project "./tst/UnitTests/MCIO.OutputEnvelop.UnitTests.csproj"
+
