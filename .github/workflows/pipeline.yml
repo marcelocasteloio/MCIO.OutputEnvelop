@@ -81,7 +81,7 @@ jobs:
         ../../.stryker/stryker/dotnet-stryker --reporter "json" --output ".stryker-output"
 
         # Check for surviving mutants
-        $survivingMutants = Get-Content .stryker-output/mutation-report.json
+        $survivingMutants = Get-Content .stryker-output/reports/mutation-report.json
 
         if ($survivingMutants) {
           Write-Host "Stryker detected surviving mutants. Pipeline failed."
