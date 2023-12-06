@@ -1,4 +1,4 @@
-name: "CodeQL"
+name: vulnerabilities-scan
 
 on:
   push:

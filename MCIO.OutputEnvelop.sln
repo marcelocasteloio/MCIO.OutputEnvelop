@@ -15,11 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MCIO.OutputEnvelop.UnitTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MCIO.OutputEnvelop.Benchmarks", "benchs\Benchmarks\MCIO.OutputEnvelop.Benchmarks.csproj", "{D413084B-E0AE-4907-B406-BDD49C74660E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{53D26391-72E0-46D0-BBD5-18B732C6D0A0}"
-	ProjectSection(SolutionItems) = preProject
-		.github\workflows\pipeline.yml = .github\workflows\pipeline.yml
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 - samples", "4 - samples", "{CA565187-52AB-48BC-AEA5-678D5D09B37D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MCIO.OutputEnvelop.Samples.SampleApi", "samples\SampleApi\MCIO.OutputEnvelop.Samples.SampleApi.csproj", "{295569EC-9363-4AA9-8CEE-7E091065029D}"
