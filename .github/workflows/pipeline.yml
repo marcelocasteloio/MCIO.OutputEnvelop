@@ -31,16 +31,14 @@ jobs:
       with:
         dotnet-version: 8.x.x
 
-    - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@master
-      with:
-        sonar-token: ${{ secrets.SONAR_TOKEN }}
-        sonar-project-key: marcelocasteloio_MCIO.OutputEnvelop
-        sonar-organization: marcelocasteloio
-        sonar-host-url: https://sonarcloud.io
-        sonar-cs-opencover-reportsPaths: '**/coverage.opencover.xml'
-        sonar-coverage-exclusions: 'tst/**,benchs/**,samples/**'
-        sonar-exclusions: 'tst/**,benchs/**,samples/**'
+    - name: Install Sonar Scanner
+      shell: pwsh
+      run: |
+        New-Item -Path ./.sonar/scanner -ItemType Directory
+        dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
+
+    - name: Restore Dependencies
+      run: dotnet restore
 
     - name: Build And Test
       env:
@@ -48,20 +46,19 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       shell: pwsh
       run: |
+        # Begin SonarQube analysis
+        ./.sonar/scanner/dotnet-sonarscanner begin /k:"marcelocasteloio_MCIO.OutputEnvelop" /o:"marcelocasteloio" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.coverage.exclusions="tst/**,benchs/**,samples/**" /d:sonar.exclusions="tst/**,benchs/**,samples/**"
+        
+        # Build and test
         dotnet build --no-restore
         dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="Coverage/" ./tst/UnitTests/MCIO.OutputEnvelop.UnitTests.csproj
+        
+        # End SonarQube analysis
+        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
-    - name: Complete SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@master
-      with:
-        sonar-token: ${{ secrets.SONAR_TOKEN }}
-
-    - name: SonarQube Quality Gate Check
-      uses: sonarsource/sonarqube-quality-gate-action@master
-      with:
-        sonar-token: ${{ secrets.SONAR_TOKEN }}
-        sonar-host-url: https://sonarcloud.io
-        check-name: SonarQube Quality Gate Check
+         # Check SonarQube Quality Gate status
+        curl -s "https://sonarcloud.io/api/qualitygates/project_status?projectKey=marcelocasteloio_MCIO.OutputEnvelop" \
+          -u "${{ secrets.SONAR_TOKEN }}:" jq '.projectStatus.status' | grep -q "ERROR" && exit 1 || exit 0
 
     - name: Install Stryker
       shell: pwsh
@@ -69,9 +66,6 @@ jobs:
         New-Item -Path ./.stryker/stryker -ItemType Directory
         dotnet tool update dotnet-stryker --tool-path ./.stryker/stryker
 
-    - name: Restore Dependencies
-      run: dotnet restore
-    
     - name: Mutant Tests
       shell: pwsh
       run: |
