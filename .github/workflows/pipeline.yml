@@ -78,7 +78,7 @@ jobs:
       run: |
         # Run Stryker for mutation testing
         cd ./tst/UnitTests
-        ../../.stryker/stryker/dotnet-stryker --reporters "json" --outputPath ".stryker-output"
+        ../../.stryker/stryker/dotnet-stryker --reporter "json" --output ".stryker-output"
 
         # Check for surviving mutants
         $survivingMutants = Get-Content .stryker-output/mutation-report.json
