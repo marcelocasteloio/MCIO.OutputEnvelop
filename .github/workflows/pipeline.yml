@@ -14,53 +14,64 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy
     steps:
+
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
         java-version: 17
         distribution: 'zulu'
+
     - name: Checkout
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
+
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 8.x.x
-    - name: Install Sonar Scanner
-      shell: pwsh
-      run: |
-        New-Item -Path ./.sonar/scanner -ItemType Directory
-        dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
-    - name: Install Stryker
-      shell: pwsh
-      run: |
-        New-Item -Path ./.stryker/stryker -ItemType Directory
-        dotnet tool update dotnet-stryker --tool-path ./.stryker/stryker
-    - name: Restore Dependencies
-      run: dotnet restore
+
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      with:
+        sonar-token: ${{ secrets.SONAR_TOKEN }}
+        sonar-project-key: marcelocasteloio_MCIO.OutputEnvelop
+        sonar-organization: marcelocasteloio
+        sonar-host-url: https://sonarcloud.io
+        sonar-cs-opencover-reportsPaths: '**/coverage.opencover.xml'
+        sonar-coverage-exclusions: 'tst/**,benchs/**,samples/**'
+        sonar-exclusions: 'tst/**,benchs/**,samples/**'
+
     - name: Build And Test
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       shell: pwsh
       run: |
-        ./.sonar/scanner/dotnet-sonarscanner begin /k:"marcelocasteloio_MCIO.OutputEnvelop" /o:"marcelocasteloio" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.coverage.exclusions="tst/**,benchs/**,samples/**" /d:sonar.exclusions="tst/**,benchs/**,samples/**"
         dotnet build --no-restore
         dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="Coverage/" ./tst/UnitTests/MCIO.OutputEnvelop.UnitTests.csproj
-        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-    - name: SonarQube Scan
+
+    - name: Complete SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: "https://sonarcloud.io"
+      with:
+        sonar-token: ${{ secrets.SONAR_TOKEN }}
+
     - name: SonarQube Quality Gate Check
-      id: sonarqube-quality-gate-check
       uses: sonarsource/sonarqube-quality-gate-action@master
-      timeout-minutes: 5
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: "https://sonarcloud.io"
+      with:
+        sonar-token: ${{ secrets.SONAR_TOKEN }}
+        sonar-host-url: https://sonarcloud.io
+        check-name: SonarQube Quality Gate Check
+
+    - name: Install Stryker
+      shell: pwsh
+      run: |
+        New-Item -Path ./.stryker/stryker -ItemType Directory
+        dotnet tool update dotnet-stryker --tool-path ./.stryker/stryker
+
+    - name: Restore Dependencies
+      run: dotnet restore
+    
     - name: Mutant Tests
       shell: pwsh
       run: |
