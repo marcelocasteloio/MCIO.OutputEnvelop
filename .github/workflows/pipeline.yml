@@ -53,5 +53,5 @@ jobs:
       shell: pwsh
       run: |
         cd ./tst/UnitTests
-        ../../.stryker/stryker/dotnet-stryker --reporter "markdown"
+        ../../.stryker/stryker/dotnet-stryker
 
