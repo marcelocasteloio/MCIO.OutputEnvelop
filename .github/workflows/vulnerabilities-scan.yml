@@ -13,6 +13,7 @@ on:
     - '**.csproj'
   schedule:
     - cron: '0 20 * * *'
+  workflow_dispatch:
 
 jobs:
   analyze:
