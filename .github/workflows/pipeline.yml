@@ -49,8 +49,8 @@ jobs:
         dotnet build --no-restore
         dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="Coverage/" ./tst/UnitTests/MCIO.OutputEnvelop.UnitTests.csproj
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-    - name: Mutant Rest
+    - name: Mutant Tests
       shell: pwsh
       run: |
-        ./.stryker/stryker/dotnet-stryker --reporter "html" --test-project "./tst/UnitTests/MCIO.OutputEnvelop.UnitTests.csproj"
+        ./.stryker/stryker/dotnet-stryker --reporter "html" --reporter "markdown" --test-project "./tst/UnitTests/MCIO.OutputEnvelop.UnitTests.csproj"
 
