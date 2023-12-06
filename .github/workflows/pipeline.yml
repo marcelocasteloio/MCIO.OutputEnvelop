@@ -52,5 +52,6 @@ jobs:
     - name: Mutant Tests
       shell: pwsh
       run: |
-        ./.stryker/stryker/dotnet-stryker --reporter "markdown" --project "./tst/UnitTests/MCIO.OutputEnvelop.UnitTests.csproj"
+        cd ./tst/UnitTests
+        ./.stryker/stryker/dotnet-stryker --reporter "markdown"
 
