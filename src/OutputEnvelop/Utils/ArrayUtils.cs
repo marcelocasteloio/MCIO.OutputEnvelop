@@ -47,7 +47,19 @@ namespace MCIO.OutputEnvelop.Utils
         internal static T[] AddRange<T>(T[] sourceArray, T[] items)
         {
             if (sourceArray == null)
+            {
+                /*
+                 * The mutante test alter next statement with two variations.
+                 * But these two variations not change the expected behavior.
+                 * This situation is a false positive
+                 *
+                 * Variation 1: return null ?? items;
+                 * Variation 2: return items;
+                 */
+
+                // Stryker disable once all
                 return items ?? null;
+            }
 
             if (items == null)
                 return sourceArray;
