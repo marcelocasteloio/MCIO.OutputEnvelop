@@ -76,8 +76,6 @@ jobs:
         cd ./tst/UnitTests
         $result = & ../../.stryker/stryker/dotnet-stryker --reporter "json" --output ".stryker-output"
 
-        Write-Host $result
-
         if ($result -like "*The final mutation score is 100.00 %*") {
             Write-Host "[MCIO] Stryker mutant check passed. No surviving mutants found."
             exit 0
