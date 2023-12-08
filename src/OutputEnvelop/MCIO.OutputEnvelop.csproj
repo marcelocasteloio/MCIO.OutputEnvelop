@@ -1,10 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	  <Authors>Marcelo Castelo Branco</Authors>
-	  <Company>marcelocastelo.io</Company>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageId>MarceloCastelo.IO.OutputEnvelop</PackageId>
+		<Copyright>marcelocastelo.io</Copyright>
+		<Authors>Marcelo Castelo Branco</Authors>
+		<Company>marcelocastelo.io</Company>
+		<PackageProjectUrl>https://github.com/marcelocasteloio/MCIO.OutputEnvelop</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/marcelocasteloio/MCIO.OutputEnvelop</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
 
+	<ItemGroup>
+		<None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+		<None Include="..\..\images\icon.png" Pack="true" PackagePath="\"/>
+	</ItemGroup>
+	
 </Project>
