@@ -9,8 +9,8 @@ on:
         default: '0.0.0'
 
 jobs:
-  build:
-
+  pack-and-publish:
+    name: Pack and Publish
     runs-on: ubuntu-latest
 
     steps:
