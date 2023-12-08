@@ -74,12 +74,9 @@ jobs:
 
         # Run Stryker for mutation testing
         cd ./tst/UnitTests
-        ../../.stryker/stryker/dotnet-stryker --reporter "json" --output ".stryker-output"
+        $result = & ../../.stryker/stryker/dotnet-stryker --reporter "json" --output ".stryker-output"
 
-        # Check for surviving mutants
-        $survivingMutants = Get-Content .stryker-output/reports/mutation-report.json
-
-        if ($survivingMutants) {
+        if ($result -like "*The final mutation score is 100.00 %*") {
           Write-Error "[MCIO] Stryker detected surviving mutants. Pipeline failed."
           exit 1
         } else {
