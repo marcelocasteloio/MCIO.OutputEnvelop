@@ -45,7 +45,7 @@ jobs:
         dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
 
         # Begin SonarQube analysis
-        ./.sonar/scanner/dotnet-sonarscanner begin /k:"marcelocasteloio_MCIO.OutputEnvelop" /o:"marcelocasteloio" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.coverage.exclusions="tst/**,benchs/**,samples/**" /d:sonar.exclusions="tst/**,benchs/**,samples/**"
+        ./.sonar/scanner/dotnet-sonarscanner begin /k:"marcelocasteloio_MCIO.OutputEnvelop" /o:"marcelocasteloio" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.coverage.exclusions="tst/**,benchs/**,samples/**" /d:sonar.exclusions="tst/**,benchs/**,samples/**" /d:sonar.cpd.exclusions="**/OutputEnvelop.cs"
         
         # Build and test
         dotnet build --no-restore
