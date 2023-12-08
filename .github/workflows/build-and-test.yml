@@ -77,11 +77,11 @@ jobs:
         $result = & ../../.stryker/stryker/dotnet-stryker --reporter "json" --output ".stryker-output"
 
         if ($result -like "*The final mutation score is 100.00 %*") {
-          Write-Error "[MCIO] Stryker detected surviving mutants. Pipeline failed."
-          exit 1
+            Write-Host "[MCIO] Stryker mutant check passed. No surviving mutants found."
+            exit 0
         } else {
-          Write-Host "[MCIO] Stryker mutant check passed. No surviving mutants found."
-          exit 0
+            Write-Error "[MCIO] Stryker detected surviving mutants. Pipeline failed."
+            exit 1
         }
 
 
