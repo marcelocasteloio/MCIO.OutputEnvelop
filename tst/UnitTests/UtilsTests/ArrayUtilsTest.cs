@@ -116,19 +116,29 @@ public class ArrayUtilsTest
     public void ArrayUtils_Should_AddRange()
     {
         // Arrange
-        var sourceArray = new int[] { 1, 2, 3 };
-        var newItem = new int[]{ 4, 5 };
+        var sourceArrayA = new int[] { 1, 2, 3 };
+        var sourceArrayB = new int[] { 1, 2, 3 };
+        var newItemA = new int[]{ 4, 5 };
+        var newItemC = new int[] { 4, 5 };
 
         // Act
-        var newArray = ArrayUtils.AddRange(
-            sourceArray,
-            newItem
-        );
+        var newArrayA = ArrayUtils.AddRange(sourceArrayA, newItemA);
+        var newArrayB = ArrayUtils.AddRange(sourceArrayB, null);
+        var newArrayC = ArrayUtils.AddRange(null, newItemC);
+        var newArrayD = ArrayUtils.AddRange<int>(null, null);
 
         // Assert
-        sourceArray.Should().BeSubsetOf(newArray);
-        newItem.Should().BeSubsetOf(newArray);
-        newArray.Should().HaveCount(sourceArray.Length + newItem.Length);
+        sourceArrayA.Should().BeSubsetOf(newArrayA);
+        newItemA.Should().BeSubsetOf(newArrayA);
+        newArrayA.Should().HaveCount(sourceArrayA.Length + newItemA.Length);
+
+        sourceArrayB.Should().BeSubsetOf(newArrayB);
+        newArrayB.Length.Should().Be(sourceArrayB.Length);
+
+        newItemC.Should().BeSubsetOf(newArrayC);
+        newArrayC.Length.Should().Be(newItemC.Length);
+
+        newArrayD.Should().BeNull();
     }
 
     [Fact]

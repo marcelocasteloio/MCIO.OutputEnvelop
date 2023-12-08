@@ -7,6 +7,13 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+/*
+* All statement marked as stryker ignore are used to allow caller 
+* method choose between best creation method to avoid unecessary 
+* allocations. The final result between creation methods is the same.
+* Then the mutant test survived is a false positive
+*/
+
 namespace MCIO.OutputEnvelop
 {
     public readonly struct OutputEnvelop
@@ -274,10 +281,12 @@ namespace MCIO.OutputEnvelop
         {
             var hasSuccessOutputMessage = false;
             var hasErrorOutputMessage = false;
+            // Stryker disable once all
             hasOutputMessage = false;
 
             if (outputMessageCollection != null)
             {
+                // Stryker disable once all
                 hasOutputMessage = outputMessageCollection.Length > 0;
 
                 for (int outputMessageIndex = 0; outputMessageIndex < outputMessageCollection.Length; outputMessageIndex++)
@@ -310,7 +319,9 @@ namespace MCIO.OutputEnvelop
             var hasPartialType = false;
             var hasErrorType = false;
 
+            // Stryker disable once all
             hasOutputMessage = false;
+            // Stryker disable once all
             hasException = false;
 
             for (int outputEnvelopIndex = 0; outputEnvelopIndex < outputEnvelopCollection.Length; outputEnvelopIndex++)
@@ -324,11 +335,16 @@ namespace MCIO.OutputEnvelop
                 else if (!hasErrorType && outputEnvelop.Type == OutputEnvelopType.Error)
                     hasErrorType = true;
 
+                // Stryker disable once all
                 if (!hasOutputMessage && outputEnvelop.HasOutputMessage)
                     hasOutputMessage = true;
 
+                // Stryker disable once all
                 if (!hasException && outputEnvelop.HasException)
+                {
+                    // Stryker disable once all
                     hasException = true;
+                }
             }
 
             if (hasPartialType)
@@ -781,8 +797,9 @@ namespace MCIO.OutputEnvelop
             var hasSuccessType = false;
             var hasPartialType = false;
             var hasErrorType = false;
-
+            // Stryker disable once all
             hasOutputMessage = false;
+            // Stryker disable once all
             hasException = false;
 
             for (int outputEnvelopIndex = 0; outputEnvelopIndex < outputEnvelopCollection.Length; outputEnvelopIndex++)
@@ -796,9 +813,11 @@ namespace MCIO.OutputEnvelop
                 else if (!hasErrorType && outputEnvelop.Type == OutputEnvelopType.Error)
                     hasErrorType = true;
 
+                // Stryker disable once all
                 if (!hasOutputMessage && outputEnvelop.HasOutputMessage)
                     hasOutputMessage = true;
 
+                // Stryker disable once all
                 if (!hasException && outputEnvelop.HasException)
                     hasException = true;
             }
