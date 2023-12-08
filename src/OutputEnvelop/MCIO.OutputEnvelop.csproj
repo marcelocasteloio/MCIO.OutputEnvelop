@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <Authors>Marcelo Castelo Branco</Authors>
+	  <Company>marcelocastelo.io</Company>
   </PropertyGroup>
 
 </Project>
