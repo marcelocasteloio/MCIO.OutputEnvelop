@@ -50,6 +50,7 @@ Além disso, nesses tipos de sistemas, os retornos dos métodos nesses tipos de 
   - [:page\_facing\_up: Introdução](#page_facing_up-introdução)
   - [:book: Conteúdo](#book-conteúdo)
   - [:star: Funcionalidades-chave](#star-funcionalidades-chave)
+  - [:people\_holding\_hands: Contribuindo](#people_holding_hands-contribuindo)
   - [:people\_holding\_hands: Autores](#people_holding_hands-autores)
 
 ## :star: Funcionalidades-chave
@@ -65,8 +66,12 @@ Esse projeto tem como objetivo fornecer um **envelope de resposta** para os mét
 - :white_check_mark: Evitar o **uso desnecessário e incorreto de lançamento de exceções** ocasionando problemas de desempenho.
 - :white_check_mark: Ser **Thread-safe**.
 
+## :people_holding_hands: Contribuindo
+
+Você está mais que convidado para constribuir. Caso tenha interesse e queira participar do projeto, não deixe de ver nosso [manual de contribuição](docs/CONTRIBUTING-PT.md). 
+
 ## :people_holding_hands: Autores
 
 [voltar ao topo](#book-conteúdo)
 
-- [@MarceloCas](https://www.linkedin.com/in/marcelocastelobranco/)
+- Marcelo Castelo Branco - [@MarceloCas](https://www.linkedin.com/in/marcelocastelobranco/)
