@@ -84,10 +84,10 @@ jobs:
             Write-Error "[MCIO] Stryker detected surviving mutants. Pipeline failed."
             exit 1
         }
-    - name: Upload build artifacts
+    - name: Upload workspace
       uses: actions/upload-artifact@v2
       with:
         name: shared
-        path: /home/runner/work/MCIO.OutputEnvelop/MCIO.OutputEnvelop/src/OutputEnvelop/bin/Release/net8.0
+        path: .
 
 
