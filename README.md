@@ -2,7 +2,7 @@
 
 Um **envelope de resposta** que seja **leve**, de **alto desempenho** e que forneça uma **API de alto nível** para ser usado em aplicações *LOB (line of business)*.
 
-## Status
+## :label: Labels
 
 | Categoria | Descrição | Labels |
 |-|-|-|
@@ -21,7 +21,7 @@ Um **envelope de resposta** que seja **leve**, de **alto desempenho** e que forn
 | Pipeline | Compilação e Testes | [![Build and Test](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/build-and-test.yml) |
 | Pipeline | Publicação | [![Publish](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/publish.yml/badge.svg)](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/publish.yml) |
 
-## Introdução
+## :page_facing_up: Introdução
 
 > [!IMPORTANT]
 > Existem vários outros pontos que são abordados na documentação do projeto e vale a pena dar uma olhada para que possa compreender os racionais das decisões tomadas nesse projeto lendo o arquivo [DESIGN-DECISIONS](docs/DESIGN-DECISIONS-PT.md).
@@ -46,15 +46,15 @@ Além disso, nesses tipos de sistemas, os retornos dos métodos nesses tipos de 
 
 ## :book: Conteúdo
 - [MCIO.OutputEnvelop](#mciooutputenvelop)
-  - [Status](#status)
-  - [Introdução](#introdução)
+  - [:label: Labels](#label-labels)
+  - [:page\_facing\_up: Introdução](#page_facing_up-introdução)
   - [:book: Conteúdo](#book-conteúdo)
   - [:star: Funcionalidades-chave](#star-funcionalidades-chave)
   - [:people\_holding\_hands: Autores](#people_holding_hands-autores)
 
 ## :star: Funcionalidades-chave
 
-[:arrow_up_small: voltar ao topo](#book-conteúdo)
+[voltar ao topo](#book-conteúdo)
 
 Esse projeto tem como objetivo fornecer um **envelope de resposta** para os métodos da aplicação que sigam os seguintes princípios de design: 
 
@@ -67,6 +67,6 @@ Esse projeto tem como objetivo fornecer um **envelope de resposta** para os mét
 
 ## :people_holding_hands: Autores
 
-[:arrow_up_small: voltar ao topo](#book-conteúdo)
+[voltar ao topo](#book-conteúdo)
 
 - [@MarceloCas](https://www.linkedin.com/in/marcelocastelobranco/)
