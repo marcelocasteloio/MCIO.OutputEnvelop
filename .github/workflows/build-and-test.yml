@@ -11,7 +11,7 @@ on:
 
 jobs:
 
-  build-and-test:    
+  build-and-test:   
     runs-on: ubuntu-latest
     name: Build and Test
     steps:
@@ -66,23 +66,10 @@ jobs:
           exit 0
         }
 
-    - name: Mutant Tests
-      shell: pwsh
-      run: |
-        # Install stryker
-        New-Item -Path ./.stryker/stryker -ItemType Directory
-        dotnet tool update dotnet-stryker --tool-path ./.stryker/stryker
+  multant-tests:
+    uses: ./.github/workflows/mutation-test.yml
+    secrets: inherit
+    needs: build-and-test
 
-        # Run Stryker for mutation testing
-        cd ./tst/UnitTests
-        $result = & ../../.stryker/stryker/dotnet-stryker --reporter "json" --output ".stryker-output"
-
-        if ($result -like "*The final mutation score is 100.00 %*") {
-            Write-Host "[MCIO] Stryker mutant check passed. No surviving mutants found."
-            exit 0
-        } else {
-            Write-Error "[MCIO] Stryker detected surviving mutants. Pipeline failed."
-            exit 1
-        }
 
 
