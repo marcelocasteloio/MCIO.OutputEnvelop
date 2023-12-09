@@ -58,17 +58,12 @@ Além disso, nesses tipos de sistemas, os retornos dos métodos nesses tipos de 
 
 Esse projeto tem como objetivo fornecer um **envelope de resposta** para os métodos da aplicação que sigam os seguintes princípios de design: 
 
-:white_check_mark: Seja otimizado para alocação na stack ao invés da heap para **evitar pressão no garbage collector**.
-
-:white_check_mark: Tenha a característica da **imutabilidade** para ter a garantia que uma vez criado, não será modificado e que, alterações implicarão na criação de um novo objeto.
-
-:white_check_mark: Ter uma **API de alto nível** para que seja flexível para ser utilizado em diversos cenários com pouca necessidade de customização do código.
-
-:white_check_mark: Seja otimizado para **não realizar box e unboxing** e **evitar criação de closures** nos encapsulamentos para não gerar alocações na heap.
-
-:white_check_mark: Evitar o **uso desnecessário e incorreto de lançamento de exceções** ocasionando problemas de desempenho.
-
-:white_check_mark: Ser **Thread-safe**.
+- :white_check_mark: Seja otimizado para alocação na stack ao invés da heap para **evitar pressão no garbage collector**.
+- :white_check_mark: Tenha a característica da **imutabilidade** para ter a garantia que uma vez criado, não será modificado e que, alterações implicarão na criação de um novo objeto.
+- :white_check_mark: Ter uma **API de alto nível** para que seja flexível para ser utilizado em diversos cenários com pouca necessidade de customização do código.
+- :white_check_mark: Seja otimizado para **não realizar box e unboxing** e **evitar criação de closures** nos encapsulamentos para não gerar alocações na heap.
+- :white_check_mark: Evitar o **uso desnecessário e incorreto de lançamento de exceções** ocasionando problemas de desempenho.
+- :white_check_mark: Ser **Thread-safe**.
 
 ## :people_holding_hands: Autores
 
