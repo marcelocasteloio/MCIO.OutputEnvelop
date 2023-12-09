@@ -88,6 +88,6 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: shared
-        path: ./src/OutputEnvelop/bin/Release/net8.0
+        path: /home/runner/work/MCIO.OutputEnvelop/MCIO.OutputEnvelop/src/OutputEnvelop/bin/Release/net8.0
 
 
