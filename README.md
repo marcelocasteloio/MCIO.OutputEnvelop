@@ -25,7 +25,7 @@ Um **envelope de resposta** que seja **leve**, de **alto desempenho** e que forn
 > [!IMPORTANT]
 > Existem vários outros pontos que são abordados na documentação do projeto e vale a pena dar uma olhada para que possa compreender os racionais das decisões tomadas nesse projeto lendo o arquivo [DESIGN-DECISIONS](docs/DESIGN-DECISIONS-PT.md).
 
-Esse projeto nasceu de uma necessidade pessoal. Quando estamos desenvolvimento um sistema temos que tomar diversas decisões com relação ao design do código e manter o equilíbrio entre legibilidade, manutenabilidade e performance é sempre um desafio pois, no fim das contas, nós escrevemos código para outra pessoa entender e não para o computador.
+Esse projeto nasceu de uma necessidade pessoal. Quando estamos desenvolvendo um sistema temos que tomar diversas decisões com relação ao design do código e manter o equilíbrio entre legibilidade, manutenabilidade e performance é sempre um desafio pois, no fim das contas, nós escrevemos código para outra pessoa entender e não para o computador.
 
 Como assim? Existem diferentes tipos de sistemas, mas o mais comum são os que chamamos de sistemas *LOB (line of business)* que são aplicações que tem como o objetivo automatizar processos de negócios em corporações como processos de venda, compras, pedidos, chamados, suportes, processos financeiros etc. Esses sistemas possuem algumas características que costumam se repetir:
 - Autenticar o usuário que está tentando realizar a operação.
@@ -51,15 +51,10 @@ Além disso, nesses tipos de sistemas, os retornos dos métodos nesses tipos de 
 
 Esse projeto tem como objetivo fornecer um **envelope de resposta** para os métodos da aplicação que sigam os seguintes princípios de design: 
 
-- Seja otimizado para alocação na stack ao invés da heap para **evitar pressão no garbage collector**.
-
-- Tenha a característica da **imutabilidade** para ter a garantia que uma vez criado, não será modificado e que, alterações implicarão na criação de um novo objeto.
-
-- Ter uma **API de alto nível** para que seja flexível para ser utilizado em diversos cenários com pouca necessidade de customização do código.
-
-- Seja otimizado para **não realizar box e unboxing** e **evitar criação de closures** nos encapsulamentos para não gerar alocações na heap.
-
-- Evitar o **uso desnecessário e incorreto de lançamento de exceções** ocasionando problemas de desempenho.
-
-- Ser **Thread-safe**.
+- :white_check_mark: Seja otimizado para alocação na stack ao invés da heap para **evitar pressão no garbage collector**.
+- :white_check_mark: Tenha a característica da **imutabilidade** para ter a garantia que uma vez criado, não será modificado e que, alterações implicarão na criação de um novo objeto.
+- :white_check_mark: Ter uma **API de alto nível** para que seja flexível para ser utilizado em diversos cenários com pouca necessidade de customização do código.
+- :white_check_mark: Seja otimizado para **não realizar box e unboxing** e **evitar criação de closures** nos encapsulamentos para não gerar alocações na heap.
+- :white_check_mark: Evitar o **uso desnecessário e incorreto de lançamento de exceções** ocasionando problemas de desempenho.
+- :white_check_mark: Ser **Thread-safe**.
 
