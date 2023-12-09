@@ -45,7 +45,7 @@ Além disso, nesses tipos de sistemas, os retornos dos métodos nesses tipos de 
 ## :book: Conteúdo
 * [Funcionalidades-chave](#funcionalidades-chave)
 
-## Funcionalidades-chave
+## :star: Funcionalidades-chave
 
 Esse projeto tem como objetivo fornecer um **envelope de resposta** para os métodos da aplicação que sigam os seguintes princípios de design: 
 
