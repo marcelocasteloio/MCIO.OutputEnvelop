@@ -88,6 +88,6 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: shared
-        path: .
+        path: ./src/OutputEnvelop/bin/Release/net8.0
 
 
