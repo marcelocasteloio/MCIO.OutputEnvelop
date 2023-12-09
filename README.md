@@ -6,6 +6,7 @@ Um **envelope de resposta** que seja **leve**, de **alto desempenho** e que forn
 
 | Categoria | Descrição | Labels |
 |-|-|-|
+| Licença | MIT | [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/) |
 | Nuget | MarceloCastelo.IO.OutputEnvelop | ![Nuget](https://img.shields.io/nuget/v/MarceloCastelo.IO.OutputEnvelop) |
 | Segurança | Vulnerabilidades | [![CodeQL](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/github-code-scanning/codeql) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) |
 | Qualidade | Visão Geral | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) |
@@ -41,9 +42,11 @@ Como assim? Existem diferentes tipos de sistemas, mas o mais comum são os que c
 Além disso, nesses tipos de sistemas, os retornos dos métodos nesses tipos de sistemas vão além de um único objeto e é comum querermos saber mais informações do que somente se deu erro ou não, por exemplo:
 - Queremos saber as notificações que ocorreram durante a execução dos métodos.
 - Essas notificações são mais do que simples mensagens de erro, podem ser mensagens de warning (por exemplo: quando um pedido de compra ultrapassa determinado valor), podem ser mensagens informativas (por exemplo: informar a integração com os parceiros foi realizada com sucesso durante o processamento da requisição) etc.
+- O processamento nem sempre se resume a sucess ou falha. Em importações em lote por exemplo, o resultado da operação pode ser parcial onde partes dos itens do lote são processados e outra parte não.
 
 ## :book: Conteúdo
 * [Funcionalidades-chave](#star-funcionalidades-chave)
+* [Autores](#arrow_up_small-autores)
 
 ## :star: Funcionalidades-chave
 
@@ -58,3 +61,8 @@ Esse projeto tem como objetivo fornecer um **envelope de resposta** para os mét
 - :white_check_mark: Evitar o **uso desnecessário e incorreto de lançamento de exceções** ocasionando problemas de desempenho.
 - :white_check_mark: Ser **Thread-safe**.
 
+## :people_holding_hands: Autores
+
+[:arrow_up_small: voltar ao topo](#book-conteúdo)
+
+- [@MarceloCas](https://www.linkedin.com/in/marcelocastelobranco/)
