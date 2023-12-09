@@ -10,7 +10,7 @@ Um **envelope de resposta** que seja **leve**, de **alto desempenho** e que forn
 | Segurança | Vulnerabilidades | [![CodeQL](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/github-code-scanning/codeql) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) |
 | Qualidade | Visão Geral | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) |
 | Qualidade | Cobertura de testes | [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=coverage)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) |
-| Qualidade | Teste de mutação | |
+| Qualidade | Teste de mutação | [![Mutation Test](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/mutation-test.yml/badge.svg)](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/mutation-test.yml) |
 | Qualidade | Manutenabilidade | [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) |
 | Qualidade | Confiabilidade | [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) |
 | Qualidade | Bugs | [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=bugs)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) |
@@ -20,34 +20,44 @@ Um **envelope de resposta** que seja **leve**, de **alto desempenho** e que forn
 | Pipeline | Compilação e Testes | [![Build and Test](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/build-and-test.yml) |
 | Pipeline | Publicação | [![Publish](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/publish.yml/badge.svg)](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/publish.yml) |
 
-
-
 ## Introdução
+
+> [!IMPORTANT]
+> Existem vários outros pontos que são abordados na documentação do projeto e vale a pena dar uma olhada para que possa compreender os racionais das decisões tomadas nesse projeto lendo o arquivo [DESIGN-DECISIONS](docs/DESIGN-DECISIONS-PT.md).
 
 Esse projeto nasceu de uma necessidade pessoal. Quando estamos desenvolvimento um sistema temos que tomar diversas decisões com relação ao design do código e manter o equilíbrio entre legibilidade, manutenabilidade e performance é sempre um desafio pois, no fim das contas, nós escrevemos código para outra pessoa entender e não para o computador.
 
 Como assim? Existem diferentes tipos de sistemas, mas o mais comum são os que chamamos de sistemas *LOB (line of business)* que são aplicações que tem como o objetivo automatizar processos de negócios em corporações como processos de venda, compras, pedidos, chamados, suportes, processos financeiros etc. Esses sistemas possuem algumas características que costumam se repetir:
-- Autenticar o usuário que está tentando realizar a operação
-- Autoprizar o usuário autenticado para a operação que está querendo realizar
-- Receber inputs dos usuários
-- Validar os inputs dos usuários
-- Validar os estados dos objetos de negócio
-- Realizar algum processo de negõcio que modifique o estado dos objetos de negócio
-- Persistir essas informações
-- Retornar o resultado da solicitação para o usuário
-- Exibir diversos relatórios a partir das informações armazenadas
+- Autenticar o usuário que está tentando realizar a operação.
+- Autoprizar o usuário autenticado para a operação que está querendo realizar.
+- Receber inputs dos usuários.
+- Validar os inputs dos usuários.
+- Validar os estados dos objetos de negócio.
+- Realizar algum processo de negõcio que modifique o estado dos objetos de negócio.
+- Persistir essas informações.
+- Retornar o resultado da solicitação para o usuário.
+- Exibir diversos relatórios a partir das informações armazenadas.
+
+Além disso, nesses tipos de sistemas, os retornos dos métodos nesses tipos de sistemas vão além de um único objeto e é comum querermos saber mais informações do que somente se deu erro ou não, por exemplo:
+- Queremos saber as notificações que ocorreram durante a execução dos métodos.
+- Essas notificações são mais do que simples mensagens de erro, podem ser mensagens de warning (por exemplo: quando um pedido de compra ultrapassa determinado valor), podem ser mensagens informativas (por exemplo: informar a integração com os parceiros foi realizada com sucesso durante o processamento da requisição) etc.
+
+## :book: Conteúdo
+* [Funcionalidades-chave](#funcionalidades-chave)
 
 ## Funcionalidades-chave
 
 Esse projeto tem como objetivo fornecer um **envelope de resposta** para os métodos da aplicação que sigam os seguintes princípios de design: 
 
-- Seja otimizado para alocação na stack ao invés da heap para **evitar pressão no garbage collector**
+- Seja otimizado para alocação na stack ao invés da heap para **evitar pressão no garbage collector**.
 
-- Tenha a característica da **imutabilidade** para ter a garantia que uma vez criado, não será modificado e que, alterações implicarão na criação de um novo objeto
+- Tenha a característica da **imutabilidade** para ter a garantia que uma vez criado, não será modificado e que, alterações implicarão na criação de um novo objeto.
 
-- Ter uma **API de alto nível** para que seja flexível para ser utilizado em diversos cenários com pouca necessidade de customização do código
+- Ter uma **API de alto nível** para que seja flexível para ser utilizado em diversos cenários com pouca necessidade de customização do código.
 
-- Seja otimizado para **não realizar box e unboxing** e **evitar criação de closures** nos encapsulamentos para não gerar alocações na heap
+- Seja otimizado para **não realizar box e unboxing** e **evitar criação de closures** nos encapsulamentos para não gerar alocações na heap.
 
-- Ser **Thread-safe**
+- Evitar o **uso desnecessário e incorreto de lançamento de exceções** ocasionando problemas de desempenho.
+
+- Ser **Thread-safe**.
 
