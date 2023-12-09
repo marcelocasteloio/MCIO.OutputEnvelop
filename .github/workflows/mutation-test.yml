@@ -1,0 +1,45 @@
+name: Mutation Test
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+
+  mutation-test:
+    name: Mutation Test
+    runs-on: ubuntu-latest
+
+    steps:
+    
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Restore Dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build -c Release
+
+    - name: Stryker
+      shell: pwsh
+      run: |
+        # Install stryker
+        New-Item -Path ./.stryker/stryker -ItemType Directory
+        dotnet tool update dotnet-stryker --tool-path ./.stryker/stryker
+
+        # Run Stryker for mutation testing
+        cd ./tst/UnitTests
+        $result = & ../../.stryker/stryker/dotnet-stryker --reporter "json" --output ".stryker-output"
+
+        Write-Host $result
+
+        if ($result -like "*The final mutation score is 100.00 %*") {
+            Write-Host "[MCIO] Stryker mutant check passed. No surviving mutants found."
+            exit 0
+        } else {
+            Write-Error "[MCIO] Stryker detected surviving mutants. Pipeline failed."
+            exit 1
+        }
