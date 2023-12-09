@@ -43,9 +43,11 @@ Além disso, nesses tipos de sistemas, os retornos dos métodos nesses tipos de 
 - Essas notificações são mais do que simples mensagens de erro, podem ser mensagens de warning (por exemplo: quando um pedido de compra ultrapassa determinado valor), podem ser mensagens informativas (por exemplo: informar a integração com os parceiros foi realizada com sucesso durante o processamento da requisição) etc.
 
 ## :book: Conteúdo
-* [Funcionalidades-chave](#funcionalidades-chave)
+* [Funcionalidades-chave](#star-funcionalidades-chave)
 
 ## :star: Funcionalidades-chave
+
+[:arrow_up_small: voltar ao topo](#book-conteúdo)
 
 Esse projeto tem como objetivo fornecer um **envelope de resposta** para os métodos da aplicação que sigam os seguintes princípios de design: 
 
