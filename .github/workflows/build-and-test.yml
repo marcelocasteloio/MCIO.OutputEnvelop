@@ -7,12 +7,13 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
+  workflow_call:
 
 jobs:
 
-  build:    
+  build-and-test:    
     runs-on: ubuntu-latest
-    name: Build
+    name: Build and Test
     steps:
 
     - name: Set up JDK 17
@@ -48,8 +49,8 @@ jobs:
         ./.sonar/scanner/dotnet-sonarscanner begin /k:"marcelocasteloio_MCIO.OutputEnvelop" /o:"marcelocasteloio" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.coverage.exclusions="tst/**,benchs/**,samples/**" /d:sonar.exclusions="tst/**,benchs/**,samples/**" /d:sonar.cpd.exclusions="**/OutputEnvelop.cs"
         
         # Build and test
-        dotnet build --no-restore
-        dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="Coverage/" ./tst/UnitTests/MCIO.OutputEnvelop.UnitTests.csproj
+        dotnet build -c Release --no-restore
+        dotnet test -c Release --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="Coverage/" ./tst/UnitTests/MCIO.OutputEnvelop.UnitTests.csproj
         
         # End SonarQube analysis
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
