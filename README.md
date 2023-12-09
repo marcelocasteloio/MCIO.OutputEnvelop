@@ -24,7 +24,7 @@ Um **envelope de resposta** que seja **leve**, de **alto desempenho** e que forn
 ## :page_facing_up: Introdução
 
 > [!IMPORTANT]
-> Existem vários outros pontos que são abordados na documentação do projeto e vale a pena dar uma olhada para que possa compreender os racionais das decisões tomadas nesse projeto lendo o arquivo [DESIGN-DECISIONS](docs/DESIGN-DECISIONS-PT.md).
+> Existem vários outros pontos que são abordados na documentação do projeto e vale a pena dar uma olhada para que possa compreender os racionais das decisões tomadas nesse projeto lendo o arquivo [decisões de design](docs/DESIGN-DECISIONS-PT.md).
 
 Esse projeto nasceu de uma necessidade pessoal. Quando estamos desenvolvendo um sistema temos que tomar diversas decisões com relação ao design do código e manter o equilíbrio entre legibilidade, manutenabilidade e performance é sempre um desafio pois, no fim das contas, nós escrevemos código para outra pessoa entender e não para o computador.
 
