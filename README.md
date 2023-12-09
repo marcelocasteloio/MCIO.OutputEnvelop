@@ -68,6 +68,8 @@ Esse projeto tem como objetivo fornecer um **envelope de resposta** para os mét
 
 ## :people_holding_hands: Contribuindo
 
+[voltar ao topo](#book-conteúdo)
+
 Você está mais que convidado para constribuir. Caso tenha interesse e queira participar do projeto, não deixe de ver nosso [manual de contribuição](docs/CONTRIBUTING-PT.md). 
 
 ## :people_holding_hands: Autores
