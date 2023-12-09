@@ -45,8 +45,12 @@ Além disso, nesses tipos de sistemas, os retornos dos métodos nesses tipos de 
 - O processamento nem sempre se resume a sucess ou falha. Em importações em lote por exemplo, o resultado da operação pode ser parcial onde partes dos itens do lote são processados e outra parte não.
 
 ## :book: Conteúdo
-* [Funcionalidades-chave](#star-funcionalidades-chave)
-* [Autores](#arrow_up_small-autores)
+- [MCIO.OutputEnvelop](#mciooutputenvelop)
+  - [Status](#status)
+  - [Introdução](#introdução)
+  - [:book: Conteúdo](#book-conteúdo)
+  - [:star: Funcionalidades-chave](#star-funcionalidades-chave)
+  - [:people\_holding\_hands: Autores](#people_holding_hands-autores)
 
 ## :star: Funcionalidades-chave
 
