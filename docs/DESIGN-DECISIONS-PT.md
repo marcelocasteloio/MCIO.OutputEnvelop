@@ -51,7 +51,7 @@ Parece algo muito trivial e simples de responder, mas acredite em mim, a maioria
 > [!TIP]
 > Uma notificação vai além do que ser uma simples mensagem de texto
 
-A primeira delas é que existem notificações que vão além do log. É comum as aplicações terem logs que são escritos a medida que um processamento é realizado. Processos em background que ocorrem a partir de algum scheduler ou reagindo a algum evento não costumam retornar informações para a aplicação cliente que realizou o disparodo processamento, afinal de contas, tanto o disparo por meio de um scheduler ou reagindo a algum evento, são processados de forma assíncrona e não tem uma sessão de alguma aplicação cliente aguardando uma resposta, então o que faz mais sentido é realmente registar essas notificações por meio de logs, PORÉM, quando o processamento é feito a partir de uma chamada síncrona de uma aplicação cliente, é comum termos que retornar essas notificações para a aplicação cliente para que ela possa tomar alguma decisão em cima disso.
+Existem notificações que vão além do log. É comum as aplicações terem logs que são escritos a medida que um processamento é realizado. Processos em background que ocorrem a partir de algum scheduler ou reagindo a algum evento não costumam retornar informações para a aplicação cliente que realizou o disparodo processamento, afinal de contas, tanto o disparo por meio de um scheduler ou reagindo a algum evento, são processados de forma assíncrona e não tem uma sessão de alguma aplicação cliente aguardando uma resposta, então o que faz mais sentido é realmente registar essas notificações por meio de logs, PORÉM, quando o processamento é feito a partir de uma chamada síncrona de uma aplicação cliente, é comum termos que retornar essas notificações para a aplicação cliente para que ela possa tomar alguma decisão em cima disso.
 
 > [!TIP]
 > Quando temos uma requisição síncrona do nosso método, o chamador pode querer ler as notificações geradas para tomar alguam decisão a partir das notificações. 
@@ -101,4 +101,14 @@ Mas isso quer dizer que o back-end, ao invés de registrar as notificações som
 
 > [!IMPORTANT]
 > Métodos precisam ter a capacidade de retornar as notificações que eles geraram
+
+Notificações também possuem um `tipo`. Nós temos a tendência de achar que uma notificação é somente quando algo da errado, mas nós podemos querer notificar mais que isso. Vejamos alguns exemplos:
+
+- Uma `notificação informativa` de que os dados da declaracão do imposto de renda foram transmitidos para a receita federal.
+- Uma `notificação de sucesso` de que os dados foram salvos com sucesso.
+- Uma `notificação de cuidado` informando que a venda foi realizada mas que o produto está chegando perto da quantidade mínima no estoque 
+- Uma `notificação` de erro informando que não foi possível processar a solicitação
+
+> [!IMPORTANT]
+> Notificação possuem tipos: `informação`, `sucesso`, `aviso` e `erro`
 
