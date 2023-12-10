@@ -1,0 +1,25 @@
+<mxfile host="Electron" modified="2023-12-10T02:50:26.407Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.2 Chrome/114.0.5735.289 Electron/25.9.4 Safari/537.36" etag="LcWJReZmZRAuPbI4W0Pp" version="22.1.2" type="device">
+  <diagram name="Page-1" id="2Yb1YN3MsRrahfePlU6t">
+    <mxGraphModel dx="1176" dy="469" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1920" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="wuWqiNqE7c77rO5zuqE8-1" value="Web API" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="300" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="wuWqiNqE7c77rO5zuqE8-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="wuWqiNqE7c77rO5zuqE8-2" target="wuWqiNqE7c77rO5zuqE8-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wuWqiNqE7c77rO5zuqE8-2" value="Web App" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="440" y="270" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="wuWqiNqE7c77rO5zuqE8-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="wuWqiNqE7c77rO5zuqE8-3" target="wuWqiNqE7c77rO5zuqE8-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wuWqiNqE7c77rO5zuqE8-3" value="Mobile App" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="440" y="350" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

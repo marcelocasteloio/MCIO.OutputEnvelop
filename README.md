@@ -2,6 +2,9 @@
 
 Um `envelope de resposta` que seja `leve`, de `alto desempenho` e que forneça uma `API de alto nível` para ser usado em aplicações *LOB (line of business)*.
 
+> [!IMPORTANT]
+> Se você gostar do projeto, não deixe de dar uma estrela para ajudar na divulgação, isso ajuda muito. Obrigado!
+
 ## :label: Labels
 
 | Categoria | Descrição | Labels |
