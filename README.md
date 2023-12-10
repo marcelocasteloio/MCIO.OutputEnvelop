@@ -49,9 +49,27 @@ Além disso, nesses tipos de sistemas, os retornos dos métodos nesses tipos de 
   - [:label: Labels](#label-labels)
   - [:page\_facing\_up: Introdução](#page_facing_up-introdução)
   - [:book: Conteúdo](#book-conteúdo)
+  - [:computer: Tecnologias](#computer-tecnologias)
   - [:star: Funcionalidades-chave](#star-funcionalidades-chave)
+  - [Exemplos](#exemplos)
   - [:people\_holding\_hands: Contribuindo](#people_holding_hands-contribuindo)
   - [:people\_holding\_hands: Autores](#people_holding_hands-autores)
+
+## :computer: Tecnologias
+
+[voltar ao topo](#book-conteúdo)
+
+Esse projeto utiliza as seguintes tecnologias:
+- C# como linguagem de programação.
+- .NET Standard 2.0 para o pacote nuget.
+- .NET 8 para para os projetos de teste de unidade, benchmark e exemplos.
+- xUnit como framework de testes de unidade.
+- FluentAssertions para escrita dos Asserts dos testes de unidade de forma fluída,
+- SonarQube para ferramenta de análise estática de código (SAST - *Static Application Security Testing*),
+- Stryker.NET como framework para testes de mutação.
+- BenchmarkDotNet como framework para realização dos benchmarks.
+- Github Actions para as pipelines.
+- Nuget.org como repositório de pacotes.
 
 ## :star: Funcionalidades-chave
 
@@ -65,6 +83,10 @@ Esse projeto tem como objetivo fornecer um **envelope de resposta** para os mét
 - :white_check_mark: Seja otimizado para **não realizar box e unboxing** e **evitar criação de closures** nos encapsulamentos para não gerar alocações na heap.
 - :white_check_mark: Evitar o **uso desnecessário e incorreto de lançamento de exceções** ocasionando problemas de desempenho.
 - :white_check_mark: Ser **Thread-safe**.
+
+## Exemplos
+
+Para que possam ver, na prática, a utilização do envelope de resposta nos diferentes cenários para o qual ele foi projetado, criei uma API de exemplo localizando dentro do diretório `samples/SampleApi`.
 
 ## :people_holding_hands: Contribuindo
 
