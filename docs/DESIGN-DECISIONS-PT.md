@@ -108,7 +108,7 @@ Notificações também possuem um `tipo`. Nós temos a tendência de achar que u
 - Uma `notificação informativa` de que os dados da declaracão do imposto de renda foram transmitidos para a receita federal.
 - Uma `notificação de sucesso` de que os dados foram salvos com sucesso.
 - Uma `notificação de cuidado` informando que a venda foi realizada mas que o produto está chegando perto da quantidade mínima no estoque 
-- Uma `notificação` de erro informando que não foi possível processar a solicitação
+- Uma `notificação de erro` informando que não foi possível processar a solicitação
 
 > [!IMPORTANT]
 > Notificação possuem tipos: `informação`, `sucesso`, `aviso` e `erro`
