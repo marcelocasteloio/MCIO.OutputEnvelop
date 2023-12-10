@@ -12,6 +12,7 @@
   - [:information\_source: Necessidade](#information_source-necessidade)
   - [:thinking: Analisando as possibilidades](#thinking-analisando-as-possibilidades)
     - [:pushpin: O que é uma notificação?](#pushpin-o-que-é-uma-notificação)
+    - [:pushpin: Lançando notificações durante a execução de métodos](#pushpin-lançando-notificações-durante-a-execução-de-métodos)
 
 ## :information_source: Necessidade
 
@@ -112,3 +113,48 @@ Notificações também possuem um `tipo`. Nós temos a tendência de achar que u
 > [!IMPORTANT]
 > Notificação possuem tipos: `informação`, `sucesso`, `aviso` e `erro`
 
+Acabou por aqui? Ainda não!
+
+Algo que não pode ficar de fora é que em sistemas cliente/servidor, em sistemas com múltiplas aplicações clientes e em processos de atendimento de suprote, precisamos identificar rapidamente os comportamentos que o sistema apresenta, por isso, é de suma importância que cada notificação do sistema tenha um `identificador único` pois a representação daquela mensagem pode mudar dependendo da aplicação cliente e dependendo do público para o qual ela se destina.
+
+> [!IMPORTANT]
+> A notificação precisa possuir um identificador único
+
+Vamos ver um `exemplo prático`:
+
+Imagine que existe um sistema de gestão de clínica médica de um convênio XPTO que exibe uma mensagem de que a pessoa que vai em busca de atendimento, ao ser registrada no sistema, precisa de um nome. Quando essa pessoa chega na recepção, ela ainda não está em atendimento, por isso, essa pessoa não foi identificada ainda se é uma pessoa segurada pelo convênio ou não, então no sistema da recepção a mensagem seria `"a pessoa precisa possuir um nome"`. 
+
+Agora imagine que essa pessoa foi para a triagem e lá, a pessoa enfermeira precise localizar a pessoa pelo nome dentro do sistema, porém, como essa pessoa chegou até a triagem, então ela já é uma pessoa segurada, portanto, caso o nome não foi informado, a mensagem seria `"a pessoa segurada precisa possuir um nome"`.
+
+Agora imagine que essa pessoa, após a triagem, foi para a consulta médica e o médico atende essa pessoa e registra tudo no sistema em um computador na sua sala de atendimento. O médico localiza o a pessoa segurada pelo nome e, se o médico não informar o nome, como a pessoa segurada já está em atendimento médico, ela passa a ser um paciente e a mensagem seria `"o paciente precisa possuir um nome"`.
+
+Esse exemplo foi bem simples e com certeza tem brechar nas regras (por exemplo: poderiam ser bounded contexts diferentes etc, mas estou assumindo um monolito sem bounded contexts), mas é um cenário que acontece com muita frequência. Note que a mensagem é a mesma, porém, dependendo do contexto de negócio, o texto da notificação muda mas, na essência, elas são as mesmas!
+
+Então essa mensagem poderia ser do `tipo erro`, ter o `código Person.Name.Should.Required` e ter `diferentes descrições` de acordo com o contexto e até poder possuir diferentes traduções nesses contextos. Quando a mensagem for exibida, elas poderiam ser exibidas juntamente com o código, que é padronizado, fazendo com que o sistema consiga se comunicar adequadamente para cada contexto mas permitindo que o suporte (tanto nível 1 quanto nível 2 e nível 3) encontrem a solução adequada para a solicitação da forma mais rápida possível.
+
+> [!TIP]
+> Separar o identificador único da notificação da sua descrição vai facilitar a sua vida
+
+Com isso podemos concluir o que é uma notificação e quais características essa notificação precisa ter. No contexto desse projeto, essa notificação se chama OutputMessage e pode ser vista no arquivo [OutputMessage.cs](../src/OutputEnvelop/Models/OutputMessage.cs).
+
+Uma OutputMessage possui a seguinte estrutura:
+
+| Propriedade | Tipo | Valores |
+| - | - | - |
+| Type | OutputMessageType | `1 - Information`, `2 - Success`, `3 - Warning`, `4 - Error` |
+| Code | string | - |
+| Description | string | - |
+
+### :pushpin: Lançando notificações durante a execução de métodos
+
+Lançar notificações durante a execução de um método por sí só não é um grande desafio, afinal de contas, os sistemas sempre fizeram isso por escrever essas notificações em logs, mas a questão que, inicialmente parece simpels, vai muito além disso. Vamos analisar com mais detalhes.
+
+A primeira opção seria a mais óbvia que é fazer o método retornar a lista de mensagens. No c#, nós temos algumas opçÕes para fazer isso:
+
+- Utilizando variáveis de saída
+```csharp
+public void DoSomething(out string[] messages)
+{
+
+}
+```
