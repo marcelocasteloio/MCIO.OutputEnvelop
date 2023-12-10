@@ -3,9 +3,6 @@
 > [!IMPORTANT]
 > DOCUMENTO NÃO FINALIZADO! EM CONSTRUÇÃO
 
-> [!CAUTION]
-> A leitura desse documento pode causar mal estar e atacar as crenças de alguns desenvolvedores pois, ao invés de tomar decisões na base de achismo, iremos fundamentar nossas decisões em medições e experimentos que podem causar danos aos egos de alguns, por isso, tome cuidado! (**isso foi só uma brincadeira com um tom de ironia, não fique bravo** :sweat_smile:)
-
 ## :book: Conteúdo
 - [Decisões de design](#decisões-de-design)
   - [:book: Conteúdo](#book-conteúdo)
@@ -199,7 +196,7 @@ Uma `OutputMessage` possui a seguinte estrutura:
 
 Lançar notificações durante a execução de um método por sí só não é um grande desafio, afinal de contas, os sistemas sempre fizeram isso por escrever essas notificações em logs, mas a questão que, inicialmente parece simpels, vai muito além disso. Vamos analisar com mais detalhes.
 
-A `primeira opção` seria a mais óbvia que é fazer o método retornar a lista de mensagens. Na linguagem C#, nós temos algumas opções para fazer isso. Vamos ver algumas quando o método não teria um retorno (ou seja, void).
+A `primeira opção` seria a mais óbvia que é fazer o `método retornar a lista de mensagens`. Na linguagem C#, nós temos algumas opções para fazer isso. Vamos ver algumas quando o método não teria um retorno (ou seja, void).
 
 > PS: Eu sei que void é um tipo de retorno, mas para facilitar o entendimento, vou assumir a convenção padrão de que métodos que retornam void não tem retorno.
 
@@ -324,3 +321,6 @@ public (bool Success, OutputMessage[] OutputMessageCollection) DoSomething(strin
     return (Success: true, OutputMessageCollection: Array.Empty<OutputMessage>());
 }
 ```
+
+Vamos analisar essas duas opções primeiro que acabamos de ver. Vamos começar pelo retorno de um array vazio ou um retorno nulo quando não houverem mensagens. Nós vamos analisar pelo viés da usabilidade e do desempenho.
+
