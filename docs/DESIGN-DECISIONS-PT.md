@@ -185,7 +185,7 @@ Então essa mensagem poderia ser do `tipo erro`, ter o `código Person.Name.Shou
 
 Com isso podemos concluir o que é uma notificação e quais características essa notificação precisa ter. No contexto desse projeto, essa notificação se chama OutputMessage e pode ser vista no arquivo [OutputMessage.cs](../src/OutputEnvelop/Models/OutputMessage.cs).
 
-Uma OutputMessage possui a seguinte estrutura:
+Uma `OutputMessage` possui a seguinte estrutura:
 
 | Propriedade | Tipo | Valores |
 | - | - | - |
@@ -197,12 +197,128 @@ Uma OutputMessage possui a seguinte estrutura:
 
 Lançar notificações durante a execução de um método por sí só não é um grande desafio, afinal de contas, os sistemas sempre fizeram isso por escrever essas notificações em logs, mas a questão que, inicialmente parece simpels, vai muito além disso. Vamos analisar com mais detalhes.
 
-A primeira opção seria a mais óbvia que é fazer o método retornar a lista de mensagens. No c#, nós temos algumas opçÕes para fazer isso:
+A `primeira opção` seria a mais óbvia que é fazer o método retornar a lista de mensagens. No c#, nós temos algumas opções para fazer isso. Vamos ver algumas quando o método não teria um retorno (ou seja, void).
 
-- Utilizando variáveis de saída
+> PS: Eu sei que void é um tipo de retorno, mas para facilitar o entendimento, vou assumir a convenção padrão de que métodos que retornam void não tem retorno.
+
+- Utilizando variáveis de saída:
 ```csharp
-public void DoSomething(out string[] messages)
+// Output retornando nullable para evitar alocação na heap mas piorando a utilização por retornar nulo
+public void DoSomething(string name, out OutputMessage[]? messages)
 {
+    if (string.IsNullOrWhiteSpace(name))
+    {
+        messages = new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        return;
+    }
 
+    Name = name;
+
+    messages = null;
+}
+
+// Output retornando um array vazio para facilitar a utilização mas gerando alocação na heap
+public void DoSomething(string name, out OutputMessage[] messages)
+{
+    if (string.IsNullOrWhiteSpace(name))
+    {
+        messages = new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        return;
+    }
+
+    Name = name;
+
+    messages = Array.Empty<OutputMessage>();
+}
+```
+
+- Utilizando o retorno do método:
+```csharp
+// Retornando nullable para evitar alocação na heap mas piorando a utilização por retornar nulo
+public OutputMessage[]? DoSomething(string name)
+{
+    if (string.IsNullOrWhiteSpace(name))
+        return new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+
+    Name = name;
+
+    return null;
+}
+
+// Retornando um array vazio para facilitar a utilização mas gerando alocação na heap
+public OutputMessage[] DoSomething(string name)
+{
+    if (string.IsNullOrWhiteSpace(name))
+        return new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+
+    Name = name;
+
+    return Array.Empty<OutputMessage>();
+}
+```
+
+<br/> 
+
+Agora vamos analisar esses casos com `métodos que teriam um retorno`:
+
+<br/> 
+
+- Utilizando variáveis de saída:
+```csharp
+// Output retornando nullable para evitar alocação na heap mas piorando a utilização por retornar nulo
+public bool DoSomething(string name, out OutputMessage[]? messages)
+{
+    if (string.IsNullOrWhiteSpace(name))
+    {
+        messages = new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        return false;
+    }
+
+    Name = name;
+
+    messages = null;
+
+    return true;
+}
+
+// Output retornando um array vazio para facilitar a utilização mas gerando alocação na heap
+public bool DoSomething(string name, out OutputMessage[] messages)
+{
+    if (string.IsNullOrWhiteSpace(name))
+    {
+        messages = new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        return false;
+    }
+
+    Name = name;
+
+    messages = Array.Empty<OutputMessage>();
+
+    return true;
+}
+```
+
+- Utilizando o retorno do método:
+```csharp
+// Retornando nullable para evitar alocação na heap mas piorando a utilização por retornar nulo
+public (bool Success, OutputMessage[]? OutputMessageCollection) DoSomething(string name)
+{
+    if (string.IsNullOrWhiteSpace(name))
+        return (Success: false,  OutputMessageCollection: new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") });
+
+    Name = name;
+
+    return (Success: true, OutputMessageCollection: null);
+}
+
+// Retornando um array vazio para facilitar a utilização mas gerando alocação na heap
+public (bool Success, OutputMessage[] OutputMessageCollection) DoSomething(string name)
+{
+    if (string.IsNullOrWhiteSpace(name))
+        return (Success: false,  OutputMessageCollection: new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") });
+
+    Name = name;
+
+    return (Success: true, OutputMessageCollection: Array.Empty<OutputMessage>());
 }
 ```
