@@ -18,8 +18,12 @@
 
 Durante o processamento de um método em sistemas *LOB (Line of business)* (vou tomar a liberdade de me abster de algumas formalidades como ficar se referindo a procedimentos quando não existe retorno ou função como tem retorno, chamarei tudo de método) nós, com frequência, queremos mais do que um único objeto de retorno. Isso ocorre não porque estamos projetando métodos com múltiplas responsabilidades ferindo o primeiro princípio do SOLID, mas sim, porque tem informações complementares que são importantes para esse tipo de sistema.
 
+<br/>
+
 > [!IMPORTANT]
 > Existem vários tipos de sistemas com diferentes propósitos como sistemas para IoT, sistemas de missão crítica, sistemas para baixo nível etc. Esse pacote e toda análise foi pensado em sistemas *LOB (Line of business)*
+
+<br/>
 
 Esses sistemas possuem algumas características comuns. Algumas delas são:
 - Autenticar o usuário que está tentando realizar a operação.
@@ -49,16 +53,24 @@ Vamos começar agora a construir uma linha de raciocínio para abordar cada um d
 
 Parece algo muito trivial e simples de responder, mas acredite em mim, a maioria ignora os detalhes. Quando analisamos o assunto temos a tendência de ignorar os detalhes e pensamos em notificação somente como uma simples mensagem composta por um texto, mas isso é superficial demais e existem mais detalhes que devemos analisar.
 
+<br/>
+
 > [!TIP]
 > Uma notificação vai além do que ser uma simples mensagem de texto
 
+<br/>
+
 Existem notificações que vão além do log. É comum as aplicações terem logs que são escritos a medida que um processamento é realizado. Processos em background que ocorrem a partir de algum scheduler ou reagindo a algum evento não costumam retornar informações para a aplicação cliente que realizou o disparodo processamento, afinal de contas, tanto o disparo por meio de um scheduler ou reagindo a algum evento, são processados de forma assíncrona e não tem uma sessão de alguma aplicação cliente aguardando uma resposta, então o que faz mais sentido é realmente registar essas notificações por meio de logs, PORÉM, quando o processamento é feito a partir de uma chamada síncrona de uma aplicação cliente, é comum termos que retornar essas notificações para a aplicação cliente para que ela possa tomar alguma decisão em cima disso.
+
+<br/>
 
 > [!TIP]
 > Quando temos uma requisição síncrona do nosso método, o chamador pode querer ler as notificações geradas para tomar alguam decisão a partir das notificações. 
 
 > [!TIP]
 > Não deixe de considerar que sua aplicação pode ter mais de uma aplicação cliente
+
+<br/>
 
 Imagine uma Web API que expõe um endpoint onde possibilita a abertura de pedidos de compra. Essa API é consumida por duas aplicações (uma aplicação web e outra mobile) conforme diagrama a seguir:
 
@@ -70,15 +82,25 @@ Imagine uma Web API que expõe um endpoint onde possibilita a abertura de pedido
 
 Esse fluxo de negócio possui uma regra que, quando o pedido de compra passar de 50 mil reais, o pedido deve ser aprovado pelo gestor da área. Com base nessa regra de negócio, os sistemas, tanto web quanto mobile, devem exibir uma notificação informando que o pedido de compra foi aceito mas está pendente de aprovação do gestor da área. Essa notificação é importante pois, por mais que o sistema já possua um fluxo de aprovação, o solicitante precisa estar ciente disso de imediato para que o processo não caia no esquecimento ou até mesmo ele possa agilizar esse processo por entrar em contato diretamente com o gestor pedindo agilidade na aprovação dependendo da criticidade da demanda.
 
+<br/>
+
 > [!IMPORTANT]
 > Nem toda notificação é um erro
 
+<br/>
+
 Até o momento, nada fora do comum em sistemas *LOB (Line of business)*, porém, imagine o seguinte: Os programadores tiveram o raciocínio de que, por se tratar de uma notificação para o usuário que está utilizando o sistema, a responsabilidade de saber os critérios e quando exibir essa notificação é responsabilidade das aplicações de front-end, afinal, exibir algo é do front-end e não do back-end.
+
+<br/>
 
 > [!IMPORTANT]
 > Nem toda notificação para o usuário é gerada no front-end
 
+<br/>
+
 Mas esse raciocínio não está correto. Caso isso ocorra, tanto o front-end web quanto o mobile precisariam codificar a mesma regra. Ambos teriam que saber que precisam validar o valor do pedido para notificar, ambos teriam qeu saber qual valor é esse e ambos teriam que saber qual é a mensagem que deveriam exibir e esse cenário é desastroso. Por que? Isso causaria duplicidade na implementação da regra de negócio pois web e mobile precisam saber e implementar a regra, além disso, poderíamos ter inconsistências perante essas implementações que gerariam bugs e comportamentos diferentes para o mesmo recurso entre as aplicação web e mobile. Quando o valor de referência para a notificação mudasse (o exemplo foi de 50 mil reais, imagine que mudou para 30 mil reais), teríamos que gerar uma nova versão das aplicações web e mobile (que é um problema pois os tempo de deploy e disponibilização de uma aplicação web e em uma loja de aplicativos mobile não são as mesmas) ou até criar um endpoint só para buscar esse valor aumentando mais ainda a  complexidade.
+
+<br/>
 
 > [!WARNING]
 > Devemos evitar duplicidade de implementação. Siga o princípio DRY (Don't repeat yourself)
@@ -86,22 +108,36 @@ Mas esse raciocínio não está correto. Caso isso ocorra, tanto o front-end web
 > [!WARNING]
 > Os deploys possuem ciclos de vida e tempo de disponibilização diferentes
 
+<br/>
+
 Existem até cenários pouco explorados em que esse cenário causa problemas que é quando o sistema possuí suporte a múltiplos idiomas. Se o front-end é responsável por gerar essa mensagem de notificação que é a partir de uma regra do back-end, ambas as aplicações de front-end (web e mobile) vão ter que ter a tradução correta da mensagem e, além da duplicidade e chance de maior de bugs e erros, os ciclos de deploy das aplicações são diferentes como explicado anteriormente fazendo com que a aplicação web tenha a tradução mais atualizada e a mobile não pois a loja de aplicativos demorou para atualizar ou o usuário não quis atualizar o app ainda podendo trazer até riscos legais!
+
+<br/>
 
 > [!TIP]
 > Não deixe de considerar aspectos de globalização. Valide as chances da sua apliação precisar dar suporte a múltiplas culturas e idiomas
+
+<br/>
 
 `Todos os cenários descritos acima seriam desastrosos!`
 
 Então qual seria o cenário mais adequado? Notificações que são geradas a partir de regras do back-end devem ser gerados no back-end, regras que são geradas a partir de regras exclusivas do front-end (como highligth de campos obrigatórios, tool tips etc.) devem ser geradas no front-end. Assim, se o banck-end gerar a notificação do exemplo de que pedidos acima de X reais devam ser aviasados que entraram em um fluxo de aprovação, o back-end que tem que gerar a notificação e retornar as aplicações clientes, assim não teríamos a duplicidade e a atualização da mensagem e dos crtiérios teriam efeito imediato nas aplicações web e mobile.
 
+<br/>
+
 > [!IMPORTANT]
 > Notificações que são geradas a partir de regras do back-end devem ser gerados no back-end
 
+<br/>
+
 Mas isso quer dizer que o back-end, ao invés de registrar as notificações somente em logs, agora o back-end precisa retornar essas notificações para a aplicação que o chamou, ou seja, chegamos a nossa primeira conclusão: `métodos precisam ter a capacidade de retornar as notificações que eles geraram`.
+
+<br/>
 
 > [!IMPORTANT]
 > Métodos precisam ter a capacidade de retornar as notificações que eles geraram
+
+<br/>
 
 Notificações também possuem um `tipo`. Nós temos a tendência de achar que uma notificação é somente quando algo da errado, mas nós podemos querer notificar mais que isso. Vejamos alguns exemplos:
 
@@ -110,15 +146,23 @@ Notificações também possuem um `tipo`. Nós temos a tendência de achar que u
 - Uma `notificação de cuidado` informando que a venda foi realizada mas que o produto está chegando perto da quantidade mínima no estoque 
 - Uma `notificação de erro` informando que não foi possível processar a solicitação
 
+<br/>
+
 > [!IMPORTANT]
 > Notificação possuem tipos: `informação`, `sucesso`, `aviso` e `erro`
+
+<br/>
 
 Acabou por aqui? Ainda não!
 
 Algo que não pode ficar de fora é que em sistemas cliente/servidor, em sistemas com múltiplas aplicações clientes e em processos de atendimento de suprote, precisamos identificar rapidamente os comportamentos que o sistema apresenta, por isso, é de suma importância que cada notificação do sistema tenha um `identificador único` pois a representação daquela mensagem pode mudar dependendo da aplicação cliente e dependendo do público para o qual ela se destina.
 
+<br/>
+
 > [!IMPORTANT]
 > A notificação precisa possuir um identificador único
+
+<br/>
 
 Vamos ver um `exemplo prático`:
 
@@ -132,8 +176,12 @@ Esse exemplo foi bem simples e com certeza tem brechar nas regras (por exemplo: 
 
 Então essa mensagem poderia ser do `tipo erro`, ter o `código Person.Name.Should.Required` e ter `diferentes descrições` de acordo com o contexto e até poder possuir diferentes traduções nesses contextos. Quando a mensagem for exibida, elas poderiam ser exibidas juntamente com o código, que é padronizado, fazendo com que o sistema consiga se comunicar adequadamente para cada contexto mas permitindo que o suporte (tanto nível 1 quanto nível 2 e nível 3) encontrem a solução adequada para a solicitação da forma mais rápida possível.
 
+<br/>
+
 > [!TIP]
 > Separar o identificador único da notificação da sua descrição vai facilitar a sua vida
+
+<br/>
 
 Com isso podemos concluir o que é uma notificação e quais características essa notificação precisa ter. No contexto desse projeto, essa notificação se chama OutputMessage e pode ser vista no arquivo [OutputMessage.cs](../src/OutputEnvelop/Models/OutputMessage.cs).
 
