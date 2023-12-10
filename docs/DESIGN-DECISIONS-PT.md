@@ -195,6 +195,8 @@ Uma `OutputMessage` possui a seguinte estrutura:
 
 ### :pushpin: Lançando notificações durante a execução de métodos
 
+[voltar ao topo](#book-conteúdo)
+
 Lançar notificações durante a execução de um método por sí só não é um grande desafio, afinal de contas, os sistemas sempre fizeram isso por escrever essas notificações em logs, mas a questão que, inicialmente parece simpels, vai muito além disso. Vamos analisar com mais detalhes.
 
 A `primeira opção` seria a mais óbvia que é fazer o método retornar a lista de mensagens. Na linguagem C#, nós temos algumas opções para fazer isso. Vamos ver algumas quando o método não teria um retorno (ou seja, void).
