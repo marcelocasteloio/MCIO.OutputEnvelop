@@ -9,7 +9,10 @@
   - [:information\_source: Necessidade](#information_source-necessidade)
   - [:thinking: Analisando as possibilidades](#thinking-analisando-as-possibilidades)
     - [:pushpin: O que é uma notificação?](#pushpin-o-que-é-uma-notificação)
+    - [:pushpin: Tipos de notificação](#pushpin-tipos-de-notificação)
     - [:pushpin: Lançando notificações durante a execução de métodos](#pushpin-lançando-notificações-durante-a-execução-de-métodos)
+    - [:pushpin: Arrays vazios ou referências nulas para array de mensagens?](#pushpin-arrays-vazios-ou-referências-nulas-para-array-de-mensagens)
+      - [Conclusão 1](#conclusão-1)
 
 ## :information_source: Necessidade
 
@@ -136,6 +139,10 @@ Mas isso quer dizer que o back-end, ao invés de registrar as notificações som
 
 <br/>
 
+### :pushpin: Tipos de notificação
+
+[voltar ao topo](#book-conteúdo)
+
 Notificações também possuem um `tipo`. Nós temos a tendência de achar que uma notificação é somente quando algo da errado, mas nós podemos querer notificar mais que isso. Vejamos alguns exemplos:
 
 - Uma `notificação informativa` de que os dados da declaracão do imposto de renda foram transmitidos para a receita federal.
@@ -207,7 +214,7 @@ public void DoSomething(string name, out OutputMessage[]? messages)
 {
     if (string.IsNullOrWhiteSpace(name))
     {
-        messages = new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        messages = new[] { OutputMessage.Create(type: OutputMessageType.Error, code: "...", description: "...") };
         return;
     }
 
@@ -221,7 +228,7 @@ public void DoSomething(string name, out OutputMessage[] messages)
 {
     if (string.IsNullOrWhiteSpace(name))
     {
-        messages = new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        messages = new[] { OutputMessage.Create(type: OutputMessageType.Error, code: "...", description: "...") };
         return;
     }
 
@@ -237,7 +244,7 @@ public void DoSomething(string name, out OutputMessage[] messages)
 public OutputMessage[]? DoSomething(string name)
 {
     if (string.IsNullOrWhiteSpace(name))
-        return new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        return new[] { OutputMessage.Create(type: OutputMessageType.Error, code: "...", description: "...") };
 
     Name = name;
 
@@ -248,7 +255,7 @@ public OutputMessage[]? DoSomething(string name)
 public OutputMessage[] DoSomething(string name)
 {
     if (string.IsNullOrWhiteSpace(name))
-        return new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        return new[] { OutputMessage.Create(type: OutputMessageType.Error, code: "...", description: "...") };
 
     Name = name;
 
@@ -269,7 +276,7 @@ public bool DoSomething(string name, out OutputMessage[]? messages)
 {
     if (string.IsNullOrWhiteSpace(name))
     {
-        messages = new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        messages = new[] { OutputMessage.Create(type: OutputMessageType.Error, code: "...", description: "...") };
         return false;
     }
 
@@ -285,7 +292,7 @@ public bool DoSomething(string name, out OutputMessage[] messages)
 {
     if (string.IsNullOrWhiteSpace(name))
     {
-        messages = new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        messages = new[] { OutputMessage.Create(type: OutputMessageType.Error, code: "...", description: "...") };
         return false;
     }
 
@@ -322,5 +329,110 @@ public (bool Success, OutputMessage[] OutputMessageCollection) DoSomething(strin
 }
 ```
 
+### :pushpin: Arrays vazios ou referências nulas para array de mensagens?
+
+[voltar ao topo](#book-conteúdo)
+
 Vamos analisar essas duas opções primeiro que acabamos de ver. Vamos começar pelo retorno de um array vazio ou um retorno nulo quando não houverem mensagens. Nós vamos analisar pelo viés da usabilidade e do desempenho.
 
+Ao olhar pelo viés da usabilidade, é mais interessante ter um array vazio do que um valor nulo pois evita possíveis exceções de referências nulas. Utilizar um array vazio vindo de uma constante do .NET como um Array.Empty também não causará pressão no Garbage Collector pois não haverá instanciações de novos arrays. Para reproduzir e validar esse cenário qeu acabei de afirmar, vamos executar dois benchamrks (detalhes sobre os benchmarks podem ser encontrados na [documentação sobre benchmark](BENCHMARKS-PT.md)).
+
+A seguir temos parte do código do objeto [OutputEnvelop.cs](../src/OutputEnvelop/OutputEnvelop.cs). No construtor do objeto recebemos alguns parâmetros e definimos algumas propriedades que são readonly.
+
+Como a biblioteca é feita para o .NET Standard 2.0, não existe suporte a deixar explícito o nullable para arrays, porém, é possível mesmo assim passar `null` no array. Sendo assim, as parâmetros `OutputMessage[] outputMessageCollection` e `Exception[] exceptionCollection` do construtor podem vir nulos.
+
+Note que esses parâmetros do construtor mencionados anteriormente alimentam duas propriedades com o modificador de acesso `internal`. Nós falaremos disso posteriormente.
+
+O ponto de agora é que o código atual permite que as propriedades `internal` tenham valores nulos, conforme demontrado a seguir:
+
+```csharp
+// Versão que aceita nulo
+public readonly struct OutputEnvelop<TOutput>
+{
+    // Properties
+    internal OutputMessage[] OutputMessageCollectionInternal { get; }
+    internal Exception[] ExceptionCollectionInternal { get; }
+
+    public TOutput Output { get; }
+    public OutputEnvelopType Type { get; }
+
+    // Constructors
+    private OutputEnvelop(
+        TOutput output,
+        OutputEnvelopType type,
+        OutputMessage[] outputMessageCollection,
+        Exception[] exceptionCollection
+    )
+    {
+        Output = output;
+        Type = type;
+        OutputMessageCollectionInternal = outputMessageCollection;
+        ExceptionCollectionInternal = exceptionCollection;
+    }
+}
+```
+
+Uma alternativa para que esse objeto passe um Array vazio ao invés de permitir nulo seria checar se o parâmetro do construtor é nulo e substituir por uma constante de um Array vazio conforme a seguir:
+
+```csharp
+// Versão que aceita nulo
+public readonly struct OutputEnvelop<TOutput>
+{
+    // Properties
+    internal OutputMessage[] OutputMessageCollectionInternal { get; }
+    internal Exception[] ExceptionCollectionInternal { get; }
+
+    public TOutput Output { get; }
+    public OutputEnvelopType Type { get; }
+
+    // Constructors
+    private OutputEnvelop(
+        TOutput output,
+        OutputEnvelopType type,
+        OutputMessage[] outputMessageCollection,
+        Exception[] exceptionCollection
+    )
+    {
+        Output = output;
+        Type = type;
+        OutputMessageCollectionInternal = outputMessageCollection ?? Array.Empty<OutputMessage>();
+        ExceptionCollectionInternal = exceptionCollection ?? Array.Empty<Exception>();
+    }
+}
+```
+
+Para medir o impacto dessas duas versões, vamos executar o benchmark do arquivo [CreateOutputEnvelopBenchmark.cs](../benchs/Benchmarks/OutputEnvelopBenchs/CreateOutputEnvelopBenchmark.cs) para cada uma das variações acima e vamos analisar o retorno. Primeiro, vamos aos resultados brutos dos benchmarks:
+
+| Type             | Method                                                          | OutputEnvelopCount | Mean (ns) | Error (ns) | StdDev (ns) | Ratio | RatioSD | CacheMisses/Op | TotalIssues/Op | TotalCycles/Op | BranchInstructions/Op | BranchMispredictions/Op | Timer/Op | Gen0   | Allocated (B) | Alloc Ratio |
+|------------------|-----------------------------------------------------------------|--------------------|-----------|------------|-------------|-------|---------|----------------|----------------|----------------|-----------------------|-------------------------|----------|--------|---------------|-------------|
+| With null        | CreateOutputEnvelopFromAnotherOutputEnvelop                     | 10                 | 8,35      | 0,1486     | 0,1317      | 1,01  | 0,01    | 0              | 47             | 15             | 11                    | 0                       | 0        | 0      | 0             | NA          |
+| With empty array | CreateOutputEnvelopFromAnotherOutputEnvelop                     | 10                 | 182,70    | 3,654      | 5,24        | 1,6   | 0,04    | 0              | 761            | 400            | 203                   | 1                       | 2        | 0      | 0             | NA          |
+| With null        | CreateOutputEnvelopFromAnotherOutputEnvelopCollection           | 10                 | 195,39    | 3,3298     | 4,4452      | 23,73 | 0,75    | 0              | 844            | 418            | 262                   | 1                       | 2        | 0      | 0             | NA          |
+| With empty array | CreateOutputEnvelopFromAnotherOutputEnvelopCollection           | 10                 | 320,30    | 2,249      | 1,994       | 2,77  | 0,02    | 0              | 1,282          | 705            | 398                   | 2                       | 3        | 0      | 0             | NA          |
+| With null        | CreateOutputEnvelopFromTypeWithoutMessageAndException           | 10                 | 8,31      | 0,1268     | 0,1059      | 1     | 0       | 0              | 47             | 15             | 11                    | 0                       | 0        | 0      | 0             | NA          |
+| With empty array | CreateOutputEnvelopFromTypeWithoutMessageAndException           | 10                 | 115,73    | 0,597      | 0,529       | 1     | 0       | 0              | 525            | 249            | 122                   | 0                       | 1        | 0      | 0             | NA          |
+| With null        | CreateOutputEnvelopMessageCollection                            | 10                 | 335,72    | 4,1031     | 3,6373      | 40,47 | 0,73    | 4              | 1,396          | 722            | 376                   | 1                       | 3        | 0,0572 | 960           | NA          |
+| With empty array | CreateOutputEnvelopMessageCollection                            | 10                 | 452,94    | 3,397      | 2,836       | 3,91  | 0,03    | 4              | 1,829          | 989            | 515                   | 2                       | 5        | 0,0572 | 960           | NA          |
+| With null        | CreateOutputEnvelopWithExistingMessageCollection                | 10                 | 13,40     | 0,1112     | 0,0929      | 1,61  | 0,02    | 0              | 70             | 26             | 14                    | 0                       | 0        | 0      | 0             | NA          |
+| With empty array | CreateOutputEnvelopWithExistingMessageCollection                | 10                 | 136,37    | 1,685      | 1,576       | 1,18  | 0,01    | 0              | 557            | 309            | 152                   | 0                       | 1        | 0      | 0             | NA          |
+| With null        | CreateOutputEnvelopWithoutMessageAndException                   | 10                 | 8,60      | 0,0223     | 0,0186      | 1,04  | 0,01    | 0              | 47             | 16             | 11                    | 0                       | 0        | 0      | 0             | NA          |
+| With empty array | CreateOutputEnvelopWithoutMessageAndException                   | 10                 | 117,26    | 1,964      | 2,879       | 1,01  | 0,03    | 0              | 518            | 257            | 123                   | 0                       | 1        | 0      | 0             | NA          |
+| With null        | CreateOutputEnvelopWithOutputFromAnotherOutputEnvelop           | 10                 | 8,60      | 0,0677     | 0,06        | 1,03  | 0,01    | 0              | 47             | 16             | 11                    | 0                       | 0        | 0      | 0             | NA          |
+| With empty array | CreateOutputEnvelopWithOutputFromAnotherOutputEnvelop           | 10                 | 104,40    | 2,042      | 2,097       | 0,9   | 0,02    | 0              | 463            | 224            | 103                   | 0                       | 1        | 0      | 0             | NA          |
+| With null        | CreateOutputEnvelopWithOutputFromAnotherOutputEnvelopCollection | 10                 | 178,48    | 1,4644     | 1,2981      | 21,48 | 0,36    | 0              | 969            | 355            | 174                   | 1                       | 2        | 0      | 0             | NA          |
+| With empty array | CreateOutputEnvelopWithOutputFromAnotherOutputEnvelopCollection | 10                 | 222,61    | 1,328      | 1,037       | 1,92  | 0,01    | 0              | 1,172          | 456            | 235                   | 1                       | 2        | 0      | 0             | NA          |
+| With null        | CreateOutputEnvelopWithOutputFromTypeWithoutMessageAndException | 10                 | 8,57      | 0,0488     | 0,0432      | 1,03  | 0,01    | 0              | 47             | 16             | 11                    | 0                       | 0        | 0      | 0             | NA          |
+| With empty array | CreateOutputEnvelopWithOutputFromTypeWithoutMessageAndException | 10                 | 42,51     | 0,614      | 0,513       | 0,37  | 0       | 0              | 198            | 94             | 22                    | 0                       | 0        | 0      | 0             | NA          |
+| With null        | CreateOutputEnvelopWithOutputMessageCollection                  | 10                 | 353,20    | 2,3896     | 2,1183      | 42,47 | 0,62    | 4              | 1,381          | 777            | 377                   | 1                       | 4        | 0,0572 | 960           | NA          |
+| With empty array | CreateOutputEnvelopWithOutputMessageCollection                  | 10                 | 369,16    | 4,455      | 3,95        | 3,19  | 0,04    | 4              | 1,533          | 795            | 413                   | 1                       | 4        | 0,0572 | 960           | NA          |
+| With null        | CreateOutputEnvelopWithOutputWithExistingMessageCollection      | 10                 | 12,92     | 0,0774     | 0,0724      | 1,55  | 0,03    | 0              | 70             | 25             | 14                    | 0                       | 0        | 0      | 0             | NA          |
+| With empty array | CreateOutputEnvelopWithOutputWithExistingMessageCollection      | 10                 | 55,30     | 0,287      | 0,268       | 0,48  | 0       | 0              | 251            | 119            | 52                    | 0                       | 1        | 0      | 0             | NA          |
+| With null        | CreateOutputEnvelopWithOutputWithoutMessageAndException         | 10                 | 8,38      | 0,2129     | 0,1991      | 1     | 0,02    | 0              | 47             | 15             | 11                    | 0                       | 0        | 0      | 0             | NA          |
+| With empty array | CreateOutputEnvelopWithOutputWithoutMessageAndException         | 10                 | 37,64     | 0,282      | 0,235       | 0,33  | 0       | 0              | 181            | 82             | 22                    | 0                       | 0        | 0      | 0             | NA          |
+
+
+<br/>
+<br/>
+Agora vamos tirar algumas conclusões a partir desses dados brutos:
+
+#### Conclusão 1
