@@ -12,11 +12,10 @@
     - [:pushpin: Tipos de notificação](#pushpin-tipos-de-notificação)
     - [:pushpin: Lançando notificações durante a execução de métodos](#pushpin-lançando-notificações-durante-a-execução-de-métodos)
     - [:pushpin: Arrays vazios ou referências nulas para array de mensagens?](#pushpin-arrays-vazios-ou-referências-nulas-para-array-de-mensagens)
-      - [Conclusão 1](#conclusão-1)
 
 ## :information_source: Necessidade
 
-Durante o processamento de um método em sistemas *LOB (Line of business)* (vou tomar a liberdade de me abster de algumas formalidades como ficar se referindo a procedimentos quando não existe retorno ou função como tem retorno, chamarei tudo de método) nós, com frequência, queremos mais do que um único objeto de retorno. Isso ocorre não porque estamos projetando métodos com múltiplas responsabilidades ferindo o primeiro princípio do SOLID, mas sim, porque tem informações complementares que são importantes para esse tipo de sistema.
+Durante o processamento de um método (vou tomar a liberdade de me abster de algumas formalidades como ficar se referindo a procedimentos quando não existe retorno ou função como tem retorno, chamarei tudo de método) em sistemas *LOB (Line of business)* nós, com frequência, queremos mais do que um único objeto de retorno. Isso ocorre não porque estamos projetando métodos com múltiplas responsabilidades ferindo o primeiro princípio do SOLID, mas sim, porque tem informações complementares que são importantes para esse tipo de sistema.
 
 <br/>
 
@@ -27,7 +26,7 @@ Durante o processamento de um método em sistemas *LOB (Line of business)* (vou 
 
 Esses sistemas possuem algumas características comuns. Algumas delas são:
 - Autenticar o usuário que está tentando realizar a operação.
-- Autoprizar o usuário autenticado para a operação que está querendo realizar.
+- Autorizar o usuário autenticado para a operação que está querendo realizar.
 - Receber inputs dos usuários.
 - Validar os inputs dos usuários.
 - Validar os estados dos objetos de negócio.
@@ -39,9 +38,9 @@ Esses sistemas possuem algumas características comuns. Algumas delas são:
 Ao atender esses cenários, algumas necessidades surgem e são comuns em todo desenvolvimento, independentemente da regra de negócio aplicada. Por exemplo:
 - Queremos saber as notificações que ocorreram durante a execução dos métodos.
 - Essas notificações são mais do que simples mensagens de erro, podem ser mensagens de warning (por exemplo: quando um pedido de compra ultrapassa determinado valor), podem ser mensagens informativas (por exemplo: informar a integração com os parceiros foi realizada com sucesso durante o processamento da requisição) etc.
-- O processamento nem sempre se resume a sucess ou falha. Em importações em lote por exemplo, o resultado da operação pode ser parcial onde partes dos itens do lote são processados e outra parte não.
+- O processamento nem sempre se resume a sucesso ou falha. Em processamento em lote por exemplo, o resultado da operação pode ser parcial onde parte dos itens do lote são processados e outra parte não.
 
-E a partir disso, vamos começar a construir um raciocínio que vai guiar o raciocínio e nos levará as decisões que foram tomadas para esse projeto.
+E a partir disso, vamos começar a construir um raciocínio que vai nos guiar e nos levará as decisões que foram tomadas para esse projeto.
 
 ## :thinking: Analisando as possibilidades
 
@@ -80,7 +79,7 @@ Imagine uma Web API que expõe um endpoint onde possibilita a abertura de pedido
 </div>
 <br/>
 
-Esse fluxo de negócio possui uma regra que, quando o pedido de compra passar de 50 mil reais, o pedido deve ser aprovado pelo gestor da área. Com base nessa regra de negócio, os sistemas, tanto web quanto mobile, devem exibir uma notificação informando que o pedido de compra foi aceito mas está pendente de aprovação do gestor da área. Essa notificação é importante pois, por mais que o sistema já possua um fluxo de aprovação, o solicitante precisa estar ciente disso de imediato para que o processo não caia no esquecimento ou até mesmo ele possa agilizar esse processo por entrar em contato diretamente com o gestor pedindo agilidade na aprovação dependendo da criticidade da demanda.
+Esse fluxo de negócio possui uma regra hipotética que, quando o pedido de compra passar de 50 mil reais, o pedido deve ser aprovado pelo gestor da área. Com base nessa regra de negócio hipotética, os sistemas, tanto web quanto mobile, devem exibir uma notificação informando que o pedido de compra foi aceito mas está pendente de aprovação do gestor da área. Essa notificação é importante pois, por mais que o sistema já possua um fluxo de aprovação, o solicitante precisa estar ciente disso de imediato para que o processo não caia no esquecimento ou até mesmo para ele possa agilizar esse processo por entrar em contato diretamente com o gestor pedindo agilidade na aprovação dependendo da criticidade da demanda.
 
 <br/>
 
@@ -98,7 +97,7 @@ Até o momento, nada fora do comum em sistemas *LOB (Line of business)*, porém,
 
 <br/>
 
-Mas esse raciocínio não está correto. Caso isso ocorra, tanto o front-end web quanto o mobile precisariam codificar a mesma regra. Ambos teriam que saber que precisam validar o valor do pedido para notificar, ambos teriam qeu saber qual valor é esse e ambos teriam que saber qual é a mensagem que deveriam exibir e esse cenário é desastroso. Por que? Isso causaria duplicidade na implementação da regra de negócio pois web e mobile precisam saber e implementar a regra, além disso, poderíamos ter inconsistências perante essas implementações que gerariam bugs e comportamentos diferentes para o mesmo recurso entre as aplicação web e mobile. Quando o valor de referência para a notificação mudasse (o exemplo foi de 50 mil reais, imagine que mudou para 30 mil reais), teríamos que gerar uma nova versão das aplicações web e mobile (que é um problema pois os tempo de deploy e disponibilização de uma aplicação web e em uma loja de aplicativos mobile não são as mesmas) ou até criar um endpoint só para buscar esse valor aumentando mais ainda a  complexidade.
+Mas esse raciocínio não está correto. Caso isso ocorra, tanto o front-end web quanto o mobile precisariam codificar a mesma regra. Ambos teriam que saber que precisam validar o valor do pedido para notificar, ambos teriam qeu saber qual valor é esse e ambos teriam que saber qual é a mensagem que deveriam exibir e `esse cenário é desastroso`. Por que? Isso `causaria duplicidade na implementação` da regra de negócio pois web e mobile precisam saber e implementar a regra, além disso, poderíamos ter `inconsistências` perante essas implementações que gerariam `bugs` e `comportamentos diferentes para o mesmo recurso` entre as aplicação web e mobile. Quando o valor de referência para a notificação mudasse (o exemplo foi de 50 mil reais, imagine que mudou para 30 mil reais), teríamos que gerar uma nova versão das aplicações web e mobile (que é um problema pois os `tempo de deploy` e `disponibilização` de uma aplicação web e em uma loja de aplicativos mobile não são as mesmas) ou até criar um endpoint só para buscar esse valor `aumentando mais ainda a complexidade`.
 
 <br/>
 
@@ -120,13 +119,12 @@ Existem até cenários pouco explorados em que esse cenário causa problemas que
 
 <br/>
 
-
-Então qual seria o cenário mais adequado? Notificações que são geradas a partir de regras do back-end devem ser gerados no back-end, regras que são geradas a partir de regras exclusivas do front-end (como highligth de campos obrigatórios, tool tips etc.) devem ser geradas no front-end. Assim, se o banck-end gerar a notificação do exemplo de que pedidos acima de X reais devam ser aviasados que entraram em um fluxo de aprovação, o back-end que tem que gerar a notificação e retornar as aplicações clientes, assim não teríamos a duplicidade e a atualização da mensagem e dos crtiérios teriam efeito imediato nas aplicações web e mobile.
+Então qual seria o cenário mais adequado? Notificações que são geradas a partir de regras do back-end devem ser gerados no back-end, regras que são geradas a partir de regras exclusivas do front-end (como highligth de campos obrigatórios, tool tips etc.) devem ser geradas no front-end. Assim, se o banck-end gerar a notificação do exemplo de que pedidos acima de X reais devam ser aviasados que entraram em um fluxo de aprovação, o back-end que tem que gerar a notificação e retornar as aplicações clientes, assim não teríamos a duplicidade e a atualização da mensagem e dos crtiérios teriam efeito imediato nas aplicações web e mobile. As aplicações front-end seriam responsável somente por renderizar as notificações geradas pelo back-end e não por gerá-las.
 
 <br/>
 
 > [!IMPORTANT]
-> Notificações que são geradas a partir de regras do back-end devem ser gerados no back-end
+> Notificações que são geradas a partir de regras do back-end devem ser gerados no back-end e somente renderizadas no front-end
 
 <br/>
 
@@ -176,9 +174,9 @@ Agora imagine que essa pessoa foi para a triagem e lá, a pessoa enfermeira prec
 
 Agora imagine que essa pessoa, após a triagem, foi para a consulta médica e o médico atende essa pessoa e registra tudo no sistema em um computador na sua sala de atendimento. O médico localiza o a pessoa segurada pelo nome e, se o médico não informar o nome, como a pessoa segurada já está em atendimento médico, ela passa a ser um paciente e a mensagem seria `"o paciente precisa possuir um nome"`.
 
-Esse exemplo foi bem simples e com certeza tem brechar nas regras (por exemplo: poderiam ser bounded contexts diferentes etc, mas estou assumindo um monolito sem bounded contexts), mas é um cenário que acontece com muita frequência. Note que a mensagem é a mesma, porém, dependendo do contexto de negócio, o texto da notificação muda mas, na essência, elas são as mesmas!
+Esse exemplo foi bem simples e com certeza tem brechar nas regras (por exemplo: poderiam ser bounded contexts diferentes etc, mas estou assumindo um monolito sem bounded contexts), mas é um cenário que acontece com muita frequência. Note que a natureza da mensagem é a mesma e internamente é o mesmo recurso, porém, dependendo do contexto de negócio, o texto da notificação muda mas, na essência, elas são as mesmas!
 
-Então essa mensagem poderia ser do `tipo erro`, ter o `código Person.Name.Should.Required` e ter `diferentes descrições` de acordo com o contexto e até poder possuir diferentes traduções nesses contextos. Quando a mensagem for exibida, elas poderiam ser exibidas juntamente com o código, que é padronizado, fazendo com que o sistema consiga se comunicar adequadamente para cada contexto mas permitindo que o suporte (tanto nível 1 quanto nível 2 e nível 3) encontrem a solução adequada para a solicitação da forma mais rápida possível.
+Então essa mensagem poderia ser do `tipo erro`, ter o `código Person.Name.Should.Required` e ter `diferentes descrições` de acordo com o contexto e até poder possuir diferentes traduções nesses contextos. Quando a mensagem for exibida, elas poderiam ser exibidas juntamente com o código, que é padronizado, fazendo com que o sistema consiga se comunicar adequadamente para cada contexto mas permitindo que o suporte (tanto nível 1 quanto nível 2 e nível 3) encontrem a solução adequada para a solicitação da forma mais rápida possível já que se orientariam pelo código da mensagem.
 
 <br/>
 
@@ -201,9 +199,11 @@ Uma `OutputMessage` possui a seguinte estrutura:
 
 [voltar ao topo](#book-conteúdo)
 
-Lançar notificações durante a execução de um método por sí só não é um grande desafio, afinal de contas, os sistemas sempre fizeram isso por escrever essas notificações em logs, mas a questão que, inicialmente parece simpels, vai muito além disso. Vamos analisar com mais detalhes.
+Lançar notificações durante a execução de um método por sí só não é um grande desafio, afinal de contas, os sistemas sempre fizeram isso por escrever essas notificações em logs, mas a questão que, inicialmente parece simpels, vai muito além disso pois agora, além do método fazer o que ele deveria fazer, ele deve retornar as notificações lançadas para o método chamador. Vamos analisar com mais detalhes.
 
-A `primeira opção` seria a mais óbvia que é fazer o `método retornar a lista de mensagens`. Na linguagem C#, nós temos algumas opções para fazer isso. Vamos ver algumas quando o método não teria um retorno (ou seja, void).
+A `primeira opção` seria a mais óbvia que é fazer o `método retornar a lista de mensagens`. Na linguagem C#, nós temos algumas opções para fazer isso. 
+
+Vamos ver algumas quando o método não teria um retorno (ou seja, void).
 
 > PS: Eu sei que void é um tipo de retorno, mas para facilitar o entendimento, vou assumir a convenção padrão de que métodos que retornam void não tem retorno.
 
@@ -306,7 +306,7 @@ public bool DoSomething(string name, out OutputMessage[] messages)
 
 - Utilizando o retorno do método:
 ```csharp
-// Retornando nullable para evitar alocação na heap mas piorando a utilização por retornar nulo
+// Retornando nullable para evitar alocação na heap mas piorando a utilização por retornar nulo. Por ter mais de um valor, o retorno precisa ser uma tupla
 public (bool Success, OutputMessage[]? OutputMessageCollection) DoSomething(string name)
 {
     if (string.IsNullOrWhiteSpace(name))
@@ -317,7 +317,7 @@ public (bool Success, OutputMessage[]? OutputMessageCollection) DoSomething(stri
     return (Success: true, OutputMessageCollection: null);
 }
 
-// Retornando um array vazio para facilitar a utilização mas gerando alocação na heap
+// Retornando um array vazio para facilitar a utilização mas gerando alocação na heap. Por ter mais de um valor, o retorno precisa ser uma tupla
 public (bool Success, OutputMessage[] OutputMessageCollection) DoSomething(string name)
 {
     if (string.IsNullOrWhiteSpace(name))
@@ -410,12 +410,18 @@ Para medir o impacto dessas duas versões, vamos executar o benchmark do arquivo
 
 A primeira coluna (`Type`) refere-se aos nossos dois cenários passando o valor nulo ou o array vazio. Agora vamos analisar esses dados com mais detalhes.
 
-Na coluna `Mean (ns)` temos o tempo médio de execução e já conseguimos notar algo já bem impactante. A versão com o `valor nulo` fez em `8,6 nanosegundos`, já a `versão com o Array.Empty` foi de `117,26`. Isso quer dizer que o código passando o `Array.Empty é cerca de 13,6 vezes pior`.
+Na coluna `Mean (ns)` temos o tempo médio de execução e já conseguimos notar algo já bem impactante. A versão com o `valor nulo` fez em `8,6 nanosegundos`, já a `versão com o Array.Empty` foi de `117,26`. Isso quer dizer que o código passando o `Array.Empty foi cerca de 13,6 vezes pior`.
 
-Na coluna `Erros (ns)` temos o tempo total gasto com erros durante a execução e ao comparar os dados, conseguimos ver que o código com o `Array.Empty é 88 vezes pior`.
+Na coluna `Erros (ns)` temos o tempo total gasto com erros durante a execução e, ao comparar os dados, conseguimos ver que o código com o `Array.Empty foi 88 vezes pior`.
 
 Na coluna `StdDev (ns)` conseguirmos ver o desvio padrão das execuções. Quanto menor o desvio padrão, mais estável o código é e menores serão os picos para baixo ou para cima. No arquivo sobre [benchmarks](BENCHMARKS-PT.md) tem mais detalhes sobre o que é o desvio padrão. A versão com `Array.Empty foi bem mais instável`.
 
+Quando analisamos `TotalIssues/Op`, `TotalCycles/Op` e `BranchInstructions/Op` também vemos a clara diferença onde com `Array.Empty` apresentou muito `mais erros e quantidade de instruções`.
 
+Agora, quando analisanmos a alocação de memória, ambos não geraram alocação.
 
-#### Conclusão 1
+O que podemos concluir disso?
+- :white_check_mark: Conclusão 1 - A versão com o valor nulo é mais rápida.
+- :white_check_mark: Conclusão 2 - A versão com o valor nulo é mais estável.
+- :white_check_mark: Conclusão 3 - A versão com o valor nulo tem uma usabilidade menor pois joga a responsabilidade de tratar o valor nulo para o método chamador.
+
