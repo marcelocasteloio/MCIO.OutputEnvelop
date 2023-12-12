@@ -335,7 +335,7 @@ public (bool Success, OutputMessage[] OutputMessageCollection) DoSomething(strin
 
 Vamos analisar essas duas opções primeiro que acabamos de ver. Vamos começar pelo retorno de um array vazio ou um retorno nulo quando não houverem mensagens. Nós vamos analisar pelo viés da usabilidade e do desempenho.
 
-Ao olhar pelo viés da usabilidade, é mais interessante ter um array vazio do que um valor nulo pois evita possíveis exceções de referências nulas. Utilizar um array vazio vindo de uma constante do .NET como um Array.Empty também não causará pressão no Garbage Collector pois não haverá instanciações de novos arrays. Para reproduzir e validar esse cenário qeu acabei de afirmar, vamos executar dois benchamrks (detalhes sobre os benchmarks podem ser encontrados na [documentação sobre benchmark](BENCHMARKS-PT.md)).
+Ao olhar pelo viés da usabilidade, é mais interessante ter um array vazio do que um valor nulo pois evita possíveis exceções de referências nulas. Utilizar um array vazio vindo de uma constante do .NET como um Array.Empty também não causará pressão no Garbage Collector pois não haverá instanciações de novos arrays. Para reproduzir e validar esse cenário que acabei de afirmar, vamos executar dois benchamrks (detalhes sobre os benchmarks podem ser encontrados na [documentação sobre benchmark](BENCHMARKS-PT.md)).
 
 A seguir temos parte do código do objeto [OutputEnvelop.cs](../src/OutputEnvelop/OutputEnvelop.cs). No construtor do objeto recebemos alguns parâmetros e definimos algumas propriedades que são readonly.
 
