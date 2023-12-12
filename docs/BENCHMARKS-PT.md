@@ -1,0 +1,4 @@
+# Benchmarks
+
+> [!IMPORTANT]
+> DOCUMENTO NÃO FINALIZADO! EM CONSTRUÇÃO

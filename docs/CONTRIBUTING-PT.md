@@ -1,0 +1,4 @@
+# Manual de Contribuição
+
+> [!IMPORTANT]
+> DOCUMENTO NÃO FINALIZADO! EM CONSTRUÇÃO
