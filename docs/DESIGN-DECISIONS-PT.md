@@ -418,10 +418,10 @@ Na coluna `StdDev (ns)` conseguirmos ver o desvio padrão das execuções. Quant
 
 Quando analisamos `TotalIssues/Op`, `TotalCycles/Op` e `BranchInstructions/Op` também vemos a clara diferença onde com `Array.Empty` apresentou muito `mais erros e quantidade de instruções`.
 
-Agora, quando analisanmos a alocação de memória, ambos não geraram alocação.
+Agora, quando analisamos a alocação de memória, ambos os cenários não geraram alocação.
 
 O que podemos concluir disso?
 - :white_check_mark: Conclusão 1 - A versão com o valor nulo é mais rápida.
 - :white_check_mark: Conclusão 2 - A versão com o valor nulo é mais estável.
-- :white_check_mark: Conclusão 3 - A versão com o valor nulo tem uma usabilidade menor pois joga a responsabilidade de tratar o valor nulo para o método chamador.
+- :white_check_mark: Conclusão 3 - A versão com o valor nulo tem uma usabilidade pior pois joga a responsabilidade de tratar o valor nulo para o método chamador.
 
