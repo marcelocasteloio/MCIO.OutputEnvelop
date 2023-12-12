@@ -3,16 +3,16 @@
 > [!IMPORTANT]
 > DOCUMENTO NÃO FINALIZADO! EM CONSTRUÇÃO
 
-> [!CAUTION]
-> A leitura desse documento pode causar mal estar e atacar as crenças de alguns desenvolvedores pois, ao invés de tomar decisões na base de achismo, iremos fundamentar nossas decisões em medições e experimentos que podem causar danos aos egos de alguns, por isso, tome cuidado! (**isso foi só uma brincadeira com um tom de ironia, não fique bravo** :sweat_smile:)
-
 ## :book: Conteúdo
 - [Decisões de design](#decisões-de-design)
   - [:book: Conteúdo](#book-conteúdo)
   - [:information\_source: Necessidade](#information_source-necessidade)
   - [:thinking: Analisando as possibilidades](#thinking-analisando-as-possibilidades)
     - [:pushpin: O que é uma notificação?](#pushpin-o-que-é-uma-notificação)
+    - [:pushpin: Tipos de notificação](#pushpin-tipos-de-notificação)
     - [:pushpin: Lançando notificações durante a execução de métodos](#pushpin-lançando-notificações-durante-a-execução-de-métodos)
+    - [:pushpin: Arrays vazios ou referências nulas para array de mensagens?](#pushpin-arrays-vazios-ou-referências-nulas-para-array-de-mensagens)
+      - [Conclusão 1](#conclusão-1)
 
 ## :information_source: Necessidade
 
@@ -139,6 +139,10 @@ Mas isso quer dizer que o back-end, ao invés de registrar as notificações som
 
 <br/>
 
+### :pushpin: Tipos de notificação
+
+[voltar ao topo](#book-conteúdo)
+
 Notificações também possuem um `tipo`. Nós temos a tendência de achar que uma notificação é somente quando algo da errado, mas nós podemos querer notificar mais que isso. Vejamos alguns exemplos:
 
 - Uma `notificação informativa` de que os dados da declaracão do imposto de renda foram transmitidos para a receita federal.
@@ -199,7 +203,7 @@ Uma `OutputMessage` possui a seguinte estrutura:
 
 Lançar notificações durante a execução de um método por sí só não é um grande desafio, afinal de contas, os sistemas sempre fizeram isso por escrever essas notificações em logs, mas a questão que, inicialmente parece simpels, vai muito além disso. Vamos analisar com mais detalhes.
 
-A `primeira opção` seria a mais óbvia que é fazer o método retornar a lista de mensagens. Na linguagem C#, nós temos algumas opções para fazer isso. Vamos ver algumas quando o método não teria um retorno (ou seja, void).
+A `primeira opção` seria a mais óbvia que é fazer o `método retornar a lista de mensagens`. Na linguagem C#, nós temos algumas opções para fazer isso. Vamos ver algumas quando o método não teria um retorno (ou seja, void).
 
 > PS: Eu sei que void é um tipo de retorno, mas para facilitar o entendimento, vou assumir a convenção padrão de que métodos que retornam void não tem retorno.
 
@@ -210,7 +214,7 @@ public void DoSomething(string name, out OutputMessage[]? messages)
 {
     if (string.IsNullOrWhiteSpace(name))
     {
-        messages = new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        messages = new[] { OutputMessage.Create(type: OutputMessageType.Error, code: "...", description: "...") };
         return;
     }
 
@@ -224,7 +228,7 @@ public void DoSomething(string name, out OutputMessage[] messages)
 {
     if (string.IsNullOrWhiteSpace(name))
     {
-        messages = new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        messages = new[] { OutputMessage.Create(type: OutputMessageType.Error, code: "...", description: "...") };
         return;
     }
 
@@ -240,7 +244,7 @@ public void DoSomething(string name, out OutputMessage[] messages)
 public OutputMessage[]? DoSomething(string name)
 {
     if (string.IsNullOrWhiteSpace(name))
-        return new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        return new[] { OutputMessage.Create(type: OutputMessageType.Error, code: "...", description: "...") };
 
     Name = name;
 
@@ -251,7 +255,7 @@ public OutputMessage[]? DoSomething(string name)
 public OutputMessage[] DoSomething(string name)
 {
     if (string.IsNullOrWhiteSpace(name))
-        return new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        return new[] { OutputMessage.Create(type: OutputMessageType.Error, code: "...", description: "...") };
 
     Name = name;
 
@@ -272,7 +276,7 @@ public bool DoSomething(string name, out OutputMessage[]? messages)
 {
     if (string.IsNullOrWhiteSpace(name))
     {
-        messages = new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        messages = new[] { OutputMessage.Create(type: OutputMessageType.Error, code: "...", description: "...") };
         return false;
     }
 
@@ -288,7 +292,7 @@ public bool DoSomething(string name, out OutputMessage[] messages)
 {
     if (string.IsNullOrWhiteSpace(name))
     {
-        messages = new[] { new OutputMessage(type: OutputMessageType.Error, code: "...", description: "...") };
+        messages = new[] { OutputMessage.Create(type: OutputMessageType.Error, code: "...", description: "...") };
         return false;
     }
 
@@ -324,3 +328,94 @@ public (bool Success, OutputMessage[] OutputMessageCollection) DoSomething(strin
     return (Success: true, OutputMessageCollection: Array.Empty<OutputMessage>());
 }
 ```
+
+### :pushpin: Arrays vazios ou referências nulas para array de mensagens?
+
+[voltar ao topo](#book-conteúdo)
+
+Vamos analisar essas duas opções primeiro que acabamos de ver. Vamos começar pelo retorno de um array vazio ou um retorno nulo quando não houverem mensagens. Nós vamos analisar pelo viés da usabilidade e do desempenho.
+
+Ao olhar pelo viés da usabilidade, é mais interessante ter um array vazio do que um valor nulo pois evita possíveis exceções de referências nulas. Utilizar um array vazio vindo de uma constante do .NET como um Array.Empty também não causará pressão no Garbage Collector pois não haverá instanciações de novos arrays. Para reproduzir e validar esse cenário qeu acabei de afirmar, vamos executar dois benchamrks (detalhes sobre os benchmarks podem ser encontrados na [documentação sobre benchmark](BENCHMARKS-PT.md)).
+
+A seguir temos parte do código do objeto [OutputEnvelop.cs](../src/OutputEnvelop/OutputEnvelop.cs). No construtor do objeto recebemos alguns parâmetros e definimos algumas propriedades que são readonly.
+
+Como a biblioteca é feita para o .NET Standard 2.0, não existe suporte a deixar explícito o nullable para arrays, porém, é possível mesmo assim passar `null` no array. Sendo assim, as parâmetros `OutputMessage[] outputMessageCollection` e `Exception[] exceptionCollection` do construtor podem vir nulos.
+
+Note que esses parâmetros do construtor mencionados anteriormente alimentam duas propriedades com o modificador de acesso `internal`. Nós falaremos disso posteriormente.
+
+O ponto de agora é que o código atual permite que as propriedades `internal` tenham valores nulos, conforme demontrado a seguir:
+
+```csharp
+// Versão que aceita nulo
+public readonly struct OutputEnvelop<TOutput>
+{
+    // Properties
+    internal OutputMessage[] OutputMessageCollectionInternal { get; }
+    internal Exception[] ExceptionCollectionInternal { get; }
+
+    public TOutput Output { get; }
+    public OutputEnvelopType Type { get; }
+
+    // Constructors
+    private OutputEnvelop(
+        TOutput output,
+        OutputEnvelopType type,
+        OutputMessage[] outputMessageCollection,
+        Exception[] exceptionCollection
+    )
+    {
+        Output = output;
+        Type = type;
+        OutputMessageCollectionInternal = outputMessageCollection;
+        ExceptionCollectionInternal = exceptionCollection;
+    }
+}
+```
+
+Uma alternativa para que esse objeto passe um Array vazio ao invés de permitir nulo seria checar se o parâmetro do construtor é nulo e substituir por uma constante de um Array vazio conforme a seguir:
+
+```csharp
+// Versão que aceita nulo
+public readonly struct OutputEnvelop<TOutput>
+{
+    // Properties
+    internal OutputMessage[] OutputMessageCollectionInternal { get; }
+    internal Exception[] ExceptionCollectionInternal { get; }
+
+    public TOutput Output { get; }
+    public OutputEnvelopType Type { get; }
+
+    // Constructors
+    private OutputEnvelop(
+        TOutput output,
+        OutputEnvelopType type,
+        OutputMessage[] outputMessageCollection,
+        Exception[] exceptionCollection
+    )
+    {
+        Output = output;
+        Type = type;
+        OutputMessageCollectionInternal = outputMessageCollection ?? Array.Empty<OutputMessage>();
+        ExceptionCollectionInternal = exceptionCollection ?? Array.Empty<Exception>();
+    }
+}
+```
+
+Para medir o impacto dessas duas versões, vamos executar o benchmark do arquivo [CreateOutputEnvelopBenchmark.cs](../benchs/Benchmarks/OutputEnvelopBenchs/CreateOutputEnvelopBenchmark.cs) e analisar o teste `CreateOutputEnvelopWithoutMessageAndException` que vai passar uma coleção de mensagens e exceptions nulas para o cenário que queremos testar. Para cada uma das variações acima vamos executar o mesmo teste e vamos analisar o retorno. Primeiro, vamos aos resultados brutos dos benchmarks:
+
+| Type             | Method                                        | Mean (ns) | Error (ns) | StdDev (ns) | CacheMisses/Op | TotalIssues/Op | TotalCycles/Op | BranchInstructions/Op | BranchMispredictions/Op | Gen0 | Allocated (B) |
+|------------------|-----------------------------------------------|-----------|------------|-------------|----------------|----------------|----------------|-----------------------|-------------------------|------|---------------|
+| With null        | CreateOutputEnvelopWithoutMessageAndException | 8,603     | 0,0223     | 0,0186      | 0              | 47             | 16             | 11                    | 0                       | 0    | 0             |
+| With empty array | CreateOutputEnvelopWithoutMessageAndException | 117,26    | 1,964      | 2,879       | 0              | 518            | 257            | 123                   | 0                       | 0    | 0             |
+
+A primeira coluna (`Type`) refere-se aos nossos dois cenários passando o valor nulo ou o array vazio. Agora vamos analisar esses dados com mais detalhes.
+
+Na coluna `Mean (ns)` temos o tempo médio de execução e já conseguimos notar algo já bem impactante. A versão com o `valor nulo` fez em `8,6 nanosegundos`, já a `versão com o Array.Empty` foi de `117,26`. Isso quer dizer que o código passando o `Array.Empty é cerca de 13,6 vezes pior`.
+
+Na coluna `Erros (ns)` temos o tempo total gasto com erros durante a execução e ao comparar os dados, conseguimos ver que o código com o `Array.Empty é 88 vezes pior`.
+
+Na coluna `StdDev (ns)` conseguirmos ver o desvio padrão das execuções. Quanto menor o desvio padrão, mais estável o código é e menores serão os picos para baixo ou para cima. No arquivo sobre [benchmarks](BENCHMARKS-PT.md) tem mais detalhes sobre o que é o desvio padrão. A versão com `Array.Empty foi bem mais instável`.
+
+
+
+#### Conclusão 1

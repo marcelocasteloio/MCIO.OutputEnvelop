@@ -1,4 +1,4 @@
-# Manual de Contribuição
+# Benchmarks
 
 > [!IMPORTANT]
 > DOCUMENTO NÃO FINALIZADO! EM CONSTRUÇÃO
