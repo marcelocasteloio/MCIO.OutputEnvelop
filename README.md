@@ -29,10 +29,9 @@ Um `envelope de resposta` que seja `leve`, de `alto desempenho` e que forneça u
 
 ## :page_facing_up: Introdução
 
-> [!IMPORTANT]
-> Existem vários outros pontos que são abordados na documentação do projeto e vale a pena dar uma olhada para que possa compreender os racionais das decisões tomadas nesse projeto lendo o arquivo [decisões de design](docs/DESIGN-DECISIONS-PT.md).
-
 Esse projeto nasceu de uma necessidade pessoal. Quando estamos desenvolvendo um sistema temos que tomar diversas decisões com relação ao design do código e manter o equilíbrio entre legibilidade, manutenabilidade e performance e isso sempre é um desafio pois, no fim das contas, nós escrevemos código para outra pessoa entender e não para o computador.
+
+Esse projeto nasceu de uma necessidade pessoal. Quando estamos desenvolvendo um sistema temos que tomar diversas decisões com relação ao design do código e manter o equilíbrio entre legibilidade, manutenabilidade e performance é sempre um desafio pois, no fim das contas, nós escrevemos código para outra pessoa entender e não para o computador.
 
 Como assim? Existem diferentes tipos de sistemas, mas o mais comum são os que chamamos de sistemas *LOB (line of business)* que são aplicações que tem como o objetivo automatizar processos de negócios em corporações como processos de venda, compras, pedidos, chamados, suportes, processos financeiros etc. Esses sistemas possuem algumas características que costumam se repetir:
 - Autenticar o usuário que está tentando realizar a operação.
