@@ -50,6 +50,8 @@ Vamos começar agora a construir uma linha de raciocínio para abordar cada um d
 
 ### :pushpin: O que é uma notificação?
 
+[voltar ao topo](#book-conteúdo)
+
 Parece algo muito trivial e simples de responder, mas acredite em mim, a maioria ignora os detalhes. Quando analisamos o assunto temos a tendência de ignorar os detalhes e pensamos em notificação somente como uma simples mensagem composta por um texto, mas isso é superficial demais e existem mais detalhes que devemos analisar.
 
 <br/>
@@ -375,7 +377,7 @@ public readonly struct OutputEnvelop<TOutput>
 Uma alternativa para que esse objeto passe um Array vazio ao invés de permitir nulo seria checar se o parâmetro do construtor é nulo e substituir por uma constante de um Array vazio conforme a seguir:
 
 ```csharp
-// Versão que aceita nulo
+// Versão que não aceita nulo
 public readonly struct OutputEnvelop<TOutput>
 {
     // Properties
@@ -425,3 +427,135 @@ O que podemos concluir disso?
 - :white_check_mark: Conclusão 2 - A versão com o valor nulo é mais estável.
 - :white_check_mark: Conclusão 3 - A versão com o valor nulo tem uma usabilidade pior pois joga a responsabilidade de tratar o valor nulo para o método chamador.
 
+Então temos duas conclusões a favor de usar a opção com o valor nulo (todos relacionados ao desempenho) e uma conclusão a favor de utilizar o Array.Empty (que é relacionado a usabilidade do código). Então qual das duas abordagens escolher? Na verdade, nós não precisamos escolher uma ou outra, tem uma alternativa que podemos utilizar onde podemos nos beneficiar das duas abordagens.
+
+Para entender o ponto, vamos analisar o diagrama abaixo que representa Uma web API com seus componentes internos (o objetivo desse diagrama não é apresentar um modelo de componentes de referência e nem dizer se a divisão é boa ou ruim, ela serve somente para o nosso exemplo).
+
+<br/>
+<div align="center">
+  <img src="diagrams/diagram2.svg">
+</div>
+<br/>
+
+Nesse diagrama tempos a representação de um Web App que solicita para uma Web API a importação de um pedido. Durante essa importação, tanto o pedido quanto os produtos do pedido são importados. Para ajudar a compreender esse fluxo, repare no diagrama de sequência a seguir:
+
+<br/>
+<div align="center">
+  <img src="diagrams/diagram3.svg">
+</div>
+<br/>
+
+Cada execução de cada método de cada componente retornaria um envelope de resposta, então nesse fluxo acima, teríamos os seguintes envelopes de resposta:
+
+- Evelope de resposta da execução do método do componente CustomerRepository.
+- Evelope de resposta da execução do método do componente OrderRepository.
+- Evelope de resposta da execução do método do componente ProductDomainService.
+- Evelope de resposta da execução do método do componente OrderDomainService.
+- Evelope de resposta da execução do método do componente ImportOrderUseCase.
+- Evelope de resposta da execução do método do componente OrdersController.
+
+De todos os seis envelopes de repostas que seriam criados, somente em um momento a leitura das notificações seriam feitas que seria na OrdersControllers (marcado de laranja) pois seria o momento que iria-se compor o retorno da chamada síncrona realizada pelo WebApp. Isso quer dizer que, no exemplo acima, `enquanto seis criações de envelopes de resposta são feitas, somente uma leitura das notificações é realizada`, ou seja, nesse cenário de aplicações *LOB (Line of Business)*, iremos realizar muito mais criações de envelopes de respostas do que a leitura das notificações.
+
+<br/>
+
+> [!TIP]
+> Devemos compreender o perfil de utilização daquele objeto
+
+<br/>
+
+E onde isso ajuda em decidir se vamos usar referência nula ou array vazio?
+
+Como vimos que criamos muito mais do que lemos as notificações, nós podemos fazer algo simples, mas que vai resolver nosso problema e permitir usar o melhor dos dois cenários. `Nós podemos remover o código qeu resolveria um problema de leitura do momento da criação`!
+
+Note novamente o código que usamos para tratar o Array.Empty com os devidos comentários no código:
+
+```csharp
+// Versão que não aceita nulo
+public readonly struct OutputEnvelop<TOutput>
+{
+    // Properties
+    internal OutputMessage[] OutputMessageCollectionInternal { get; }
+    internal Exception[] ExceptionCollectionInternal { get; }
+
+    public TOutput Output { get; }
+    public OutputEnvelopType Type { get; }
+
+    // Constructors
+    private OutputEnvelop(
+        TOutput output,
+        OutputEnvelopType type,
+        OutputMessage[] outputMessageCollection,
+        Exception[] exceptionCollection
+    )
+    {
+        Output = output;
+        Type = type;
+        // Estamos, no momento da criação, resolvendo um problema da leitura no momento da instanciação
+        // sendo que na maioria das vezes nós não vamos realizar essa leitura
+        // Com isso, estamos usando um processamento 100% das vezes para algo que não será usado o tempo
+        // todo
+        OutputMessageCollectionInternal = outputMessageCollection ?? Array.Empty<OutputMessage>();
+        ExceptionCollectionInternal = exceptionCollection ?? Array.Empty<Exception>();
+    }
+}
+```
+
+Agora vamos remover essa tratativa de nulo do construtor e encapsular em uma propriedade, no momento da leitura mesma. Note que como a classe tem os arrays como propriedades `internal`, nós precisamos export essess valores publicamente para outras classes acessarem. A implementação da solução ficaria assim:
+
+```csharp
+public readonly struct OutputEnvelop<TOutput>
+{
+    // Properties
+    internal OutputMessage[] OutputMessageCollectionInternal { get; }
+    internal Exception[] ExceptionCollectionInternal { get; }
+
+    // Incluimos uma propriedade para leitura que encapsula o array internal
+    public IEnumerable<OutputMessage> OutputMessageCollection
+    {
+        get
+        {
+            // Tratamos o valor nulo no momento da leitura e evitamos a referência nula
+            // somente no momento em que a leitura for solicitada
+            if (OutputMessageCollectionInternal is null)
+                yield break;
+
+            for (int i = 0; i < OutputMessageCollectionInternal.Length; i++)
+                yield return OutputMessageCollectionInternal[i];
+        }
+    }
+    // Incluimos uma propriedade para leitura que encapsula o array internal
+    public IEnumerable<Exception> ExceptionCollection
+    {
+        get
+        {
+            // Tratamos o valor nulo no momento da leitura e evitamos a referência nula
+            // somente no momento em que a leitura for solicitada
+            if (ExceptionCollectionInternal is null)
+                yield break;
+
+            for (int i = 0; i < ExceptionCollectionInternal.Length; i++)
+                yield return ExceptionCollectionInternal[i];
+        }
+    }
+
+    public TOutput Output { get; }
+    public OutputEnvelopType Type { get; }
+
+    // Constructors
+    private OutputEnvelop(
+        TOutput output,
+        OutputEnvelopType type,
+        OutputMessage[] outputMessageCollection,
+        Exception[] exceptionCollection
+    )
+    {
+        Output = output;
+        Type = type;
+        // Nós permitimos a atribuição do valor nulo
+        OutputMessageCollectionInternal = outputMessageCollection;
+        ExceptionCollectionInternal = exceptionCollection;
+    }
+}
+```
+
+Com isso conseguimos obter o desempenho da criação com valores nulos mas manter a usabilidade de permitir uma leitura que evitará instâncias nulas!
