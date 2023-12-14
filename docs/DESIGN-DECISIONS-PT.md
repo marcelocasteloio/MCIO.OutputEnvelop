@@ -99,7 +99,7 @@ Até o momento, nada fora do comum em sistemas *LOB (Line of business)*, porém,
 
 <br/>
 
-Mas esse raciocínio não está correto. Caso isso ocorra, tanto o front-end web quanto o mobile precisariam codificar a mesma regra. Ambos teriam que saber que precisam validar o valor do pedido para notificar, ambos teriam qeu saber qual valor é esse e ambos teriam que saber qual é a mensagem que deveriam exibir e `esse cenário é desastroso`. Por que? Isso `causaria duplicidade na implementação` da regra de negócio pois web e mobile precisam saber e implementar a regra, além disso, poderíamos ter `inconsistências` perante essas implementações que gerariam `bugs` e `comportamentos diferentes para o mesmo recurso` entre as aplicação web e mobile. Quando o valor de referência para a notificação mudasse (o exemplo foi de 50 mil reais, imagine que mudou para 30 mil reais), teríamos que gerar uma nova versão das aplicações web e mobile (que é um problema pois os `tempo de deploy` e `disponibilização` de uma aplicação web e em uma loja de aplicativos mobile não são as mesmas) ou até criar um endpoint só para buscar esse valor `aumentando mais ainda a complexidade`.
+Mas esse raciocínio não está correto. Caso isso ocorra, tanto o front-end web quanto o mobile precisariam codificar a mesma regra. Ambos teriam que saber que precisam validar o valor do pedido para notificar, ambos teriam que saber qual valor é esse e ambos teriam que saber qual é a mensagem que deveriam exibir e `esse cenário é desastroso`. Por que? Isso `causaria duplicidade na implementação` da regra de negócio pois web e mobile precisam saber e implementar a regra, além disso, poderíamos ter `inconsistências` perante essas implementações que gerariam `bugs` e `comportamentos diferentes para o mesmo recurso` entre as aplicação web e mobile. Quando o valor de referência para a notificação mudasse (o exemplo foi de 50 mil reais, imagine que mudou para 30 mil reais), teríamos que gerar uma nova versão das aplicações web e mobile (que é um problema pois os `tempo de deploy` e `disponibilização` de uma aplicação web e em uma loja de aplicativos mobile não são as mesmas) ou até criar um endpoint só para buscar esse valor `aumentando mais ainda a complexidade`.
 
 <br/>
 
@@ -429,7 +429,7 @@ O que podemos concluir disso?
 
 Então temos duas conclusões a favor de usar a opção com o valor nulo (todos relacionados ao desempenho) e uma conclusão a favor de utilizar o Array.Empty (que é relacionado a usabilidade do código). Então qual das duas abordagens escolher? Na verdade, nós não precisamos escolher uma ou outra, tem uma alternativa que podemos utilizar onde podemos nos beneficiar das duas abordagens.
 
-Para entender o ponto, vamos analisar o diagrama abaixo que representa Uma web API com seus componentes internos (o objetivo desse diagrama não é apresentar um modelo de componentes de referência e nem dizer se a divisão é boa ou ruim, ela serve somente para o nosso exemplo).
+Para entender o ponto, vamos analisar o diagrama abaixo que representa uma Web API com seus componentes internos (o objetivo desse diagrama não é apresentar um modelo de componentes de referência e nem dizer se a divisão é boa ou ruim, ela serve somente para o nosso exemplo).
 
 <br/>
 <div align="center">
@@ -437,7 +437,7 @@ Para entender o ponto, vamos analisar o diagrama abaixo que representa Uma web A
 </div>
 <br/>
 
-Nesse diagrama tempos a representação de um Web App que solicita para uma Web API a importação de um pedido. Durante essa importação, tanto o pedido quanto os produtos do pedido são importados. Para ajudar a compreender esse fluxo, repare no diagrama de sequência a seguir:
+Nesse diagrama temos a representação de um Web App que solicita para uma Web API a importação de um pedido. Durante essa importação, tanto o pedido quanto os produtos do pedido são importados. Para ajudar a compreender esse fluxo, repare no diagrama de sequência a seguir:
 
 <br/>
 <div align="center">
@@ -454,18 +454,18 @@ Cada execução de cada método de cada componente retornaria um envelope de res
 - Evelope de resposta da execução do método do componente ImportOrderUseCase.
 - Evelope de resposta da execução do método do componente OrdersController.
 
-De todos os seis envelopes de repostas que seriam criados, somente em um momento a leitura das notificações seriam feitas que seria na OrdersControllers (marcado de laranja) pois seria o momento que iria-se compor o retorno da chamada síncrona realizada pelo WebApp. Isso quer dizer que, no exemplo acima, `enquanto seis criações de envelopes de resposta são feitas, somente uma leitura das notificações é realizada`, ou seja, nesse cenário de aplicações *LOB (Line of Business)*, iremos realizar muito mais criações de envelopes de respostas do que a leitura das notificações.
+De todos os seis envelopes de repostas que seriam criados, somente em um momento a leitura das notificações seria feita que seria na OrdersControllers (marcado de laranja) pois seria o momento que iria-se compor o retorno da chamada síncrona realizada pelo WebApp. Isso quer dizer que, no exemplo acima, `enquanto seis criações de envelopes de resposta são feitas, somente uma leitura das notificações é realizada`, ou seja, nesse cenário de aplicações *LOB (Line of Business)*, iremos realizar muito mais criações de envelopes de respostas do que a leitura das notificações.
 
 <br/>
 
 > [!TIP]
-> Devemos compreender o perfil de utilização daquele objeto
+> Devemos compreender o perfil de utilização de cada objeto
 
 <br/>
 
 E onde isso ajuda em decidir se vamos usar referência nula ou array vazio?
 
-Como vimos que criamos muito mais do que lemos as notificações, nós podemos fazer algo simples, mas que vai resolver nosso problema e permitir usar o melhor dos dois cenários. `Nós podemos remover o código qeu resolveria um problema de leitura do momento da criação`!
+Como vimos que criamos muito mais notificações do que lemos, nós podemos fazer algo simples, mas que vai resolver nosso problema e permitir usar o melhor dos dois cenários. `Nós podemos remover o código que resolveria um problema de leitura do momento da criação`!
 
 Note novamente o código que usamos para tratar o Array.Empty com os devidos comentários no código:
 
@@ -490,17 +490,17 @@ public readonly struct OutputEnvelop<TOutput>
     {
         Output = output;
         Type = type;
-        // Estamos, no momento da criação, resolvendo um problema da leitura no momento da instanciação
-        // sendo que na maioria das vezes nós não vamos realizar essa leitura
-        // Com isso, estamos usando um processamento 100% das vezes para algo que não será usado o tempo
-        // todo
+        // Estamos resolvendo um problema da leitura no momento da instanciação
+        // sendo que na maioria das vezes nós não vamos realizar essa leitura.
+        // Com isso, estamos usando um processamento 100% das vezes para algo 
+        // que não será usado o tempo todo
         OutputMessageCollectionInternal = outputMessageCollection ?? Array.Empty<OutputMessage>();
         ExceptionCollectionInternal = exceptionCollection ?? Array.Empty<Exception>();
     }
 }
 ```
 
-Agora vamos remover essa tratativa de nulo do construtor e encapsular em uma propriedade, no momento da leitura mesma. Note que como a classe tem os arrays como propriedades `internal`, nós precisamos export essess valores publicamente para outras classes acessarem. A implementação da solução ficaria assim:
+Agora vamos remover essa tratativa de nulo do construtor e encapsular em uma propriedade. Note que como a classe tem os arrays como propriedades `internal`, nós precisamos export essess valores publicamente para outras classes acessarem. A implementação da solução ficaria assim:
 
 ```csharp
 public readonly struct OutputEnvelop<TOutput>
@@ -551,7 +551,8 @@ public readonly struct OutputEnvelop<TOutput>
     {
         Output = output;
         Type = type;
-        // Nós permitimos a atribuição do valor nulo
+        // Nós permitimos a atribuição do valor nulo pois
+        // vamos tratar isso somente na leitura
         OutputMessageCollectionInternal = outputMessageCollection;
         ExceptionCollectionInternal = exceptionCollection;
     }
