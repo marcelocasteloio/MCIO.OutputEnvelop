@@ -12,6 +12,7 @@
     - [:pushpin: Tipos de notificação](#pushpin-tipos-de-notificação)
     - [:pushpin: Lançando notificações durante a execução de métodos](#pushpin-lançando-notificações-durante-a-execução-de-métodos)
     - [:pushpin: Arrays vazios ou referências nulas para array de mensagens?](#pushpin-arrays-vazios-ou-referências-nulas-para-array-de-mensagens)
+    - [:white\_check\_mark: Decisão de design 1: O tratamento para evitar null reference será feito na leitura da propriedade ao invés de ser feito na criação do objeto](#white_check_mark-decisão-de-design-1-o-tratamento-para-evitar-null-reference-será-feito-na-leitura-da-propriedade-ao-invés-de-ser-feito-na-criação-do-objeto)
 
 ## :information_source: Necessidade
 
@@ -462,6 +463,10 @@ De todos os seis envelopes de repostas que seriam criados, somente em um momento
 > Devemos compreender o perfil de utilização de cada objeto
 
 <br/>
+
+### :white_check_mark: Decisão de design 1: O tratamento para evitar null reference será feito na leitura da propriedade ao invés de ser feito na criação do objeto
+
+[voltar ao topo](#book-conteúdo)
 
 E onde isso ajuda em decidir se vamos usar referência nula ou array vazio?
 
