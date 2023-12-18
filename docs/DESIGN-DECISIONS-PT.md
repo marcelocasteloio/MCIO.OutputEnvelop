@@ -360,8 +360,12 @@ Uma das perguntas é se `Ocorreu algum erro inesperado durante a execução?`. E
 
 É muito confortável para nós, programadores, utilizar exceções para controlar o fluxo da aplicação, afinal de contas, é só colocar um `try/catch` e está tudo certo, o controle de fluxo está feito, fica muito fácil saber se ocorreu um erro e tratar esse fluxo. Mas temos que considerar alguns pontos importantes com relação ao uso de exceções.
 
+<br/>
+
 > [!WARNING]
 > Exceções são amigáveis para o programador pois facilitam o controle do fluxo de execução do código, porém, tem pontos importantes que temos que analisar ao lançar exceções
+
+<br/>
 
 #### :pushpin: Exceções: uma visão semântica sobre o assunto
 
@@ -375,8 +379,12 @@ Quando estamos nos referindo ao nosso programa, quando falamos de exceção, est
 
 É importante prestar bem atenção nisso que acabamos de ver pois, se o nosso método prevê algum cenário e faz a tratativa desse cenário, `aquele cenário não é uma exceção`, mas sim, `algo esperado que se ocorra pois o próprio método conhece o problema e está tratando o problema`, ou seja, ao invés de ser uma exceção, faz parte do processamento do método pois é algo conhecido e tratável.
 
+<br/>
+
 > [!TIP]
 > Semanticamente, uma exceção é algo que foge a regra. Em programação, uma exceção é algo que ocorreu de forma inesperada. Se existe uma tratativa consciente no método para determinado cenário, esse cenário não é uma exceção e passa a fazer parte da regra pois é tratável.
+
+<br/>
 
 Vamos ver um exemplo. Veja o código a seguir:
 
@@ -458,8 +466,12 @@ public class CustomerService
 
 Como visto no código acima, tratar as coisas com a semântica correta e não lançar a exceção para as regras conhecidas acaba gerando mais complicação para a manutenabilidade da aplicação do que solução pois, se o programador esquecer de tratar o retorno do método, podemos ter comportamentos indesejados. Isso faz com que a `programação defensiva` seja ainda mais importante nesse cenário.
 
+<br/>
+
 > [!CAUTION]
 > Deixar de lançar exceções, mesmo que seja para utilizar a semântica correta, acarreta na necessidade de termos um código mais sucetível a erros por falha humana. Nesses cenários temos que tomar cuidado pois o código vai exigir mais do code review, testes e práticas de programação defensiva.
+
+<br/>
 
 Ao analisar esses pontos, podemos chegar a conclusão de que devemos então lançar exceções mesmo que, em cenários onde a regra é tratável, não seja semanticamente correto pois as facilidades compensam. Porém, infelizmente, as coisas não são tão simples assim (embora eu gostaria muito que fossem, pois também gosto de usar as exceções pela facilidade que elas trazem).
 
@@ -479,8 +491,12 @@ Quando lançamos uma exceção no .NET, várias coisas ocorrem. Algumas delas s�
 
 Para que tudo isso ocorra, a `thread que está lançando a exceção é bloqueada`, `processamento é realizado para colher as informações` e `objetos adicionais são criados` gerando `mais alocação de objetos no Garbage Collector`.
 
+<br/>
+
 > [!CAUTION]
 > Quando estamos falando em aplicações de alta volumetria, lançar exceções pode trazer danos ao desempenho e fazer com que a aplicação exija bem mais recursos do que realmente são necessários
+
+<br/>
 
 #### :white_check_mark: Decisão de design 1: A biblioteca deve proporcionar mecanismos de controle que evite o lançamento de exceções
 
@@ -502,8 +518,12 @@ Vamos as conclusões:
 
 Como o objetivo dessa biblioteca é dar suporte a processamentos de alta volumetria com alto desempenho, nós chegamos a nossa primeira decisão de design!
 
+<br/>
+
 > [!IMPORTANT]
 > Nós temos que avaliar os requisitos dos nossos projetos para determinar se o uso de exceções causará um impacto real ou não na aplicação. 
+
+<br/>
 
 #### :pushpin: Como padronizar o retorno?
 
@@ -513,8 +533,12 @@ Como vimos anteriormente, vamos evitar o uso de exceções e, quando o nosso mé
 
 Embora a linguagem permita o uso desses recursos, nós temos sempre que tentar deixar o nosso código o mais coeso e o mais simples de entender que conseguirmos.
 
+<br/>
+
 > [!TIP]
 > Nosso código precisar ser simples e coeso. Se precisa ser um sênior para fazer qualquer coisa no seu sistema, temos um problema
+
+<br/>
 
 Então vamos analisar o uso de tuplas como retorno ou de parâmetros de saída e os impactos disso no nosso código. Vamos começar pelo retorno usando tuplas. Note o código a seguir:
 
@@ -565,8 +589,12 @@ O que podemos concluir desse código:
 - Dependendo da quantidade de informações adicionais que você queira saber sobre a execução dos métodos, a tupla terá vários parâmetros sendo difícil de ler o código.
 - Caso quisermos incluir uma nova informação no retorno dos métodos, temos que alterar todas as tuplas de todos os métodos e alterar todas as atribuições do retorno desses métodos para se adequarem a nova estrutura da tupla. Seria uma loucura!
 
+<br/>
+
 > [!CAUTION]
 > Embora as tuplas sejam um recurso da linguagem, dependendo de como elas forem utilizadas, podem gerar diversos problemas de design de código causando dificuldade de leitura, compreensão e manitunabilidade
+
+<br/>
 
 `Por esses motivos não utilizaremos tuplas no retorno dos métodos`!
 
@@ -651,8 +679,12 @@ Imagine uma carta em um envelope. Nós temos a carta, que é o nosso objeto de i
 
 O raciocínio aqui é o mesmo, v`amos pegar todas aquelas informações extras que queremos da execução de um método em um envelope que vai encapsular a resposta do método`. Assim conseguimos padronizar os retornos dentro do sistema e não ter os problemas que mencionei anteriormente!
 
+<br/>
+
 > [!TIP]
 > Criar encapsulamentos nos permitem padronizar os objetos melhorando a manitenabilidade e compreensão da aplicação!
+
+<br/>
 
 ### :pushpin: Arrays vazios ou referências nulas para array de mensagens?
 
