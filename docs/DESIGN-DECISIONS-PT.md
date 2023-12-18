@@ -802,7 +802,7 @@ Nesse diagrama temos a representação de um Web App que solicita para uma Web A
 
 Cada execução de cada método de cada componente retornaria um envelope de resposta, então nesse fluxo acima, teríamos os seguintes envelopes de resposta:
 
-- Evelope de resposta da execução do método do componente CustomerRepository.
+- Evelope de resposta da execução do método do componente ProductRepository.
 - Evelope de resposta da execução do método do componente OrderRepository.
 - Evelope de resposta da execução do método do componente ProductDomainService.
 - Evelope de resposta da execução do método do componente OrderDomainService.
