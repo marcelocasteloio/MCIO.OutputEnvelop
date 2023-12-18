@@ -11,7 +11,14 @@
     - [:pushpin: O que é uma notificação?](#pushpin-o-que-é-uma-notificação)
     - [:pushpin: Tipos de notificação](#pushpin-tipos-de-notificação)
     - [:pushpin: Lançando notificações durante a execução de métodos](#pushpin-lançando-notificações-durante-a-execução-de-métodos)
+    - [:pushpin: O que devemos retornar nos métodos?](#pushpin-o-que-devemos-retornar-nos-métodos)
+      - [:pushpin: Exceções: uma visão semântica sobre o assunto](#pushpin-exceções-uma-visão-semântica-sobre-o-assunto)
+      - [:pushpin: Exceções: uma visão sobre desempenho](#pushpin-exceções-uma-visão-sobre-desempenho)
+      - [:white\_check\_mark: Decisão de design 1: A biblioteca deve proporcionar mecanismos de controle que evite o lançamento de exceções](#white_check_mark-decisão-de-design-1-a-biblioteca-deve-proporcionar-mecanismos-de-controle-que-evite-o-lançamento-de-exceções)
+      - [:pushpin: Como padronizar o retorno?](#pushpin-como-padronizar-o-retorno)
+      - [:white\_check\_mark: Decisão de design 2: Precisamos criar um envelope de resposta para padronizar o retorno dos métodos](#white_check_mark-decisão-de-design-2-precisamos-criar-um-envelope-de-resposta-para-padronizar-o-retorno-dos-métodos)
     - [:pushpin: Arrays vazios ou referências nulas para array de mensagens?](#pushpin-arrays-vazios-ou-referências-nulas-para-array-de-mensagens)
+    - [:white\_check\_mark: Decisão de design 3: O tratamento para evitar null reference será feito na leitura da propriedade ao invés de ser feito na criação do objeto](#white_check_mark-decisão-de-design-3-o-tratamento-para-evitar-null-reference-será-feito-na-leitura-da-propriedade-ao-invés-de-ser-feito-na-criação-do-objeto)
 
 ## :information_source: Necessidade
 
@@ -99,7 +106,7 @@ Até o momento, nada fora do comum em sistemas *LOB (Line of business)*, porém,
 
 <br/>
 
-Mas esse raciocínio não está correto. Caso isso ocorra, tanto o front-end web quanto o mobile precisariam codificar a mesma regra. Ambos teriam que saber que precisam validar o valor do pedido para notificar, ambos teriam qeu saber qual valor é esse e ambos teriam que saber qual é a mensagem que deveriam exibir e `esse cenário é desastroso`. Por que? Isso `causaria duplicidade na implementação` da regra de negócio pois web e mobile precisam saber e implementar a regra, além disso, poderíamos ter `inconsistências` perante essas implementações que gerariam `bugs` e `comportamentos diferentes para o mesmo recurso` entre as aplicação web e mobile. Quando o valor de referência para a notificação mudasse (o exemplo foi de 50 mil reais, imagine que mudou para 30 mil reais), teríamos que gerar uma nova versão das aplicações web e mobile (que é um problema pois os `tempo de deploy` e `disponibilização` de uma aplicação web e em uma loja de aplicativos mobile não são as mesmas) ou até criar um endpoint só para buscar esse valor `aumentando mais ainda a complexidade`.
+Mas esse raciocínio não está correto. Caso isso ocorra, tanto o front-end web quanto o mobile precisariam codificar a mesma regra. Ambos teriam que saber que precisam validar o valor do pedido para notificar, ambos teriam que saber qual valor é esse e ambos teriam que saber qual é a mensagem que deveriam exibir e `esse cenário é desastroso`. Por que? Isso `causaria duplicidade na implementação` da regra de negócio pois web e mobile precisam saber e implementar a regra, além disso, poderíamos ter `inconsistências` perante essas implementações que gerariam `bugs` e `comportamentos diferentes para o mesmo recurso` entre as aplicação web e mobile. Quando o valor de referência para a notificação mudasse (o exemplo foi de 50 mil reais, imagine que mudou para 30 mil reais), teríamos que gerar uma nova versão das aplicações web e mobile (que é um problema pois os `tempo de deploy` e `disponibilização` de uma aplicação web e em uma loja de aplicativos mobile não são as mesmas) ou até criar um endpoint só para buscar esse valor `aumentando mais ainda a complexidade`.
 
 <br/>
 
@@ -331,6 +338,354 @@ public (bool Success, OutputMessage[] OutputMessageCollection) DoSomething(strin
 }
 ```
 
+### :pushpin: O que devemos retornar nos métodos?
+
+[voltar ao topo](#book-conteúdo)
+
+Nos exemplos acima, nós retornamos uma coleção de OutputMessage quando o método não possuia um retorno esperado (void) e retornamos uma tupla quando, além da coleção de OutputMessage, temos algum valor esperado para retornar. Mas quero aprofundar mais nesse assunto e analisar alguns pontos que considero importantes.
+
+Quando chamamos um método, nós esperamos saber algumas coisas sobre ele após a sua execução, essas coisas são:
+
+- Ocorreu algum erro inesperado durante a execução?
+- Se ocorreu um erro inesperado, qual erro que ocorreu?
+- O método executou com sucesso fazendo tudo o que deveria fazer?
+- Consigo saber se o processo foi executado de forma parcial (importação de itens de um lote onde parte foi improtado e parte não por exemplo)?
+- Consigo saber todas as notificações que ocorreram durante a execução desse método?
+- Consigo identificar de forma clara o retorno desse método?
+- Consigo interpretar e ler de forma clara a intenção do retorno desse método?
+
+São perguntas que geralmente não fazemos mas são improtantes. Vamos falar de cada uma delas.
+
+Uma das perguntas é se `Ocorreu algum erro inesperado durante a execução?`. Essa pergunta é importante pois o raciocínio natural de qualquer programador iniciante é pensar que `se o método não lançou nenhuma exceção, é porque não ocorreu nenhum erro inesperado`. Esse é um pensamento natural, mas temos que tomar muito cuidado com o uso incorreto ou desnecessário de exceções para controlar o fluxo de execução.
+
+É muito confortável para nós, programadores, utilizar exceções para controlar o fluxo da aplicação, afinal de contas, é só colocar um `try/catch` e está tudo certo, o controle de fluxo está feito, fica muito fácil saber se ocorreu um erro e tratar esse fluxo. Mas temos que considerar alguns pontos importantes com relação ao uso de exceções.
+
+<br/>
+
+> [!WARNING]
+> Exceções são amigáveis para o programador pois facilitam o controle do fluxo de execução do código, porém, tem pontos importantes que temos que analisar ao lançar exceções
+
+<br/>
+
+#### :pushpin: Exceções: uma visão semântica sobre o assunto
+
+[voltar ao topo](#book-conteúdo)
+
+Em programação, quando falamos da semântica, uma das aplicações é quando estamos nos referindo ao sentido, ao significado de determinada coisa. Com relação a exceção, analisar o significado do que é uma exceção pode nos trazer algumas ideias interessantes.
+
+Como o próprio nome diz, uma exceção é algo que ocorre a critério de exceção, ou seja, é algo que ocorre além da regra estabelecida. Vamos utilizar algo do nosso cotidiano para entender melhor: nós possuímos regras de trânsito e, uma delas, é que não podemos passar por um semáforo que esteja na cor vermelha e isso é uma regra, porém, se você estiver em situação de emergência médica, podemos recorrer aquela infração de ultrapassar um semáforo vermelho pois a situação foge a regra padrão pois se tratava de uma emergência médica que envolvia vida e morte e a regra foi pensada na situação geral, por isso, essa situação seria uma exceção a regra.
+
+Quando estamos nos referindo ao nosso programa, quando falamos de exceção, estamos falando de algo que ocorre de forma inesperada, que o processamento `não preveu`, ou seja, é algo `INESPERADO`.
+
+É importante prestar bem atenção nisso que acabamos de ver pois, se o nosso método prevê algum cenário e faz a tratativa desse cenário, `aquele cenário não é uma exceção`, mas sim, `algo esperado que se ocorra pois o próprio método conhece o problema e está tratando o problema`, ou seja, ao invés de ser uma exceção, faz parte do processamento do método pois é algo conhecido e tratável.
+
+<br/>
+
+> [!TIP]
+> Semanticamente, uma exceção é algo que foge a regra. Em programação, uma exceção é algo que ocorreu de forma inesperada. Se existe uma tratativa consciente no método para determinado cenário, esse cenário não é uma exceção e passa a fazer parte da regra pois é tratável.
+
+<br/>
+
+Vamos ver um exemplo. Veja o código a seguir:
+
+```csharp
+public class Customer
+{
+    public string Name { get; private set; }
+
+    public void ChangeName(string name)
+    {
+        if(string.IsNullOrEmpty(name))
+            throw new ArgumentNullException(name);
+        else if(name.Length == 0 || name.Length > 50)
+            throw new ArgumentOutOfRangeException(name);
+
+        Name = name;
+    }
+}
+public class CustomerService
+{
+    public void ChangeCustomerName(Guid customerId, string newName)
+    {
+        var customer = _customerRepository.GetById(customerId);
+
+        // Eu não preciso tratar se o ChangeName deu certo, pois, caso um erro
+        // ocorra, a chamada do método _customerRepository.Update
+        // não ocorrerá pois o fluxo de execução será interrompido pela exceção
+        // e não precisaremos nos preocupar com a tratativa do fluxo do código
+        customer.ChangeName(newName);
+
+        _customerRepository.Update(customer);
+    }
+}
+```
+
+No código acima temos o a classe `Customer` com método `void ChangeName(string name)` que valida o parâmetro `name` e, caso esteja nulo ou com um tamanho inválido, uma exceção é lançada para cada cenário inválido. Note que esses cenários do parâmetro `name` ser nulo ou ter um tamanho inválido são conhecidos e tratados no código, então, `semanticamente, não é uma exceção, mas sim, parte da regra`.
+
+Note que na classe `CustomerService` não precisamos fazer nenhuma tratativa caso o método `ChangeName` tenha algum erro, pois ele lançará uma exceção e todo fluxo de execução do método será interrompido ali mesmo. Isso é muito `confortável` para nós, programadores.
+
+Vamos analisar esse código se utilizássemos a semântica correta e evitássemos o uso de exceção nesse cenário:
+
+```csharp
+public class Customer
+{
+    public string Name { get; private set; }
+
+    public void ChangeName(string name, out bool success)
+    {
+        if(string.IsNullOrEmpty(name) || (name.Length == 0 || name.Length > 50))
+        {
+            success = false;
+            return;
+        }
+
+        Name = name;
+
+        success = true;
+    }
+}
+public class CustomerService
+{
+    public void ChangeCustomerName(Guid customerId, string newName)
+    {
+        var customer = _customerRepository.GetById(customerId);
+
+        // Agora tivemos que analisar o retorno do método ChangeName
+        // pois o controle de fluxo não será feito automaticamente
+        // pelo lançamento da exceção. Caso não tratarmos a variável
+        // de saída success, podemos mandar atualizar no banco de dados
+        // mesmo se a execução não foi realizada com sucesso
+        customer.ChangeName(newName, out bool success);
+        if(!success)
+            return;
+
+        _customerRepository.Update(customer);
+    }
+}
+```
+
+Como visto no código acima, tratar as coisas com a semântica correta e não lançar a exceção para as regras conhecidas acaba gerando mais complicação para a manutenabilidade da aplicação do que solução pois, se o programador esquecer de tratar o retorno do método, podemos ter comportamentos indesejados. Isso faz com que a `programação defensiva` seja ainda mais importante nesse cenário.
+
+<br/>
+
+> [!CAUTION]
+> Deixar de lançar exceções, mesmo que seja para utilizar a semântica correta, acarreta na necessidade de termos um código mais sucetível a erros por falha humana. Nesses cenários temos que tomar cuidado pois o código vai exigir mais do code review, testes e práticas de programação defensiva.
+
+<br/>
+
+Ao analisar esses pontos, podemos chegar a conclusão de que devemos então lançar exceções mesmo que, em cenários onde a regra é tratável, não seja semanticamente correto pois as facilidades compensam. Porém, infelizmente, as coisas não são tão simples assim (embora eu gostaria muito que fossem, pois também gosto de usar as exceções pela facilidade que elas trazem).
+
+#### :pushpin: Exceções: uma visão sobre desempenho
+
+Lançar exceções no nosso código trás uma consequência que, em determinados cenários, pode ser desastrosa. Estou falando da `degradação do desempenho da aplicação`.
+
+Quando lançamos uma exceção no .NET, várias coisas ocorrem. Algumas delas são:
+
+- O tipo da exceção é capturada
+- Uma mensagem com todos os detalhes da exceção é criada
+- Todo stack trace é capturado
+- Dados adicionais da exceção são preenchidos
+- O objeto de origem da exceção é capturado
+- O método que originou a exceção é capturado
+- A InnerException é captura para identificar se uma exceção foi lançada a partir da outra
+
+Para que tudo isso ocorra, a `thread que está lançando a exceção é bloqueada`, `processamento é realizado para colher as informações` e `objetos adicionais são criados` gerando `mais alocação de objetos no Garbage Collector`.
+
+<br/>
+
+> [!CAUTION]
+> Quando estamos falando em aplicações de alta volumetria, lançar exceções pode trazer danos ao desempenho e fazer com que a aplicação exija bem mais recursos do que realmente são necessários
+
+<br/>
+
+#### :white_check_mark: Decisão de design 1: A biblioteca deve proporcionar mecanismos de controle que evite o lançamento de exceções
+
+[voltar ao topo](#book-conteúdo)
+
+Falei do problema de utilizar exceções em aplicações de alta volumetria com base na teoria, vamos ver isso na prática por analisar o resultado de um benchmark (o benchmark executado está no arquivo [ThrowExceptionBenchmark](../benchs/Benchmarks/ExceptionBenchs/ThrowExceptionBenchmark.cs)). O resultado obtido foi:
+
+| Method        | Mean           | Error       | StdDev      | Ratio     | RatioSD  | BranchInstructions/Op | TotalIssues/Op | TotalCycles/Op | Timer/Op | BranchMispredictions/Op | CacheMisses/Op | Allocated | Alloc Ratio |
+|-------------- |---------------:|------------:|------------:|----------:|---------:|----------------------:|---------------:|---------------:|---------:|------------------------:|---------------:|----------:|------------:|
+| NoException   |      0.5812 ns |   0.0680 ns |   0.0907 ns |      1.00 |     0.00 |                     0 |              3 |              1 |        0 |                       0 |             -0 |         - |          NA |
+| WithException | 23,385.8588 ns | 306.3089 ns | 271.5349 ns | 41,163.98 | 7,019.46 |                17,480 |         78,557 |         54,265 |      236 |                     136 |            385 |     232 B |          NA |
+
+Vamos as conclusões:
+
+- Como podemos analisar na coluna `Ratio`, o método que lançou a exceção foi `41 MIL vezes mais lento`.
+- Na coluna `RatioSD` vemos que o método que lançou a exceção teve um desvio padrão `7 MIL vezes maior`, ou seja, muito mais instável.
+- Ao analisar as instruções e ciclos por operação, a versão com lançamento de exception fez `milhares de vezes mais operações`.
+- O código que lança exceção `gerou alocação na heap` enquanto o que não lança exceção não gerou alocação na heap.
+
+Como o objetivo dessa biblioteca é dar suporte a processamentos de alta volumetria com alto desempenho, nós chegamos a nossa primeira decisão de design!
+
+<br/>
+
+> [!IMPORTANT]
+> Nós temos que avaliar os requisitos dos nossos projetos para determinar se o uso de exceções causará um impacto real ou não na aplicação. 
+
+<br/>
+
+#### :pushpin: Como padronizar o retorno?
+
+[voltar ao topo](#book-conteúdo)
+
+Como vimos anteriormente, vamos evitar o uso de exceções e, quando o nosso método possuí um retorno esperado além da coleção de OutputMessage, podemos ter um código que acabe retornando tuplas ou tenham variáveis de output.
+
+Embora a linguagem permita o uso desses recursos, nós temos sempre que tentar deixar o nosso código o mais coeso e o mais simples de entender que conseguirmos.
+
+<br/>
+
+> [!TIP]
+> Nosso código precisar ser simples e coeso. Se precisa ser um sênior para fazer qualquer coisa no seu sistema, temos um problema
+
+<br/>
+
+Então vamos analisar o uso de tuplas como retorno ou de parâmetros de saída e os impactos disso no nosso código. Vamos começar pelo retorno usando tuplas. Note o código a seguir:
+
+```csharp
+public enum ResultType
+{
+    Success = 1,
+    Partial = 2,
+    Error = 3
+}
+
+public (OutputMessage[]? OutputMessageCollection, ResultType ResultType, Customer? RegisteredCustomer) RegisterNewCustomer(string email)
+{
+    if(string.IsNullOrWhiteSpace(email))
+        return (
+            OutputMessageCollection: new [] {
+                OutputMessage.CreateError(code: "Customer.Email.Should.Required")
+            },
+            ResultType: ResultType.Error, 
+            RegisteredCustomer: null
+        );
+    
+    // Seu código de processamento
+
+    return (OutputMessageCollection: null, ResultType: ResultType.Success, RegisteredCustomer: customer);
+}
+
+public (OutputMessage[]? OutputMessageCollection, ResultType ResultType, Customer? RemovedCustomer) RemoveCustomer(string email)
+{
+    if(string.IsNullOrWhiteSpace(email))
+        return (
+            OutputMessageCollection: new [] {
+                OutputMessage.CreateError(code: "Customer.Email.Should.Required")
+            },
+            ResultType: ResultType.Error, 
+            RemovedCustomer: null
+        );
+    
+    // Seu código de processamento
+
+    return (OutputMessageCollection: null, ResultType: ResultType.Success, RemovedCustomer: customer);
+}
+```
+
+O que podemos concluir desse código:
+
+- Utilizar tupla é algo simples (utilizar uma tupla é algo simples na linguagem C#) porém não é trivial (embora simples, programadores iniciantes tem dificuldade de lidar com a sintaxe e pelo fato da tupla ser um value type).
+- Dependendo da quantidade de informações adicionais que você queira saber sobre a execução dos métodos, a tupla terá vários parâmetros sendo difícil de ler o código.
+- Caso quisermos incluir uma nova informação no retorno dos métodos, temos que alterar todas as tuplas de todos os métodos e alterar todas as atribuições do retorno desses métodos para se adequarem a nova estrutura da tupla. Seria uma loucura!
+
+<br/>
+
+> [!CAUTION]
+> Embora as tuplas sejam um recurso da linguagem, dependendo de como elas forem utilizadas, podem gerar diversos problemas de design de código causando dificuldade de leitura, compreensão e manitunabilidade
+
+<br/>
+
+`Por esses motivos não utilizaremos tuplas no retorno dos métodos`!
+
+Agora vamos analisar a utilização de parâmetros de saída (output) nos métodos. Vamos analisar o mesmo código, porém, com variáveis de saída:
+
+```csharp
+public enum ResultType
+{
+    Success = 1,
+    Partial = 2,
+    Error = 3
+}
+
+public Customer? RegisterNewCustomer(string email, out OutputMessage[]? OutputMessageCollection, out ResultType ResultType)
+{
+    if(string.IsNullOrWhiteSpace(email))
+    {
+        OutputMessageCollection = new [] {
+            OutputMessage.CreateError(code: "Customer.Email.Should.Required")
+        };
+
+        ResultType = ResultType.Error;
+
+        return null;
+    }
+    
+    // Seu código de processamento
+
+    OutputMessageCollection = null;
+    ResultType = ResultType.Success;
+
+    return customer;
+}
+
+public Customer? RemoveCustomer(string email, out OutputMessage[]? OutputMessageCollection, out ResultType ResultType)
+{
+    if(string.IsNullOrWhiteSpace(email))
+    {
+        OutputMessageCollection = new [] {
+            OutputMessage.CreateError(code: "Customer.Email.Should.Required")
+        };
+
+        ResultType = ResultType.Error;
+
+        return null;
+    }
+    
+    // Seu código de processamento
+
+    OutputMessageCollection = null;
+    ResultType = ResultType.Success;
+
+    return customer;
+}
+
+// Exemplo do consumo
+public bool Register(string email)
+{
+    RegisterNewCustomer(email, out OutputMessage[]? outputMessageCollection, out ResultType resultType);
+
+    if(resultType != ResultType.Success)
+        return false;
+
+    // ...
+
+    return true;
+}
+```
+
+O que podemos concluir desse código:
+
+- Todos os problemas apontados na utilização das tuplas.
+- Obrigamos o código que consome a declarar as variáveis de saída ou usar o operador de descarte fazendo com que uma alteração na assinatura resultasse também na alteração de todos os chamadores desses métodos.
+
+#### :white_check_mark: Decisão de design 2: Precisamos criar um envelope de resposta para padronizar o retorno dos métodos
+
+[voltar ao topo](#book-conteúdo)
+
+Para evitar quebras de código durante a remoção ou inclusão de novas propriedades que queremos analisar sobre a execução do método e poder padronizar toda a comunicação entre os métodos, é importante que criemos um evenlope de reposta. O que seria isso?
+
+Imagine uma carta em um envelope. Nós temos a carta, que é o nosso objeto de interesse, mas temos um envelope que tem informações adicionais sobre a carta como o emissor, destinatário, selo postal etc. Note que o objeto de interesse é a carta, mas temos informações adicionais que vão além da carta que também são importantes. Então ao invés de adicionarmos essas informações na própria carta dificultando o trabalho da agência de correios, é melhor criarmos um envelope padronizado para facilitar a análise e deixar a carta dentro desse envelope, ou seja, encapsulamos a carta com um envelope.
+
+O raciocínio aqui é o mesmo, `vamos pegar todas aquelas informações extras que queremos da execução de um método em um envelope que vai encapsular a resposta do método`. Assim conseguimos padronizar os retornos dentro do sistema e não ter os problemas que mencionei anteriormente!
+
+<br/>
+
+> [!TIP]
+> Criar encapsulamentos nos permitem padronizar os objetos melhorando a manitenabilidade e compreensão da aplicação!
+
+<br/>
+
 ### :pushpin: Arrays vazios ou referências nulas para array de mensagens?
 
 [voltar ao topo](#book-conteúdo)
@@ -429,7 +784,7 @@ O que podemos concluir disso?
 
 Então temos duas conclusões a favor de usar a opção com o valor nulo (todos relacionados ao desempenho) e uma conclusão a favor de utilizar o Array.Empty (que é relacionado a usabilidade do código). Então qual das duas abordagens escolher? Na verdade, nós não precisamos escolher uma ou outra, tem uma alternativa que podemos utilizar onde podemos nos beneficiar das duas abordagens.
 
-Para entender o ponto, vamos analisar o diagrama abaixo que representa Uma web API com seus componentes internos (o objetivo desse diagrama não é apresentar um modelo de componentes de referência e nem dizer se a divisão é boa ou ruim, ela serve somente para o nosso exemplo).
+Para entender o ponto, vamos analisar o diagrama abaixo que representa uma Web API com seus componentes internos (o objetivo desse diagrama não é apresentar um modelo de componentes de referência e nem dizer se a divisão é boa ou ruim, ela serve somente para o nosso exemplo).
 
 <br/>
 <div align="center">
@@ -437,7 +792,7 @@ Para entender o ponto, vamos analisar o diagrama abaixo que representa Uma web A
 </div>
 <br/>
 
-Nesse diagrama tempos a representação de um Web App que solicita para uma Web API a importação de um pedido. Durante essa importação, tanto o pedido quanto os produtos do pedido são importados. Para ajudar a compreender esse fluxo, repare no diagrama de sequência a seguir:
+Nesse diagrama temos a representação de um Web App que solicita para uma Web API a importação de um pedido. Durante essa importação, tanto o pedido quanto os produtos do pedido são importados. Para ajudar a compreender esse fluxo, repare no diagrama de sequência a seguir:
 
 <br/>
 <div align="center">
@@ -454,18 +809,22 @@ Cada execução de cada método de cada componente retornaria um envelope de res
 - Evelope de resposta da execução do método do componente ImportOrderUseCase.
 - Evelope de resposta da execução do método do componente OrdersController.
 
-De todos os seis envelopes de repostas que seriam criados, somente em um momento a leitura das notificações seriam feitas que seria na OrdersControllers (marcado de laranja) pois seria o momento que iria-se compor o retorno da chamada síncrona realizada pelo WebApp. Isso quer dizer que, no exemplo acima, `enquanto seis criações de envelopes de resposta são feitas, somente uma leitura das notificações é realizada`, ou seja, nesse cenário de aplicações *LOB (Line of Business)*, iremos realizar muito mais criações de envelopes de respostas do que a leitura das notificações.
+De todos os seis envelopes de repostas que seriam criados, somente em um momento a leitura das notificações seria feita que seria na OrdersControllers (marcado de laranja) pois seria o momento que iria-se compor o retorno da chamada síncrona realizada pelo WebApp. Isso quer dizer que, no exemplo acima, `enquanto seis criações de envelopes de resposta são feitas, somente uma leitura das notificações é realizada`, ou seja, nesse cenário de aplicações *LOB (Line of Business)*, iremos realizar muito mais criações de envelopes de respostas do que a leitura das notificações.
 
 <br/>
 
 > [!TIP]
-> Devemos compreender o perfil de utilização daquele objeto
+> Devemos compreender o perfil de utilização de cada objeto
 
 <br/>
 
+### :white_check_mark: Decisão de design 3: O tratamento para evitar null reference será feito na leitura da propriedade ao invés de ser feito na criação do objeto
+
+[voltar ao topo](#book-conteúdo)
+
 E onde isso ajuda em decidir se vamos usar referência nula ou array vazio?
 
-Como vimos que criamos muito mais do que lemos as notificações, nós podemos fazer algo simples, mas que vai resolver nosso problema e permitir usar o melhor dos dois cenários. `Nós podemos remover o código qeu resolveria um problema de leitura do momento da criação`!
+Como vimos que criamos muito mais notificações do que lemos, nós podemos fazer algo simples, mas que vai resolver nosso problema e permitir usar o melhor dos dois cenários. `Nós podemos remover o código que resolveria um problema de leitura do momento da criação`!
 
 Note novamente o código que usamos para tratar o Array.Empty com os devidos comentários no código:
 
@@ -490,17 +849,17 @@ public readonly struct OutputEnvelop<TOutput>
     {
         Output = output;
         Type = type;
-        // Estamos, no momento da criação, resolvendo um problema da leitura no momento da instanciação
-        // sendo que na maioria das vezes nós não vamos realizar essa leitura
-        // Com isso, estamos usando um processamento 100% das vezes para algo que não será usado o tempo
-        // todo
+        // Estamos resolvendo um problema da leitura no momento da instanciação
+        // sendo que na maioria das vezes nós não vamos realizar essa leitura.
+        // Com isso, estamos usando um processamento 100% das vezes para algo 
+        // que não será usado o tempo todo
         OutputMessageCollectionInternal = outputMessageCollection ?? Array.Empty<OutputMessage>();
         ExceptionCollectionInternal = exceptionCollection ?? Array.Empty<Exception>();
     }
 }
 ```
 
-Agora vamos remover essa tratativa de nulo do construtor e encapsular em uma propriedade, no momento da leitura mesma. Note que como a classe tem os arrays como propriedades `internal`, nós precisamos export essess valores publicamente para outras classes acessarem. A implementação da solução ficaria assim:
+Agora vamos remover essa tratativa de nulo do construtor e encapsular em uma propriedade. Note que como a classe tem os arrays como propriedades `internal`, nós precisamos export essess valores publicamente para outras classes acessarem. A implementação da solução ficaria assim:
 
 ```csharp
 public readonly struct OutputEnvelop<TOutput>
@@ -551,11 +910,13 @@ public readonly struct OutputEnvelop<TOutput>
     {
         Output = output;
         Type = type;
-        // Nós permitimos a atribuição do valor nulo
+        // Nós permitimos a atribuição do valor nulo pois
+        // vamos tratar isso somente na leitura
         OutputMessageCollectionInternal = outputMessageCollection;
         ExceptionCollectionInternal = exceptionCollection;
     }
 }
 ```
 
-Com isso conseguimos obter o desempenho da criação com valores nulos mas manter a usabilidade de permitir uma leitura que evitará instâncias nulas!
+Com isso conseguimos obter o desempenho da criação com valores nulos mas manter a usabilidade de permitir uma leitura que evitará instâncias nulas! Vamos ver com mais detalhes a solução aplicada.
+
