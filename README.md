@@ -56,6 +56,8 @@ Além disso, nesse tipo de sistema, os retornos dos métodos vão além de um ú
   - [:book: Conteúdo](#book-conteúdo)
   - [:computer: Tecnologias](#computer-tecnologias)
   - [:star: Funcionalidades-chave](#star-funcionalidades-chave)
+  - [:star: Roadmap](#star-roadmap)
+  - [:books: Utilização básica](#books-utilização-básica)
   - [:books: Exemplos](#books-exemplos)
   - [:people\_holding\_hands: Contribuindo](#people_holding_hands-contribuindo)
   - [:people\_holding\_hands: Autores](#people_holding_hands-autores)
@@ -89,6 +91,118 @@ Esse projeto tem como objetivo fornecer um `envelope de resposta` que segue os s
 - :white_check_mark: Seja otimizado para `não realizar box e unboxing` e `evitar criação de closures` nos encapsulamentos para não gerar alocações na heap.
 - :white_check_mark: Evitar o `uso desnecessário` e `lançamento de exceções` ocasionando problemas de desempenho.
 - :white_check_mark: Ser `Thread-safe`.
+
+## :star: Roadmap
+
+- [x] Versão 1.0.0
+  - [x] Suporte para mensagens de saída dos tipos `information`, `success`, `warning` e `error`.
+  - [x] Notificações imutáveis.
+  - [x] Envelope de resposta com encapsulamento de mensagens de saída, exceções e suporte a processamento parcial.
+  - [x] Envelope de resposta encapsulando a execução para captura automática de exceções.
+  - [x] Envelopes de resposta imutáveis.
+- [ ] Versão 1.1.0
+  - [ ] Suporte para tipagem da propriedade `Code` do objeto [OutputMessage](src/OutputEnvelop/Models/OutputMessage.cs) a partir de generics.
+- [ ] Criação do pacote `MarceloCastelo.IO.OutputEnvelop.FluentValidation` para integração com o pacote [FluentValidation](https://www.nuget.org/packages/FluentValidation).
+
+## :books: Utilização básica
+
+O trecho do código abaixo foi extraído da classe [Customer](samples/SampleApi/Domain/Entities/Customer.cs)] do projeto de exemplo na pasta `samples/SampleApi`.
+
+O trecho de código abaixo possui o envelope de resposta no retorno dos métodos e como unir envelopes de resposta em um único envelope de resposta que agrega todos os demais.
+
+```csharp
+
+// Public Methods
+public static OutputEnvelop<Customer?> RegisterNew(string name, string email, DateOnly? birthDate)
+{
+    // Process
+    var customer = new Customer();
+
+    var processOutputEnvelop = OutputEnvelop.Create(
+        customer.GenerateNewId(),
+        customer.SetName(name),
+        customer.SetEmail(email),
+        customer.SetBirthDate(birthDate)
+    );
+
+    // Return
+    return OutputEnvelop<Customer?>.Create(
+        output: processOutputEnvelop.IsSuccess ? customer : null,
+        processOutputEnvelop
+    );
+}
+
+// Private Methods
+private OutputEnvelop SetId(Guid id)
+{
+    // Validate
+    if (id == Guid.Empty)
+        return OutputEnvelop.CreateError(IdShouldRequiredMessageCode, IdShouldRequiredMessageDescription);
+
+    // Process
+    Id = id;
+
+    // Return
+    return OutputEnvelop.CreateSuccess();
+}
+private OutputEnvelop GenerateNewId()
+{
+    return SetId(Guid.NewGuid());
+}
+
+private OutputEnvelop SetName(string name)
+{
+    // Validate
+    if (string.IsNullOrWhiteSpace(name))
+        return OutputEnvelop.CreateError(NameShouldRequiredMessageCode, NameShouldRequiredMessageDescription);
+    else if(name.Length > NameMaxLength)
+        return OutputEnvelop.CreateError(NameShouldLessThanMaxLengthMessageCode, NameShouldLessThanMaxLengthMessageDescription);
+
+    // Process
+    Name = name;
+
+    // Return
+    return OutputEnvelop.CreateSuccess();
+}
+
+private OutputEnvelop SetEmail(string email)
+{
+    // Validate
+    if (string.IsNullOrWhiteSpace(email))
+        return OutputEnvelop.CreateError(EmailShouldRequiredMessageCode, EmailShouldRequiredMessageDescription);
+    else if (email.Length > EmailMaxLength)
+        return OutputEnvelop.CreateError(EmailShouldLessThanMaxLengthMessageCode, EmailShouldLessThanMaxLengthMessageDescription);
+
+    // Process
+    Email = email;
+
+    // Return
+    return OutputEnvelop.CreateSuccess();
+}
+
+private OutputEnvelop SetBirthDate(DateOnly? birthDate)
+{
+    // Validate
+    if (birthDate is not null)
+    {
+        var age = DateTime.Now.Date.Year - birthDate.Value.Year;
+
+        if (DateTime.Now.Month < birthDate.Value.Month)
+            age--;
+        else if (DateTime.Now.Month == birthDate.Value.Month && DateTime.Now.Day < birthDate.Value.Day)
+            age--;
+
+        if (age > BirthDateMaxAge)
+            return OutputEnvelop.CreateError(BirthDateShouldLessThanMaxAgeMessageCode, BirthDateShouldLessThanMaxAgeMessageDescription);
+    }
+
+    // Process
+    BirthDate = birthDate;
+
+    // Return
+    return OutputEnvelop.CreateSuccess();
+}
+```
 
 ## :books: Exemplos
 
