@@ -46,6 +46,7 @@ Caso queira submeter alguma alteração para o projeto, será necessário abrir 
 - Testes de unidade
 - SAST com SonarQube
 - Teste de mutação
+- Teste de segurança com CodeQL
 
 Além dos requisitos da pipeline, analisarei os seguintes aspectos:
 
