@@ -356,7 +356,7 @@ Quando chamamos um método, nós esperamos saber algumas coisas sobre ele após 
 
 São perguntas que geralmente não fazemos mas são improtantes. Vamos falar de cada uma delas.
 
-A primeira pergunta é: `Ocorreu algum erro inesperado durante a execução?`. Essa pergunta é importante pois o raciocínio natural de qualquer programador iniciante é pensar que `se o método não lançou nenhuma exceção, é porque não ocorreu nenhum erro inesperado`. Esse é um pensamento natural, mas temos que tomar muito cuidado com o uso incorreto ou desnecessário de exceções para controlar o fluxo de execução.
+Uma das perguntas é se `Ocorreu algum erro inesperado durante a execução?`. Essa pergunta é importante pois o raciocínio natural de qualquer programador iniciante é pensar que `se o método não lançou nenhuma exceção, é porque não ocorreu nenhum erro inesperado`. Esse é um pensamento natural, mas temos que tomar muito cuidado com o uso incorreto ou desnecessário de exceções para controlar o fluxo de execução.
 
 É muito confortável para nós, programadores, utilizar exceções para controlar o fluxo da aplicação, afinal de contas, é só colocar um `try/catch` e está tudo certo, o controle de fluxo está feito, fica muito fácil saber se ocorreu um erro e tratar esse fluxo. Mas temos que considerar alguns pontos importantes com relação ao uso de exceções.
 
@@ -367,13 +367,13 @@ A primeira pergunta é: `Ocorreu algum erro inesperado durante a execução?`. E
 
 [voltar ao topo](#book-conteúdo)
 
-Em programação, quando falamos da semântica, estamos nos referindo ao sentido, ao significado de determinada coisa. Com relação a exceção, analisar o significado do que é uma exceção pode nos trazer algumas ideias interessantes.
+Em programação, quando falamos da semântica, uma das aplicações é quando estamos nos referindo ao sentido, ao significado de determinada coisa. Com relação a exceção, analisar o significado do que é uma exceção pode nos trazer algumas ideias interessantes.
 
 Como o próprio nome diz, uma exceção é algo que ocorre a critério de exceção, ou seja, é algo que ocorre além da regra estabelecida. Vamos utilizar algo do nosso cotidiano para entender melhor: nós possuímos regras de trânsito e, uma delas, é que não podemos passar por um semáforo que esteja na cor vermelha e isso é uma regra, porém, se você estiver em situação de emergência médica, podemos recorrer aquela infração de ultrapassar um semáforo vermelho pois a situação foge a regra padrão pois se tratava de uma emergência médica que envolvia vida e morte e a regra foi pensada na situação geral, por isso, essa situação seria uma exceção a regra.
 
 Quando estamos nos referindo ao nosso programa, quando falamos de exceção, estamos falando de algo que ocorre de forma inesperada, que o processamento `não preveu`, ou seja, é algo `INESPERADO`.
 
-É importante prestar bem atenção nisso que acabamos de ver pois, se o nosso método prevê algum cenário e faz a tratativa desse cenário, aquele cenário não é uma exceção, mas sim, algo esperado que se ocorra pois o próprio método conhece o problema e está tratando o problema, ou seja, ao invés de ser uma exceção, faz parte do processamento do método pois é algo conhecido e tratável.
+É importante prestar bem atenção nisso que acabamos de ver pois, se o nosso método prevê algum cenário e faz a tratativa desse cenário, `aquele cenário não é uma exceção`, mas sim, `algo esperado que se ocorra pois o próprio método conhece o problema e está tratando o problema`, ou seja, ao invés de ser uma exceção, faz parte do processamento do método pois é algo conhecido e tratável.
 
 > [!TIP]
 > Semanticamente, uma exceção é algo que foge a regra. Em programação, uma exceção é algo que ocorreu de forma inesperada. Se existe uma tratativa consciente no método para determinado cenário, esse cenário não é uma exceção e passa a fazer parte da regra pois é tratável.
@@ -412,9 +412,9 @@ public class CustomerService
 }
 ```
 
-No código acima temos o a classe `Customer` com método `void ChangeName(string name)` que valida o parâmetro `name` e, caso esteja nulo ou com um tamanho inválido, uma exceção é lançada para cada cenário inválido. Note que esses cenários do parâmetro `name` ser nulo ou ter um tamanho inválido são conhecidos e tratados no código, então, semanticamente, não é uma exceção, mas sim, parte da regra.
+No código acima temos o a classe `Customer` com método `void ChangeName(string name)` que valida o parâmetro `name` e, caso esteja nulo ou com um tamanho inválido, uma exceção é lançada para cada cenário inválido. Note que esses cenários do parâmetro `name` ser nulo ou ter um tamanho inválido são conhecidos e tratados no código, então, `semanticamente, não é uma exceção, mas sim, parte da regra`.
 
-Noter que na classe `CustomerService` não precisamos fazer nenhuma tratativa caso o método `ChangeName` tenha algum erro, pois ele lançará uma exceção e tudo se resolverá magicamente. Isso é muito confortável para nós, programadores.
+Note que na classe `CustomerService` não precisamos fazer nenhuma tratativa caso o método `ChangeName` tenha algum erro, pois ele lançará uma exceção e todo fluxo de execução do método será interrompido ali mesmo. Isso é muito `confortável` para nós, programadores.
 
 Vamos analisar esse código se utilizássemos a semântica correta e evitássemos o uso de exceção nesse cenário:
 
@@ -461,7 +461,7 @@ Como visto no código acima, tratar as coisas com a semântica correta e não la
 > [!CAUTION]
 > Deixar de lançar exceções, mesmo que seja para utilizar a semântica correta, acarreta na necessidade de termos um código mais sucetível a erros por falha humana. Nesses cenários temos que tomar cuidado pois o código vai exigir mais do code review, testes e práticas de programação defensiva.
 
-Ao analisar esses pontos, podemos chegar a conclusão de que devemos então lançar exceções mesmo que, em cenários onde a regra é tratável, não seja semanticamente correto pois as facilidades compensam. Porém, infelizmente, as coisas não são tão simples assim (embora eu gostaria muito que fosse, também gosto de usar as exceções pela facilidade que elas trazem).
+Ao analisar esses pontos, podemos chegar a conclusão de que devemos então lançar exceções mesmo que, em cenários onde a regra é tratável, não seja semanticamente correto pois as facilidades compensam. Porém, infelizmente, as coisas não são tão simples assim (embora eu gostaria muito que fossem, pois também gosto de usar as exceções pela facilidade que elas trazem).
 
 #### :pushpin: Exceções: uma visão sobre desempenho
 
@@ -480,13 +480,13 @@ Quando lançamos uma exceção no .NET, várias coisas ocorrem. Algumas delas s�
 Para que tudo isso ocorra, a `thread que está lançando a exceção é bloqueada`, `processamento é realizado para colher as informações` e `objetos adicionais são criados` gerando `mais alocação de objetos no Garbage Collector`.
 
 > [!CAUTION]
-> Quando estamos falando em aplicações de alta volumetria, lançar exceções pode traze danos ao desempenho e fazer com que a aplicação exija bem mais recursos do que realmente são necessários
+> Quando estamos falando em aplicações de alta volumetria, lançar exceções pode trazer danos ao desempenho e fazer com que a aplicação exija bem mais recursos do que realmente são necessários
 
 #### :white_check_mark: Decisão de design 1: A biblioteca deve proporcionar mecanismos de controle que evite o lançamento de exceções
 
 [voltar ao topo](#book-conteúdo)
 
-Vamos ver o resultado de um benchmark para vermos isso na prática (o benchmark executado está no arquivo [ThrowExceptionBenchmark](../benchs/Benchmarks/ExceptionBenchs/ThrowExceptionBenchmark.cs)). O resultado obtido foi:
+Falei do problema de utilizar exceções em aplicações de alta volumetria com base na teoria, vamos ver isso na prática por analisar o resultado de um benchmark (o benchmark executado está no arquivo [ThrowExceptionBenchmark](../benchs/Benchmarks/ExceptionBenchs/ThrowExceptionBenchmark.cs)). O resultado obtido foi:
 
 | Method        | Mean           | Error       | StdDev      | Ratio     | RatioSD  | BranchInstructions/Op | TotalIssues/Op | TotalCycles/Op | Timer/Op | BranchMispredictions/Op | CacheMisses/Op | Allocated | Alloc Ratio |
 |-------------- |---------------:|------------:|------------:|----------:|---------:|----------------------:|---------------:|---------------:|---------:|------------------------:|---------------:|----------:|------------:|
@@ -498,9 +498,9 @@ Vamos as conclusões:
 - Como podemos analisar na coluna `Ratio`, o método que lançou a exceção foi `41 MIL vezes mais lento`.
 - Na coluna `RatioSD` vemos que o método que lançou a exceção teve um desvio padrão `7 MIL vezes maior`, ou seja, muito mais instável.
 - Ao analisar as instruções e ciclos por operação, a versão com lançamento de exception fez `milhares de vezes mais operações`.
-- O código que lança exceção `gerou alocação` enquanto o que não lança exceção não gerou alocação na heap.
+- O código que lança exceção `gerou alocação na heap` enquanto o que não lança exceção não gerou alocação na heap.
 
-Como o objetivo dessa biblioteca é dar suporte a processamentos de auto desempenho, nós chegamos a nossa primeira decisão de design!
+Como o objetivo dessa biblioteca é dar suporte a processamentos de alta volumetria com alto desempenho, nós chegamos a nossa primeira decisão de design!
 
 > [!IMPORTANT]
 > Nós temos que avaliar os requisitos dos nossos projetos para determinar se o uso de exceções causará um impacto real ou não na aplicação. 
@@ -566,9 +566,9 @@ O que podemos concluir desse código:
 - Caso quisermos incluir uma nova informação no retorno dos métodos, temos que alterar todas as tuplas de todos os métodos e alterar todas as atribuições do retorno desses métodos para se adequarem a nova estrutura da tupla. Seria uma loucura!
 
 > [!CAUTION]
-> Embora as tuplas sejam um recurso da linguagem, dependendo de como ela for utilizada, pode gerar diversos problemas de design de código causando dificuldade de leitura, compreensão e manitunabilidade
+> Embora as tuplas sejam um recurso da linguagem, dependendo de como elas forem utilizadas, podem gerar diversos problemas de design de código causando dificuldade de leitura, compreensão e manitunabilidade
 
-`Por esses motivos não utilizaremos tuplas no retorno!`
+`Por esses motivos não utilizaremos tuplas no retorno dos métodos`!
 
 Agora vamos analisar a utilização de parâmetros de saída (output) nos métodos. Vamos analisar o mesmo código, porém, com variáveis de saída:
 
@@ -638,7 +638,7 @@ public bool Register(string email)
 
 O que podemos concluir desse código:
 
-- Todos os problemas apontados na utilização das tuplas
+- Todos os problemas apontados na utilização das tuplas.
 - Obrigamos o código que consome a declarar as variáveis de saída ou usar o operador de descarte fazendo com que uma alteração na assinatura resultasse também na alteração de todos os chamadores desses métodos.
 
 #### :white_check_mark: Decisão de design 2: Precisamos criar um envelope de resposta para padronizar o retorno dos métodos
@@ -647,9 +647,9 @@ O que podemos concluir desse código:
 
 Para evitar quebras de código durante a remoção ou inclusão de novas propriedades que queremos analisar sobre a execução do método e poder padronizar toda a comunicação entre os métodos, é importante que criemos um evenlope de reposta. O que seria isso?
 
-Imagine uma carta em um envelope. Nós temos a carta, que é o nosso objeto de interesse, mas temos um envelope que tem informações adicionais sobre a carta como o emissor, destinatário, selo postal etc. Note que o objeto de interesse é a carta, mas temos informações adicionais que vão além da carta que também são importantes. Então ao invés de adicionarmos essas informações na própria carta de forma padronizada dificultando o trabalho da agência de correios, é melhor criarmos um envelope padronizado para facilitar a análise e deixar a carta, que é o conteúdo sem padrão e que não pode ser modificado, dentro desse envelope, ou seja, encapsulamos a carta com um envelope.
+Imagine uma carta em um envelope. Nós temos a carta, que é o nosso objeto de interesse, mas temos um envelope que tem informações adicionais sobre a carta como o emissor, destinatário, selo postal etc. Note que o objeto de interesse é a carta, mas temos informações adicionais que vão além da carta que também são importantes. Então ao invés de adicionarmos essas informações na própria carta dificultando o trabalho da agência de correios, é melhor criarmos um envelope padronizado para facilitar a análise e deixar a carta dentro desse envelope, ou seja, encapsulamos a carta com um envelope.
 
-O raciocínio aqui é o mesmo, vamos pegar todas aquelas informações extras que queremos da execução de um método em um envelope que vai encapsular a resposta do método. Assim conseguimos padronizar os retornos dentro do sistema e não ter os problemas que mencionamos anteriormente!
+O raciocínio aqui é o mesmo, v`amos pegar todas aquelas informações extras que queremos da execução de um método em um envelope que vai encapsular a resposta do método`. Assim conseguimos padronizar os retornos dentro do sistema e não ter os problemas que mencionei anteriormente!
 
 > [!TIP]
 > Criar encapsulamentos nos permitem padronizar os objetos melhorando a manitenabilidade e compreensão da aplicação!
