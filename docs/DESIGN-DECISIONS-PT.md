@@ -677,7 +677,7 @@ Para evitar quebras de código durante a remoção ou inclusão de novas proprie
 
 Imagine uma carta em um envelope. Nós temos a carta, que é o nosso objeto de interesse, mas temos um envelope que tem informações adicionais sobre a carta como o emissor, destinatário, selo postal etc. Note que o objeto de interesse é a carta, mas temos informações adicionais que vão além da carta que também são importantes. Então ao invés de adicionarmos essas informações na própria carta dificultando o trabalho da agência de correios, é melhor criarmos um envelope padronizado para facilitar a análise e deixar a carta dentro desse envelope, ou seja, encapsulamos a carta com um envelope.
 
-O raciocínio aqui é o mesmo, v`amos pegar todas aquelas informações extras que queremos da execução de um método em um envelope que vai encapsular a resposta do método`. Assim conseguimos padronizar os retornos dentro do sistema e não ter os problemas que mencionei anteriormente!
+O raciocínio aqui é o mesmo, `vamos pegar todas aquelas informações extras que queremos da execução de um método em um envelope que vai encapsular a resposta do método`. Assim conseguimos padronizar os retornos dentro do sistema e não ter os problemas que mencionei anteriormente!
 
 <br/>
 
