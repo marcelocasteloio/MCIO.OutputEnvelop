@@ -60,7 +60,7 @@ Podemos ter a impressão de que a única coisa que importa é a velocidade do c�
 
 Para entender melhor esse ponto, vamos fazer uma ilustração com duas máquinas industriais hipotéticas. Essas máquinas produzem um determinado produto. Foram produzidas uma amostra de dez produtos (claro que o ideal é produzir muito mais peças para comparar, mas para facilitar o exemplo, usaremos dez peças somente) e, para cada peça construida, anotamos o tempo que levou para cada peça. Vamos analisar os dados:
 
-<center>
+<div align="center">
 
 <table>
 
@@ -102,13 +102,13 @@ Para entender melhor esse ponto, vamos fazer uma ilustração com duas máquinas
 
 </table>
 
-</center>
+</div>
 
 Note que tanto a `máquina A` quanto a `máquina B`  levaram um total de `50 minutos`. Já que ambas as máquinas demoraram o mesmo tempo total, quer dizer qeu ambas tiveram o mesmo desempenho? `NÃO!` Vamos analisar melhor.
 
 Vamos expressar essas duas tabelas em dois gráficos:
 
-<center>
+<div align="center">
 
 <table>
 
@@ -126,5 +126,5 @@ Vamos expressar essas duas tabelas em dois gráficos:
 
 </table>
 
-</center>
+</div>
 
