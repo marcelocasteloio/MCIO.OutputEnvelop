@@ -110,7 +110,7 @@ Vamos expressar essas duas tabelas em dois gráficos:
 
 <center>
 
-<table>
+<table class="border: none">
 
 <td>
 
