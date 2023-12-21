@@ -110,15 +110,15 @@ Vamos expressar essas duas tabelas em dois gráficos:
 
 <center>
 
-<table class="border: none">
+<table style="border: 0;">
 
-<td>
+<td style="border: 0;">
 
 ![MaquinaA](images/machine-a.png)
 
 </td>
 
-<td>
+<td style="border: 0;">
 
 ![MaquinaA](images/machine-b.png)
 
