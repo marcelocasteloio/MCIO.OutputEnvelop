@@ -17,12 +17,13 @@
 
 [voltar ao topo](#book-conteúdo)
 
-Um benchmark é uma comparação entre duas ou mais coisas. Quando não estamos comparando com algo, estamos simplesmente fazendo uma medição e não um benchmark. Mas quando estamos falando sobre software, nós associamos o termo benchmark tanto para medir a execução de algum sistema ou componente dele quanto a comparação entre sistemas e/ou componentes.
+Um benchmark é uma comparação entre duas ou mais coisas. Quando não estamos comparando com algo, estamos simplesmente fazendo uma medição e não um benchmark. Mas quando estamos falando sobre software, associamos o termo benchmark tanto para medir a execução de algum sistema ou componente quanto para a comparação entre sistemas e/ou componentes.
 
 <br/>
 
 > [!TIP]
-> Na prática, usamos o benchmark para medir e comparar o desempenho do sistema e/ou seus componentes
+> Na prática, usamos o benchmark para medir e comparar o desempenho do sistema e/ou seus componentes.
+
 > 
 <br/>
 
@@ -30,30 +31,31 @@ Um benchmark é uma comparação entre duas ou mais coisas. Quando não estamos 
 
 [voltar ao topo](#book-conteúdo)
 
-Nós podemos medir e comparar diversas coisas quando estamos falando sobre software. Podemos medir o tempo em que o sistema demora para executar determinada tarefa, podemos medir o quanto de recursos (CPU, RAM, HD, Network etc) são utilizados durante determinada ação que o software executa, podemos medir quanto tempo o sistema demora para inicializar e estar completamente pronto para realizar suas tarefas e mais um monte de coisa.
+Nós podemos medir e comparar diversas coisas quando estamos falando sobre software. Podemos medir o tempo em que o sistema demora para executar determinada tarefa, podemos medir o quanto de recursos (CPU, RAM, HD, Network, etc.) são utilizados durante determinada ação que o software executa, podemos medir quanto tempo o sistema demora para inicializar e estar completamente pronto para realizar suas tarefas, e mais um monte de coisa.
 
-No nosso caso, estamos falando de uma biblioteca que é executada por outros sistemas. Devido a isso, nós vamos realizar medições que façam sentido para esse cenário, ou seja, nós vamos medir:
+No nosso caso, estamos falando de uma biblioteca que é executada por outros sistemas. Devido a isso, vamos realizar medições que façam sentido para esse cenário. Ou seja, vamos medir:
 
 - Tempo de execução.
 - Alocação de memória.
-- Quantidade ciclos de processamento.
+- Quantidade de ciclos de processamento.
 - Erros que ocorreram.
 - Estabilidade do código.
+
 
 <br/>
 
 > [!IMPORTANT]
-> Nós devemos medir o que faz sentido para o cenário no qual nosso projeto foi idealizado
+> Devemos medir o que faz sentido para o cenário no qual nosso projeto foi idealizado.
 
 <br/>
 
-Após a medição, nós vamos realizar a comparação entre as medições de diferentes variações do código para tirarmos conclusões a partir dos dados obtidos. Mas antes, vamos analisar alguns pontos que acabam se tornando verdeiros mitos quando falamos de benchmark.
+Após a medição, vamos realizar a comparação entre as medições de diferentes variações do código para tirarmos conclusões a partir dos dados obtidos. Mas antes, vamos analisar alguns pontos que acabam se tornando verdadeiros mitos quando falamos de benchmark.
 
 ## :pushpin: Mitos sobre benchmarks
 
 [voltar ao topo](#book-conteúdo)
 
-Existem mitos sobre benchmarks e o objetivo é falar sobre alguns desses mitos para que possamos ter uma compreensão mais clara sobre benchmarks e ter um alinhamento claro sobre alguns pontos.
+Existem mitos sobre benchmarks, e o objetivo é falar sobre alguns desses mitos para que possamos ter uma compreensão mais clara sobre benchmarks e ter um alinhamento claro sobre alguns pontos.
 
 ### :pushpin: Mito 1: A única coisa que temos que avaliar é o tempo de execução do código
 
@@ -61,7 +63,7 @@ Existem mitos sobre benchmarks e o objetivo é falar sobre alguns desses mitos p
 
 Podemos ter a impressão de que a única coisa que importa é a velocidade do código, ou seja, quanto mais rápido, melhor o código, mas isso não é uma verdade simples e absoluta.
 
-Para entender melhor esse ponto, vamos fazer uma ilustração com duas máquinas industriais hipotéticas. Essas máquinas produzem um determinado produto. Foram produzidas uma amostra de dez produtos (claro que o ideal é produzir muito mais peças para comparar, mas para facilitar o exemplo, usaremos dez peças somente) e, para cada peça construida, anotamos o tempo que levou para cada peça. Vamos analisar os dados:
+Para entender melhor esse ponto, vamos fazer uma ilustração com duas máquinas industriais hipotéticas. Essas máquinas produzem um determinado produto. Foram produzidas uma amostra de dez produtos (claro que o ideal é produzir muito mais peças para comparar, mas para facilitar o exemplo, usaremos dez peças somente) e, para cada peça construída, anotamos o tempo que levou para cada peça. Vamos analisar os dados:
 
 <div align="center">
 
@@ -107,12 +109,12 @@ Para entender melhor esse ponto, vamos fazer uma ilustração com duas máquinas
 
 </div>
 
-Note que tanto a `máquina A` quanto a `máquina B`  levaram um total de `50 minutos`. Já que ambas as máquinas demoraram o mesmo tempo total, quer dizer qeu ambas tiveram o mesmo desempenho? `NÃO!` Vamos analisar melhor.
+Note que tanto a `máquina A` quanto a `máquina B` levaram um total de `50 minutos`. Já que ambas as máquinas demoraram o mesmo tempo total, quer dizer que ambas tiveram o mesmo desempenho? `NÃO!` Vamos analisar melhor.
 
 <br/>
 
 > [!IMPORTANT]
-> Códigos com eficiências diferentes podem ter o mesmo tempo de execução
+> Códigos com eficiências diferentes podem ter o mesmo tempo de execução.
 
 <br/> 
 
@@ -142,14 +144,14 @@ Incluir uma série (em laranja) que representa a média móvel. Mas por quê iss
 
 Note que a `máquina A` ficou com os valores `mais próximos` da média móvel, já a `máquina B` ficou com valores `mais distantes` da média móvel. Isso quer dizer que a máquina B é mais instável. Então o que podemos concluir da análise dessas duas máquinas?
 
-Conclusões:
-- As máquinas A e B utlizaram o mesmo tempo total para produzir as 10 peças
-- A máquina A foi mais estável e previsível na duração por peça do que a máquina B
-- O pico de tempo mais alto da máquina A foi de 6 minutos enquanto na máquina B foi de 7 minutos
+**Conclusões:**
+- As máquinas A e B utilizaram o mesmo tempo total para produzir as 10 peças.
+- A máquina A foi mais estável e previsível na duração por peça do que a máquina B.
+- O pico de tempo mais alto da máquina A foi de 6 minutos, enquanto na máquina B foi de 7 minutos.
 
-Para uma linha de produção de pe~cas, nós buscamos `previsibilidade` por isso, embora as duas máquinas demoraram o mesmo tempo total para produzir as 10 peças, a `máquina A` trouxe uma previsibilidade de tempo muito maior pois a duração da produção das peças ficou mais próxima da média móvel.
+Para uma linha de produção de peças, buscamos `previsibilidade`. Portanto, embora as duas máquinas tenham demorado o mesmo tempo total para produzir as 10 peças, a `máquina A` trouxe uma previsibilidade de tempo muito maior, pois a duração da produção das peças ficou mais próxima da média móvel.
 
-Nós medimos essa distância do valor da média móvel a partir de uma medida estatística chamada `desvio padrão`. Os devios padrões das máquinas A e B foram:
+Medimos essa distância do valor da média móvel a partir de uma medida estatística chamada `desvio padrão`. Os desvios padrões das máquinas A e B foram:
 
 <div align="center">
 
@@ -176,12 +178,12 @@ Como isso se aplica com benchmarks em programação? Note o resultado de um benc
 
 Note que a coluna `StdDev (ns)` tem o menor valor do `desvio padrão` para o teste `With null` em relação ao teste `With empty array`. Isso quer dizer que o teste `With null` foi muito mais estável com relação ao tempo de execução. Na coluna `Mean (ns)` conseguimos comprovar que o teste `With null` foi mais rápido, mas caso utilizassem o mesmo tempo ou tivessem um tempo mais próximo, deveríamos utilizar o valor do desvio padrão na análise também!
 
-Se estivéssemos falando de memória RAM por exemplo, poderíamos ter um código que demorasse o mesmo tempo, porém, por causa do desvio padrão alto, podem ter picos de memória RAM que exijam um servidor com um a quantidade maior de memória RAM, por exemplo: O código executa com 500 MB de memória RAM, mas como o uso de memória está com um alto desvio padrão, em algum momento esse código atinge um pico de 900 MB de memória. Isso quer dizer que teríamos que ter reservado (em uma máquina, um cluster K8S etc) um total de 1 GB de memória somente para atender um possível pico de informação. Um código mais estável poderia demorar o mesmo tempo final, mas por ter um desvio padrão menor, não passar de 750 MB de RAM por exemplo.
+Se estivéssemos falando de memória RAM, por exemplo, poderíamos ter um código que demorasse o mesmo tempo, mas, por causa do desvio padrão alto, poderiam ocorrer picos de uso de memória RAM, exigindo um servidor com uma quantidade maior de memória RAM, por exemplo: o código executa com 500 MB de memória RAM, mas como o uso de memória está com um alto desvio padrão, em algum momento esse código atinge um pico de 900 MB de memória. Isso quer dizer que teríamos que ter reservado (em uma máquina, um cluster K8S etc.) um total de 1 GB de memória somente para atender a um possível pico de consumo de memória. Um código mais estável poderia demorar o mesmo tempo final, mas, por ter um desvio padrão menor, não ultrapassaria 750 MB de RAM, por exemplo.
 
 <br/>
 
 > [!IMPORTANT]
-> Códigos mais estáveis permitem reservar menos recurso de hardware para a aplicação
+> Códigos mais estáveis permitem reservar menos recursos de hardware para a aplicação
 
 <br/> 
 

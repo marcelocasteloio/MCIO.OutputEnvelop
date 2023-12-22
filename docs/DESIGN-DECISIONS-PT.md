@@ -22,12 +22,12 @@
 
 ## :information_source: Necessidade
 
-Durante o processamento de um método (vou tomar a liberdade de me abster de algumas formalidades como ficar se referindo a procedimentos quando não existe retorno ou função como tem retorno, chamarei tudo de método) em sistemas *LOB (Line of business)* nós, com frequência, queremos mais do que um único objeto de retorno. Isso ocorre não porque estamos projetando métodos com múltiplas responsabilidades ferindo o primeiro princípio do SOLID, mas sim, porque tem informações complementares que são importantes para esse tipo de sistema.
+Durante a execução de um método (vou me abster de algumas formalidades, como referências a procedimentos quando não há retorno ou função específica, chamando tudo de método) em sistemas *LOB (Line of Business)*, frequentemente desejamos mais do que um único objeto de retorno. Isso não ocorre porque estamos projetando métodos com múltiplas responsabilidades, infringindo o primeiro princípio do SOLID, mas sim porque existem informações complementares essenciais para esse tipo de sistema.
 
 <br/>
 
 > [!IMPORTANT]
-> Existem vários tipos de sistemas com diferentes propósitos como sistemas para IoT, sistemas de missão crítica, sistemas para baixo nível etc. Esse pacote e toda análise foi pensado em sistemas *LOB (Line of business)*
+> Existem diversos tipos de sistemas com propósitos distintos, como sistemas para IoT, sistemas de missão crítica, sistemas de baixo nível, entre outros. Este pacote e toda a análise foram concebidos para sistemas *LOB (Line of Business)*.
 
 <br/>
 
@@ -37,7 +37,7 @@ Esses sistemas possuem algumas características comuns. Algumas delas são:
 - Receber inputs dos usuários.
 - Validar os inputs dos usuários.
 - Validar os estados dos objetos de negócio.
-- Realizar algum processo de negõcio que modifique o estado dos objetos de negócio.
+- Realizar algum processo de negócio que modifique o estado dos objetos de negócio.
 - Persistir essas informações.
 - Retornar o resultado da solicitação para o usuário.
 - Exibir diversos relatórios a partir das informações armazenadas.
@@ -45,42 +45,44 @@ Esses sistemas possuem algumas características comuns. Algumas delas são:
 Ao atender esses cenários, algumas necessidades surgem e são comuns em todo desenvolvimento, independentemente da regra de negócio aplicada. Por exemplo:
 - Queremos saber as notificações que ocorreram durante a execução dos métodos.
 - Essas notificações são mais do que simples mensagens de erro, podem ser mensagens de warning (por exemplo: quando um pedido de compra ultrapassa determinado valor), podem ser mensagens informativas (por exemplo: informar a integração com os parceiros foi realizada com sucesso durante o processamento da requisição) etc.
-- O processamento nem sempre se resume a sucesso ou falha. Em processamento em lote por exemplo, o resultado da operação pode ser parcial onde parte dos itens do lote são processados e outra parte não.
+- O processamento nem sempre se resume a sucesso ou falha. Em processamento em lote, por exemplo, o resultado da operação pode ser parcial, onde parte dos itens do lote são processados e outra parte não.
 
-E a partir disso, vamos começar a construir um raciocínio que vai nos guiar e nos levará as decisões que foram tomadas para esse projeto.
+E a partir disso, vamos começar a construir um raciocínio que vai nos guiar e nos levará às decisões que foram tomadas para esse projeto.
+
 
 ## :thinking: Analisando as possibilidades
 
 [voltar ao topo](#book-conteúdo)
 
-Vamos começar agora a construir uma linha de raciocínio para abordar cada um desses cenários e evoluir mais em alguns outros que irão surgir de acordo com a evolução do raciocínio. O primeiro ponto que vamos conversar é sobre a necessidade dos métodos retornarem mensagens conforme coisas vão ocorrendo na sua execução.
+Vamos começar agora a construir uma linha de raciocínio para abordar cada um desses cenários e evoluir em alguns outros que irão surgir de acordo com a evolução do raciocínio. O primeiro ponto que vamos abordar é sobre a necessidade dos métodos retornarem mensagens conforme as coisas vão ocorrendo durante a sua execução.
 
 ### :pushpin: O que é uma notificação?
 
 [voltar ao topo](#book-conteúdo)
 
-Parece algo muito trivial e simples de responder, mas acredite em mim, a maioria ignora os detalhes. Quando analisamos o assunto temos a tendência de ignorar os detalhes e pensamos em notificação somente como uma simples mensagem composta por um texto, mas isso é superficial demais e existem mais detalhes que devemos analisar.
+Parece algo muito trivial e simples de responder, mas acredite em mim, a maioria ignora os detalhes. Ao analisarmos o assunto, temos a tendência de negligenciar os detalhes e pensar em notificação apenas como uma mensagem simples composta por um texto. No entanto, isso é superficial demais, e existem mais detalhes que devemos considerar.
 
 <br/>
 
 > [!TIP]
-> Uma notificação vai além do que ser uma simples mensagem de texto
+> Uma notificação vai além de ser uma simples mensagem de texto.
+
 
 <br/>
 
-Existem notificações que vão além do log. É comum as aplicações terem logs que são escritos a medida que um processamento é realizado. Processos em background que ocorrem a partir de algum scheduler ou reagindo a algum evento não costumam retornar informações para a aplicação cliente que realizou o disparodo processamento, afinal de contas, tanto o disparo por meio de um scheduler ou reagindo a algum evento, são processados de forma assíncrona e não tem uma sessão de alguma aplicação cliente aguardando uma resposta, então o que faz mais sentido é realmente registar essas notificações por meio de logs, PORÉM, quando o processamento é feito a partir de uma chamada síncrona de uma aplicação cliente, é comum termos que retornar essas notificações para a aplicação cliente para que ela possa tomar alguma decisão em cima disso.
+Existem notificações que vão além do log. É comum as aplicações terem logs que são escritos à medida que um processamento é realizado. Processos em segundo plano que ocorrem a partir de algum agendador ou em resposta a algum evento geralmente não retornam informações para a aplicação cliente que iniciou o processamento. Afinal, tanto o acionamento por meio de um agendador quanto a reação a algum evento são processados de forma assíncrona e não têm uma sessão de alguma aplicação cliente aguardando uma resposta. Portanto, o que faz mais sentido é registrar essas notificações por meio de logs. No entanto, quando o processamento é feito a partir de uma chamada síncrona de uma aplicação cliente, é comum ter que retornar essas notificações para a aplicação cliente, para que ela possa tomar alguma decisão com base nelas.
 
 <br/>
 
 > [!TIP]
-> Quando temos uma requisição síncrona do nosso método, o chamador pode querer ler as notificações geradas para tomar alguam decisão a partir das notificações. 
+> Quando temos uma requisição síncrona do nosso método, o chamador pode querer ler as notificações geradas para tomar alguma decisão com base nelas.
 
 > [!TIP]
-> Não deixe de considerar que sua aplicação pode ter mais de uma aplicação cliente
+> Não deixe de considerar que sua aplicação pode ter mais de um cliente.
 
 <br/>
 
-Imagine uma Web API que expõe um endpoint onde possibilita a abertura de pedidos de compra. Essa API é consumida por duas aplicações (uma aplicação web e outra mobile) conforme diagrama a seguir:
+Imagine uma Web API que expõe um endpoint permitindo a abertura de pedidos de compra. Essa API é consumida por duas aplicações, uma aplicação web e outra mobile, conforme o diagrama a seguir:
 
 <br/>
 <div align="center">
@@ -88,56 +90,56 @@ Imagine uma Web API que expõe um endpoint onde possibilita a abertura de pedido
 </div>
 <br/>
 
-Esse fluxo de negócio possui uma regra hipotética que, quando o pedido de compra passar de 50 mil reais, o pedido deve ser aprovado pelo gestor da área. Com base nessa regra de negócio hipotética, os sistemas, tanto web quanto mobile, devem exibir uma notificação informando que o pedido de compra foi aceito mas está pendente de aprovação do gestor da área. Essa notificação é importante pois, por mais que o sistema já possua um fluxo de aprovação, o solicitante precisa estar ciente disso de imediato para que o processo não caia no esquecimento ou até mesmo para ele possa agilizar esse processo por entrar em contato diretamente com o gestor pedindo agilidade na aprovação dependendo da criticidade da demanda.
+Esse fluxo de negócio possui uma regra hipotética que determina que, quando o pedido de compra ultrapassar 50 mil reais, o pedido deve ser aprovado pelo gestor da área. Com base nessa regra de negócio hipotética, os sistemas, tanto web quanto mobile, devem exibir uma notificação informando que o pedido de compra foi aceito, mas está pendente de aprovação do gestor da área. Essa notificação é importante, pois, mesmo que o sistema já tenha um fluxo de aprovação, o solicitante precisa estar ciente imediatamente para evitar esquecimentos no processo ou, até mesmo, para possibilitar que ele agilize o processo entrando em contato diretamente com o gestor e solicitando celeridade na aprovação, dependendo da criticidade da demanda.
 
 <br/>
 
 > [!IMPORTANT]
-> Nem toda notificação é um erro
+> Nem toda notificação é um erro.
 
 <br/>
 
-Até o momento, nada fora do comum em sistemas *LOB (Line of business)*, porém, imagine o seguinte: Os programadores tiveram o raciocínio de que, por se tratar de uma notificação para o usuário que está utilizando o sistema, a responsabilidade de saber os critérios e quando exibir essa notificação é responsabilidade das aplicações de front-end, afinal, exibir algo é do front-end e não do back-end.
+Até o momento, nada fora do comum em sistemas *LOB (Line of Business)*. No entanto, imagine o seguinte: os programadores tiveram o raciocínio de que, por se tratar de uma notificação para o usuário que está utilizando o sistema, a responsabilidade de conhecer os critérios e decidir quando exibir essa notificação é atribuída às aplicações de front-end. Afinal, exibir algo é uma responsabilidade do front-end e não do back-end.
 
 <br/>
 
 > [!IMPORTANT]
-> Nem toda notificação para o usuário é gerada no front-end
+> Nem toda notificação para o usuário é gerada no front-end.
 
 <br/>
 
-Mas esse raciocínio não está correto. Caso isso ocorra, tanto o front-end web quanto o mobile precisariam codificar a mesma regra. Ambos teriam que saber que precisam validar o valor do pedido para notificar, ambos teriam que saber qual valor é esse e ambos teriam que saber qual é a mensagem que deveriam exibir e `esse cenário é desastroso`. Por que? Isso `causaria duplicidade na implementação` da regra de negócio pois web e mobile precisam saber e implementar a regra, além disso, poderíamos ter `inconsistências` perante essas implementações que gerariam `bugs` e `comportamentos diferentes para o mesmo recurso` entre as aplicação web e mobile. Quando o valor de referência para a notificação mudasse (o exemplo foi de 50 mil reais, imagine que mudou para 30 mil reais), teríamos que gerar uma nova versão das aplicações web e mobile (que é um problema pois os `tempo de deploy` e `disponibilização` de uma aplicação web e em uma loja de aplicativos mobile não são as mesmas) ou até criar um endpoint só para buscar esse valor `aumentando mais ainda a complexidade`.
+Mas esse raciocínio não está correto. Caso isso ocorra, tanto o front-end web quanto o mobile precisariam codificar a mesma regra. Ambos teriam que saber que precisam validar o valor do pedido para notificar, ambos teriam que saber qual valor é esse e ambos teriam que saber qual é a mensagem que deveriam exibir e `esse cenário é desastroso`. Por que? Isso `causaria duplicidade na implementação` da regra de negócio, pois web e mobile precisam saber e implementar a regra. Além disso, poderíamos ter `inconsistências` perante essas implementações que gerariam `bugs` e `comportamentos diferentes para o mesmo recurso` entre as aplicações web e mobile. Quando o valor de referência para a notificação mudasse (o exemplo foi de 50 mil reais, imagine que mudou para 30 mil reais), teríamos que gerar uma nova versão das aplicações web e mobile (o que é um problema, pois os `tempos de deploy` e `disponibilização` de uma aplicação web e em uma loja de aplicativos mobile não são os mesmos) ou até criar um endpoint só para buscar esse valor, `aumentando mais ainda a complexidade`.
 
 <br/>
 
 > [!WARNING]
-> Devemos evitar duplicidade de implementação. Siga o princípio DRY (Don't repeat yourself)
+> Devemos evitar duplicidade de implementação. Siga o princípio DRY (Don't repeat yourself).
 
 > [!WARNING]
-> Os deploys possuem ciclos de vida e tempo de disponibilização diferentes
+> Os deploys possuem ciclos de vida e tempo de disponibilização diferentes.
+
 
 <br/>
 
-Existem até cenários pouco explorados em que esse cenário causa problemas que é quando o sistema possuí suporte a múltiplos idiomas. Se o front-end é responsável por gerar essa mensagem de notificação que é a partir de uma regra do back-end, ambas as aplicações de front-end (web e mobile) vão ter que ter a tradução correta da mensagem e, além da duplicidade e chance de maior de bugs e erros, os ciclos de deploy das aplicações são diferentes como explicado anteriormente fazendo com que a aplicação web tenha a tradução mais atualizada e a mobile não pois a loja de aplicativos demorou para atualizar ou o usuário não quis atualizar o app ainda podendo trazer até riscos legais! 
-`Todos esses cenários descritos seriam desastrosos`!
+Existem cenários pouco explorados nos quais essa situação pode causar problemas, especialmente quando o sistema possui suporte a múltiplos idiomas. Se o front-end é encarregado de gerar a mensagem de notificação com base em uma regra do back-end, ambas as aplicações de front-end (web e mobile) precisarão ter a tradução correta da mensagem. Além da duplicidade e do risco aumentado de bugs e erros, os ciclos de deploy das aplicações são distintos, como explicado anteriormente. Isso significa que a aplicação web pode ter a tradução mais atualizada, enquanto a versão mobile pode não ter, seja porque a loja de aplicativos demorou para atualizar ou porque o usuário ainda não atualizou o aplicativo, o que pode acarretar até mesmo em riscos legais! `Todos esses cenários descritos seriam desastrosos!`
 
 <br/>
 
 > [!TIP]
-> Não deixe de considerar aspectos de globalização. Valide as chances da sua apliação precisar dar suporte a múltiplas culturas e idiomas
+> Não deixe de considerar aspectos de globalização. Valide as chances da sua apliação precisar dar suporte a múltiplas culturas e idiomas.
 
 <br/>
 
-Então qual seria o cenário mais adequado? Notificações que são geradas a partir de regras do back-end devem ser gerados no back-end, regras que são geradas a partir de regras exclusivas do front-end (como highligth de campos obrigatórios, tool tips etc.) devem ser geradas no front-end. Assim, se o banck-end gerar a notificação do exemplo de que pedidos acima de X reais devam ser aviasados que entraram em um fluxo de aprovação, o back-end que tem que gerar a notificação e retornar as aplicações clientes, assim não teríamos a duplicidade e a atualização da mensagem e dos crtiérios teriam efeito imediato nas aplicações web e mobile. As aplicações front-end seriam responsável somente por renderizar as notificações geradas pelo back-end e não por gerá-las.
+Qual seria o cenário mais adequado? Notificações geradas a partir de regras do back-end devem ser geradas no back-end. Regras provenientes exclusivamente do front-end, como destaque de campos obrigatórios, tooltips etc., devem ser geradas no front-end. Dessa forma, se o back-end gerar a notificação, por exemplo, de que pedidos acima de X reais devem ser avisados que entraram em um fluxo de aprovação, cabe ao back-end gerar a notificação e retorná-la às aplicações clientes. Assim, evitaríamos duplicidade, e a atualização da mensagem e dos critérios teria efeito imediato nas aplicações web e mobile. As aplicações front-end seriam responsáveis apenas por renderizar as notificações geradas pelo back-end, não por gerá-las.
 
 <br/>
 
 > [!IMPORTANT]
-> Notificações que são geradas a partir de regras do back-end devem ser gerados no back-end e somente renderizadas no front-end
+> Notificações geradas a partir de regras do back-end devem ser geradas no back-end e apenas renderizadas no front-end.
 
 <br/>
 
-Mas isso quer dizer que o back-end, ao invés de registrar as notificações somente em logs, agora o back-end precisa retornar essas notificações para a aplicação que o chamou, ou seja, chegamos a nossa primeira conclusão: `métodos precisam ter a capacidade de retornar as notificações que eles geraram`.
+Isso implica que, em vez de apenas registrar as notificações em logs, o back-end agora deve retornar essas notificações para a aplicação que o chamou. Portanto, chegamos à nossa primeira conclusão: `os métodos precisam ter a capacidade de retornar as notificações que geraram`.
 
 <br/>
 
@@ -150,53 +152,52 @@ Mas isso quer dizer que o back-end, ao invés de registrar as notificações som
 
 [voltar ao topo](#book-conteúdo)
 
-Notificações também possuem um `tipo`. Nós temos a tendência de achar que uma notificação é somente quando algo da errado, mas nós podemos querer notificar mais que isso. Vejamos alguns exemplos:
+Notificações também possuem um tipo. Costumamos associar notificações apenas a situações problemáticas, mas podemos desejar notificar sobre diversos eventos. Vamos analisar alguns exemplos:
 
-- Uma `notificação informativa` de que os dados da declaracão do imposto de renda foram transmitidos para a receita federal.
-- Uma `notificação de sucesso` de que os dados foram salvos com sucesso.
-- Uma `notificação de cuidado` informando que a venda foi realizada mas que o produto está chegando perto da quantidade mínima no estoque 
-- Uma `notificação de erro` informando que não foi possível processar a solicitação
-
-<br/>
-
-> [!IMPORTANT]
-> Notificação possuem tipos: `informação`, `sucesso`, `aviso` e `erro`
-
-<br/>
-
-Acabou por aqui? Ainda não!
-
-Algo que não pode ficar de fora é que em sistemas cliente/servidor, em sistemas com múltiplas aplicações clientes e em processos de atendimento de suprote, precisamos identificar rapidamente os comportamentos que o sistema apresenta, por isso, é de suma importância que cada notificação do sistema tenha um `identificador único` pois a representação daquela mensagem pode mudar dependendo da aplicação cliente e dependendo do público para o qual ela se destina.
+- Uma notificação informativa de que os dados da declaração do imposto de renda foram transmitidos à Receita Federal.
+- Uma notificação de sucesso indicando que os dados foram salvos com êxito.
+- Uma notificação de cuidado alertando que a venda foi concluída, mas o produto está se aproximando da quantidade mínima em estoque.
+- Uma notificação de erro informando que não foi possível processar a solicitação.
 
 <br/>
 
 > [!IMPORTANT]
-> A notificação precisa possuir um identificador único
+> Notificações possuem diferentes tipos: `informação`, `sucesso`, `aviso` e `erro`.
 
 <br/>
 
-Vamos ver um `exemplo prático`:
+Ainda não acabou por aqui!
 
-Imagine que existe um sistema de gestão de clínica médica de um convênio XPTO que exibe uma mensagem de que a pessoa que vai em busca de atendimento, ao ser registrada no sistema, precisa de um nome. Quando essa pessoa chega na recepção, ela ainda não está em atendimento, por isso, essa pessoa não foi identificada ainda se é uma pessoa segurada pelo convênio ou não, então no sistema da recepção a mensagem seria `"a pessoa precisa possuir um nome"`. 
+Em sistemas cliente/servidor, especialmente em ambientes com múltiplas aplicações clientes e processos de suporte, é crucial identificar rapidamente os comportamentos do sistema. Portanto, é de suma importância que cada notificação do sistema possua um `identificador único`, uma vez que a representação da mensagem pode variar conforme a aplicação cliente e o público-alvo para o qual ela se destina.
 
-Agora imagine que essa pessoa foi para a triagem e lá, a pessoa enfermeira precise localizar a pessoa pelo nome dentro do sistema, porém, como essa pessoa chegou até a triagem, então ela já é uma pessoa segurada, portanto, caso o nome não foi informado, a mensagem seria `"a pessoa segurada precisa possuir um nome"`.
+<br/>
 
-Agora imagine que essa pessoa, após a triagem, foi para a consulta médica e o médico atende essa pessoa e registra tudo no sistema em um computador na sua sala de atendimento. O médico localiza o a pessoa segurada pelo nome e, se o médico não informar o nome, como a pessoa segurada já está em atendimento médico, ela passa a ser um paciente e a mensagem seria `"o paciente precisa possuir um nome"`.
+> [!IMPORTANT]
+> A notificação precisa possuir um identificador único.
 
-Esse exemplo foi bem simples e com certeza tem brechar nas regras (por exemplo: poderiam ser bounded contexts diferentes etc, mas estou assumindo um monolito sem bounded contexts), mas é um cenário que acontece com muita frequência. Note que a natureza da mensagem é a mesma e internamente é o mesmo recurso, porém, dependendo do contexto de negócio, o texto da notificação muda mas, na essência, elas são as mesmas!
+<br/>
 
-Então essa mensagem poderia ser do `tipo erro`, ter o `código Person.Name.Should.Required` e ter `diferentes descrições` de acordo com o contexto e até poder possuir diferentes traduções nesses contextos. Quando a mensagem for exibida, elas poderiam ser exibidas juntamente com o código, que é padronizado, fazendo com que o sistema consiga se comunicar adequadamente para cada contexto mas permitindo que o suporte (tanto nível 1 quanto nível 2 e nível 3) encontrem a solução adequada para a solicitação da forma mais rápida possível já que se orientariam pelo código da mensagem.
+Vamos observar um `exemplo prático`:
+
+Considere um sistema de gestão de clínica médica. Ao registrar uma pessoa no sistema durante o processo de atendimento, é necessário que ela tenha um nome. A mensagem exibida varia conforme o contexto:
+
+1. Na recepção: `"A pessoa precisa possuir um nome"` - Ainda não identificada como segurada.
+2. Na triagem: `"A pessoa segurada precisa possuir um nome"` - Identificada como segurada.
+3. Na consulta médica: `"O paciente precisa possuir um nome"` - Já em atendimento médico.
+
+Essa mensagem, do `tipo erro` com o `código Person.Name.Should.Required`, apresenta diferentes descrições dependendo do contexto, facilitando a comunicação em sistemas complexos. A inclusão de códigos padronizados permite que a equipe de suporte localize rapidamente a solução adequada, orientando-se pelo código da mensagem.
 
 <br/>
 
 > [!TIP]
-> Separar o identificador único da notificação da sua descrição vai facilitar a sua vida
+> Separar o identificador único da notificação de sua descrição facilitará a sua vida.
 
 <br/>
 
-Com isso podemos concluir o que é uma notificação e quais características essa notificação precisa ter. No contexto desse projeto, essa notificação se chama OutputMessage e pode ser vista no arquivo [OutputMessage.cs](../src/OutputEnvelop/Models/OutputMessage.cs).
+Com isso, podemos concluir o que é uma notificação e quais características ela precisa ter. No contexto deste projeto, essa notificação é chamada de `OutputMessage` e pode ser visualizada no arquivo [OutputMessage.cs](../src/OutputEnvelop/Models/OutputMessage.cs).
 
 Uma `OutputMessage` possui a seguinte estrutura:
+
 
 | Propriedade | Tipo | Valores |
 | - | - | - |
@@ -208,13 +209,9 @@ Uma `OutputMessage` possui a seguinte estrutura:
 
 [voltar ao topo](#book-conteúdo)
 
-Lançar notificações durante a execução de um método por sí só não é um grande desafio, afinal de contas, os sistemas sempre fizeram isso por escrever essas notificações em logs, mas a questão que, inicialmente parece simpels, vai muito além disso pois agora, além do método fazer o que ele deveria fazer, ele deve retornar as notificações lançadas para o método chamador. Vamos analisar com mais detalhes.
+Lançar notificações durante a execução de um método, por si só, não é um grande desafio. Afinal de contas, os sistemas sempre fizeram isso ao escrever essas notificações em logs. No entanto, a questão, que inicialmente parece simples, vai muito além, pois agora, além do método realizar sua função principal, ele deve retornar as notificações lançadas para o método chamador. Vamos analisar com mais detalhes.
 
-A `primeira opção` seria a mais óbvia que é fazer o método retornar a lista de mensagens. Na linguagem C#, nós temos algumas opções para fazer isso. Vamos ver algumas quando o método não teria um retorno (ou seja, void).
-
-Vamos ver algumas quando o método não teria um retorno (ou seja, void).
-
-> PS: Eu sei que void é um tipo de retorno, mas para facilitar o entendimento, vou assumir a convenção padrão de que métodos que retornam void não tem retorno.
+A `primeira opção` seria a mais óbvia, que é fazer o método retornar a lista de mensagens. Na linguagem C#, temos algumas opções para fazer isso. Vamos explorar algumas, especialmente quando o método não teria um retorno (ou seja, void).
 
 - Utilizando variáveis de saída:
 ```csharp
@@ -342,28 +339,28 @@ public (bool Success, OutputMessage[] OutputMessageCollection) DoSomething(strin
 
 [voltar ao topo](#book-conteúdo)
 
-Nos exemplos acima, nós retornamos uma coleção de OutputMessage quando o método não possuia um retorno esperado (void) e retornamos uma tupla quando, além da coleção de OutputMessage, temos algum valor esperado para retornar. Mas quero aprofundar mais nesse assunto e analisar alguns pontos que considero importantes.
+Nos exemplos acima, retornamos uma coleção de `OutputMessage` quando o método não possuía um retorno esperado (`void`). Também retornamos uma `tupla` quando, além da coleção de `OutputMessage`, temos algum valor esperado para retornar. No entanto, quero aprofundar mais nesse assunto e analisar alguns pontos que considero importantes.
 
-Quando chamamos um método, nós esperamos saber algumas coisas sobre ele após a sua execução, essas coisas são:
+Quando chamamos um método, esperamos saber algumas coisas sobre ele após a sua execução. Essas informações incluem:
 
 - Ocorreu algum erro inesperado durante a execução?
-- Se ocorreu um erro inesperado, qual erro que ocorreu?
-- O método executou com sucesso fazendo tudo o que deveria fazer?
-- Consigo saber se o processo foi executado de forma parcial (importação de itens de um lote onde parte foi improtado e parte não por exemplo)?
-- Consigo saber todas as notificações que ocorreram durante a execução desse método?
-- Consigo identificar de forma clara o retorno desse método?
-- Consigo interpretar e ler de forma clara a intenção do retorno desse método?
+- Em caso de erro, qual foi o tipo específico do problema?
+- O método executou com sucesso, realizando todas as tarefas previstas?
+- É possível determinar se o processo foi executado de forma parcial (por exemplo, importação de itens de um lote, onde parte foi importada e parte não)?
+- É possível obter todas as notificações que ocorreram durante a execução desse método?
+- É fácil identificar o retorno do método?
+- É claro e compreensível entender a intenção do retorno desse método?
 
-São perguntas que geralmente não fazemos mas são improtantes. Vamos falar de cada uma delas.
+Essas são perguntas que geralmente não fazemos, mas são importantes. Vamos abordar cada uma delas.
 
-Uma das perguntas é se `Ocorreu algum erro inesperado durante a execução?`. Essa pergunta é importante pois o raciocínio natural de qualquer programador iniciante é pensar que `se o método não lançou nenhuma exceção, é porque não ocorreu nenhum erro inesperado`. Esse é um pensamento natural, mas temos que tomar muito cuidado com o uso incorreto ou desnecessário de exceções para controlar o fluxo de execução.
+Uma das perguntas é: "Ocorreu algum erro inesperado durante a execução?" Essa pergunta é crucial, pois o raciocínio natural de qualquer programador iniciante é pensar que "se o método não lançou nenhuma exceção, é porque não ocorreu nenhum erro inesperado". Embora seja um pensamento natural, devemos ter cuidado com o uso incorreto ou desnecessário de exceções para controlar o fluxo de execução.
 
-É muito confortável para nós, programadores, utilizar exceções para controlar o fluxo da aplicação, afinal de contas, é só colocar um `try/catch` e está tudo certo, o controle de fluxo está feito, fica muito fácil saber se ocorreu um erro e tratar esse fluxo. Mas temos que considerar alguns pontos importantes com relação ao uso de exceções.
+É confortável para nós, programadores, utilizar exceções para controlar o fluxo da aplicação, afinal, basta usar um bloco `try/catch` e está tudo certo. O controle de fluxo está feito, e fica fácil identificar se ocorreu um erro e como tratar esse fluxo. No entanto, é crucial considerar alguns pontos importantes em relação ao uso de exceções.
 
 <br/>
 
 > [!WARNING]
-> Exceções são amigáveis para o programador pois facilitam o controle do fluxo de execução do código, porém, tem pontos importantes que temos que analisar ao lançar exceções
+> Embora exceções sejam amigáveis para o programador, facilitando o controle do fluxo de execução do código, é crucial analisar pontos importantes ao lançar exceções.
 
 <br/>
 
@@ -371,18 +368,19 @@ Uma das perguntas é se `Ocorreu algum erro inesperado durante a execução?`. E
 
 [voltar ao topo](#book-conteúdo)
 
-Em programação, quando falamos da semântica, uma das aplicações é quando estamos nos referindo ao sentido, ao significado de determinada coisa. Com relação a exceção, analisar o significado do que é uma exceção pode nos trazer algumas ideias interessantes.
+Em programação, quando nos referimos à semântica, estamos falando do sentido e significado de determinada coisa. No contexto de exceções, analisar o significado do termo pode proporcionar ideias interessantes.
 
-Como o próprio nome diz, uma exceção é algo que ocorre a critério de exceção, ou seja, é algo que ocorre além da regra estabelecida. Vamos utilizar algo do nosso cotidiano para entender melhor: nós possuímos regras de trânsito e, uma delas, é que não podemos passar por um semáforo que esteja na cor vermelha e isso é uma regra, porém, se você estiver em situação de emergência médica, podemos recorrer aquela infração de ultrapassar um semáforo vermelho pois a situação foge a regra padrão pois se tratava de uma emergência médica que envolvia vida e morte e a regra foi pensada na situação geral, por isso, essa situação seria uma exceção a regra.
+Como o próprio nome sugere, uma exceção é algo que ocorre a critério extraordinário, ou seja, é algo que acontece fora da regra estabelecida. Vamos usar um exemplo do cotidiano para ilustrar melhor: temos regras de trânsito, e uma delas proíbe ultrapassar um semáforo vermelho. Isso é uma regra padrão. No entanto, em situações de emergência médica, podemos abrir uma exceção para essa infração, pois a situação foge à regra padrão devido à urgência envolvendo vidas. A regra foi concebida para situações gerais, e, portanto, essa situação de emergência médica é uma exceção à regra.
 
-Quando estamos nos referindo ao nosso programa, quando falamos de exceção, estamos falando de algo que ocorre de forma inesperada, que o processamento `não preveu`, ou seja, é algo `INESPERADO`.
+No contexto do nosso programa, quando falamos de exceção, estamos nos referindo a algo que ocorre de maneira inesperada, algo que o processamento `não previu`. Em outras palavras, é algo `INESPERADO`.
 
-É importante prestar bem atenção nisso que acabamos de ver pois, se o nosso método prevê algum cenário e faz a tratativa desse cenário, `aquele cenário não é uma exceção`, mas sim, `algo esperado que se ocorra pois o próprio método conhece o problema e está tratando o problema`, ou seja, ao invés de ser uma exceção, faz parte do processamento do método pois é algo conhecido e tratável.
+É crucial prestar atenção nesse conceito, pois se o nosso método prevê algum cenário e trata esse cenário, `aquele cenário não é uma exceção`, mas sim `algo esperado que o próprio método conhece e está tratando`. Em vez de ser uma exceção, faz parte do processamento do método porque é algo conhecido e tratável.
 
 <br/>
 
 > [!TIP]
-> Semanticamente, uma exceção é algo que foge a regra. Em programação, uma exceção é algo que ocorreu de forma inesperada. Se existe uma tratativa consciente no método para determinado cenário, esse cenário não é uma exceção e passa a fazer parte da regra pois é tratável.
+> Semanticamente, uma exceção é algo que foge à regra. Em programação, uma exceção é algo que ocorreu de forma inesperada. Se houver uma tratativa consciente no método para um determinado cenário, esse cenário não é uma exceção e passa a fazer parte da regra, pois é tratável.
+
 
 <br/>
 
@@ -420,11 +418,12 @@ public class CustomerService
 }
 ```
 
-No código acima temos o a classe `Customer` com método `void ChangeName(string name)` que valida o parâmetro `name` e, caso esteja nulo ou com um tamanho inválido, uma exceção é lançada para cada cenário inválido. Note que esses cenários do parâmetro `name` ser nulo ou ter um tamanho inválido são conhecidos e tratados no código, então, `semanticamente, não é uma exceção, mas sim, parte da regra`.
+No código acima, temos a classe `Customer` com o método `void ChangeName(string name)`. Este método valida o parâmetro `name` e, caso esteja nulo ou tenha um tamanho inválido, uma exceção é lançada para cada cenário inválido. É importante observar que esses cenários do parâmetro `name` ser nulo ou ter um tamanho inválido são conhecidos e tratados no código. Portanto, `semanticamente, não é uma exceção, mas sim, parte da regra`.
 
-Note que na classe `CustomerService` não precisamos fazer nenhuma tratativa caso o método `ChangeName` tenha algum erro, pois ele lançará uma exceção e todo fluxo de execução do método será interrompido ali mesmo. Isso é muito `confortável` para nós, programadores.
+Na classe `CustomerService`, não é necessário realizar tratativas caso o método `ChangeName` apresente algum erro, pois ele lançará uma exceção e o fluxo de execução do método será interrompido ali mesmo. Isso é muito `confortável` para nós, programadores.
 
-Vamos analisar esse código se utilizássemos a semântica correta e evitássemos o uso de exceção nesse cenário:
+Vamos analisar este código considerando a semântica correta e evitando o uso de exceções nesse cenário:
+
 
 ```csharp
 public class Customer
@@ -464,37 +463,37 @@ public class CustomerService
 }
 ```
 
-Como visto no código acima, tratar as coisas com a semântica correta e não lançar a exceção para as regras conhecidas acaba gerando mais complicação para a manutenabilidade da aplicação do que solução pois, se o programador esquecer de tratar o retorno do método, podemos ter comportamentos indesejados. Isso faz com que a `programação defensiva` seja ainda mais importante nesse cenário.
+Como observado no código acima, tratar as situações com a semântica correta e não lançar exceção para as regras conhecidas acaba gerando mais complicação para a manutenibilidade da aplicação do que solução. Isso ocorre porque, se o programador esquecer de tratar o retorno do método, comportamentos indesejados podem surgir. Isso ressalta a importância da `programação defensiva` nesse cenário.
+
 
 <br/>
 
 > [!CAUTION]
-> Deixar de lançar exceções, mesmo que seja para utilizar a semântica correta, acarreta na necessidade de termos um código mais sucetível a erros por falha humana. Nesses cenários temos que tomar cuidado pois o código vai exigir mais do code review, testes e práticas de programação defensiva.
+> Abster-se de lançar exceções, mesmo ao utilizar a semântica correta, aumenta a susceptibilidade a erros devido a falhas humanas. Em tais cenários, é necessário ter cuidado, pois o código demandará maior atenção em revisões de código, testes e práticas de programação defensiva.
+
 
 <br/>
 
-Ao analisar esses pontos, podemos chegar a conclusão de que devemos então lançar exceções mesmo que, em cenários onde a regra é tratável, não seja semanticamente correto pois as facilidades compensam. Porém, infelizmente, as coisas não são tão simples assim (embora eu gostaria muito que fossem, pois também gosto de usar as exceções pela facilidade que elas trazem).
+Ao analisar esses pontos, podemos concluir que devemos lançar exceções mesmo em cenários onde a regra é tratável, mesmo que isso não seja semanticamente correto, devido às facilidades que proporcionam. No entanto, infelizmente, as coisas não são tão simples assim (embora eu gostaria que fossem, já que também aprecio o uso de exceções pela facilidade que oferecem).
 
 #### :pushpin: Exceções: uma visão sobre desempenho
 
-Lançar exceções no nosso código trás uma consequência que, em determinados cenários, pode ser desastrosa. Estou falando da `degradação do desempenho da aplicação`.
+Lançar exceções no nosso código traz uma consequência que, em determinados cenários, pode ser desastrosa. Estou me referindo à `degradação do desempenho da aplicação`.
 
-Quando lançamos uma exceção no .NET, várias coisas ocorrem. Algumas delas são:
+Quando lançamos uma exceção no .NET, várias ações ocorrem, incluindo:
 
-- O tipo da exceção é capturada
-- Uma mensagem com todos os detalhes da exceção é criada
-- Todo stack trace é capturado
-- Dados adicionais da exceção são preenchidos
-- O objeto de origem da exceção é capturado
-- O método que originou a exceção é capturado
-- A InnerException é captura para identificar se uma exceção foi lançada a partir da outra
+- A captura do tipo da exceção
+- A criação de uma mensagem contendo todos os detalhes da exceção
+- A obtenção do stack trace completo
+- O preenchimento de dados adicionais da exceção
+- A captura do objeto de origem da exceção
+- A obtenção do método que originou a exceção
+- A captura da InnerException para identificar se uma exceção foi lançada a partir de outra
 
-Para que tudo isso ocorra, a `thread que está lançando a exceção é bloqueada`, `processamento é realizado para colher as informações` e `objetos adicionais são criados` gerando `mais alocação de objetos no Garbage Collector`.
-
-<br/>
+Para que tudo isso ocorra, a `thread que está lançando a exceção é bloqueada`, e é realizado `processamento para coletar as informações`, resultando em `mais alocação de objetos no Garbage Collector`.
 
 > [!CAUTION]
-> Quando estamos falando em aplicações de alta volumetria, lançar exceções pode trazer danos ao desempenho e fazer com que a aplicação exija bem mais recursos do que realmente são necessários
+> Ao lidar com aplicações de alta volumetria, lançar exceções pode prejudicar significativamente o desempenho e fazer com que a aplicação exija recursos muito além do necessário.
 
 <br/>
 
@@ -502,26 +501,25 @@ Para que tudo isso ocorra, a `thread que está lançando a exceção é bloquead
 
 [voltar ao topo](#book-conteúdo)
 
-Falei do problema de utilizar exceções em aplicações de alta volumetria com base na teoria, vamos ver isso na prática por analisar o resultado de um benchmark (o benchmark executado está no arquivo [ThrowExceptionBenchmark](../benchs/Benchmarks/ExceptionBenchs/ThrowExceptionBenchmark.cs)). O resultado obtido foi:
+Falei sobre o problema de utilizar exceções em aplicações de alta volumetria com base na teoria. Agora, vamos analisar os resultados de um benchmark para ver isso na prática. O benchmark executado está no arquivo [ThrowExceptionBenchmark](../benchs/Benchmarks/ExceptionBenchs/ThrowExceptionBenchmark.cs). O resultado obtido foi:
+
 
 | Method        | Mean           | Error       | StdDev      | Ratio     | RatioSD  | BranchInstructions/Op | TotalIssues/Op | TotalCycles/Op | Timer/Op | BranchMispredictions/Op | CacheMisses/Op | Allocated | Alloc Ratio |
 |-------------- |---------------:|------------:|------------:|----------:|---------:|----------------------:|---------------:|---------------:|---------:|------------------------:|---------------:|----------:|------------:|
 | NoException   |      0.5812 ns |   0.0680 ns |   0.0907 ns |      1.00 |     0.00 |                     0 |              3 |              1 |        0 |                       0 |             -0 |         - |          NA |
 | WithException | 23,385.8588 ns | 306.3089 ns | 271.5349 ns | 41,163.98 | 7,019.46 |                17,480 |         78,557 |         54,265 |      236 |                     136 |            385 |     232 B |          NA |
 
-Vamos as conclusões:
+Vamos às conclusões:
 
-- Como podemos analisar na coluna `Ratio`, o método que lançou a exceção foi `41 MIL vezes mais lento`.
-- Na coluna `RatioSD` vemos que o método que lançou a exceção teve um desvio padrão `7 MIL vezes maior`, ou seja, muito mais instável.
-- Ao analisar as instruções e ciclos por operação, a versão com lançamento de exception fez `milhares de vezes mais operações`.
-- O código que lança exceção `gerou alocação na heap` enquanto o que não lança exceção não gerou alocação na heap.
+- Como podemos observar na coluna `Ratio`, o método que lançou a exceção foi `41 MIL vezes mais lento`.
+- Na coluna `RatioSD`, percebemos que o método que lançou a exceção teve um desvio padrão `7 MIL vezes maior`, ou seja, é muito mais instável.
+- Ao analisar as instruções e ciclos por operação, a versão com lançamento de exceção realizou `milhares de vezes mais operações`.
+- O código que lança exceção `gerou alocação na heap`, enquanto o que não lança exceção não gerou alocação na heap.
 
-Como o objetivo dessa biblioteca é dar suporte a processamentos de alta volumetria com alto desempenho, nós chegamos a nossa primeira decisão de design!
-
-<br/>
+Dado que o objetivo dessa biblioteca é oferecer suporte a processamentos de alta volumetria com alto desempenho, chegamos à nossa primeira decisão de design!
 
 > [!IMPORTANT]
-> Nós temos que avaliar os requisitos dos nossos projetos para determinar se o uso de exceções causará um impacto real ou não na aplicação. 
+> Devemos avaliar os requisitos específicos dos nossos projetos para determinar se o uso de exceções causará um impacto real na aplicação.
 
 <br/>
 
@@ -529,18 +527,17 @@ Como o objetivo dessa biblioteca é dar suporte a processamentos de alta volumet
 
 [voltar ao topo](#book-conteúdo)
 
-Como vimos anteriormente, vamos evitar o uso de exceções e, quando o nosso método possuí um retorno esperado além da coleção de OutputMessage, podemos ter um código que acabe retornando tuplas ou tenham variáveis de output.
+Como vimos anteriormente, devemos evitar o uso de exceções. Quando um método possui um retorno esperado além da coleção de `OutputMessage`, podemos optar por código que retorne tuplas ou utilize variáveis de output.
 
-Embora a linguagem permita o uso desses recursos, nós temos sempre que tentar deixar o nosso código o mais coeso e o mais simples de entender que conseguirmos.
-
-<br/>
+Embora a linguagem permita o uso desses recursos, é sempre importante manter nosso código o mais coeso e simples de entender possível.
 
 > [!TIP]
-> Nosso código precisar ser simples e coeso. Se precisa ser um sênior para fazer qualquer coisa no seu sistema, temos um problema
+> O código precisa ser simples e coeso. Se é necessário ser um sênior para realizar qualquer ação no sistema, temos um problema.
+
 
 <br/>
 
-Então vamos analisar o uso de tuplas como retorno ou de parâmetros de saída e os impactos disso no nosso código. Vamos começar pelo retorno usando tuplas. Note o código a seguir:
+Então, vamos analisar o uso de tuplas como retorno ou de parâmetros de saída e os impactos disso no nosso código. Vamos começar pelo retorno usando tuplas. Observe o código a seguir:
 
 ```csharp
 public enum ResultType
@@ -585,20 +582,21 @@ public (OutputMessage[]? OutputMessageCollection, ResultType ResultType, Custome
 
 O que podemos concluir desse código:
 
-- Utilizar tupla é algo simples (utilizar uma tupla é algo simples na linguagem C#) porém não é trivial (embora simples, programadores iniciantes tem dificuldade de lidar com a sintaxe e pelo fato da tupla ser um value type).
-- Dependendo da quantidade de informações adicionais que você queira saber sobre a execução dos métodos, a tupla terá vários parâmetros sendo difícil de ler o código.
-- Caso quisermos incluir uma nova informação no retorno dos métodos, temos que alterar todas as tuplas de todos os métodos e alterar todas as atribuições do retorno desses métodos para se adequarem a nova estrutura da tupla. Seria uma loucura!
+- Utilizar tupla é algo simples na linguagem C#, porém não é trivial. Programadores iniciantes podem ter dificuldade de lidar com a sintaxe, além do fato de que a tupla é um value type.
+- Dependendo da quantidade de informações adicionais que você deseja saber sobre a execução dos métodos, a tupla terá vários parâmetros, tornando o código difícil de ler.
+- Caso queiramos incluir uma nova informação no retorno dos métodos, teríamos que alterar todas as tuplas em todos os métodos e modificar todas as atribuições do retorno desses métodos para se adequarem à nova estrutura da tupla. Isso seria impraticável!
 
-<br/>
+<br/> 
 
 > [!CAUTION]
-> Embora as tuplas sejam um recurso da linguagem, dependendo de como elas forem utilizadas, podem gerar diversos problemas de design de código causando dificuldade de leitura, compreensão e manitunabilidade
+> Embora as tuplas sejam um recurso da linguagem, dependendo de como são utilizadas, podem gerar diversos problemas de design de código, causando dificuldades de leitura, compreensão e manutenção.
 
-<br/>
+<br/> 
 
-`Por esses motivos não utilizaremos tuplas no retorno dos métodos`!
+`Por esses motivos, não utilizaremos tuplas no retorno dos métodos`!
 
-Agora vamos analisar a utilização de parâmetros de saída (output) nos métodos. Vamos analisar o mesmo código, porém, com variáveis de saída:
+Agora vamos analisar a utilização de parâmetros de saída (output) nos métodos. Vamos examinar o mesmo código, porém, com variáveis de saída:
+
 
 ```csharp
 public enum ResultType
@@ -666,23 +664,23 @@ public bool Register(string email)
 
 O que podemos concluir desse código:
 
-- Todos os problemas apontados na utilização das tuplas.
-- Obrigamos o código que consome a declarar as variáveis de saída ou usar o operador de descarte fazendo com que uma alteração na assinatura resultasse também na alteração de todos os chamadores desses métodos.
+- Todos os problemas apontados na utilização das tuplas ainda se aplicam.
+- Obriga o código consumidor a declarar as variáveis de saída ou utilizar o operador de descarte, o que significa que uma alteração na assinatura resultaria também na modificação de todos os chamadores desses métodos.
 
 #### :white_check_mark: Decisão de design 2: Precisamos criar um envelope de resposta para padronizar o retorno dos métodos
 
 [voltar ao topo](#book-conteúdo)
 
-Para evitar quebras de código durante a remoção ou inclusão de novas propriedades que queremos analisar sobre a execução do método e poder padronizar toda a comunicação entre os métodos, é importante que criemos um evenlope de reposta. O que seria isso?
+Para evitar quebras de código durante a remoção ou inclusão de novas propriedades que queremos analisar sobre a execução do método e para padronizar toda a comunicação entre os métodos, é importante que criemos um envelope de resposta. O que seria isso?
 
-Imagine uma carta em um envelope. Nós temos a carta, que é o nosso objeto de interesse, mas temos um envelope que tem informações adicionais sobre a carta como o emissor, destinatário, selo postal etc. Note que o objeto de interesse é a carta, mas temos informações adicionais que vão além da carta que também são importantes. Então ao invés de adicionarmos essas informações na própria carta dificultando o trabalho da agência de correios, é melhor criarmos um envelope padronizado para facilitar a análise e deixar a carta dentro desse envelope, ou seja, encapsulamos a carta com um envelope.
+Imagine uma carta em um envelope. Nós temos a carta, que é o nosso objeto de interesse, mas temos um envelope que tem informações adicionais sobre a carta, como o emissor, destinatário, selo postal etc. Note que o objeto de interesse é a carta, mas temos informações adicionais que vão além da carta e que também são importantes. Então, em vez de adicionarmos essas informações na própria carta, dificultando o trabalho da agência de correios, é melhor criarmos um envelope padronizado para facilitar a análise e deixar a carta dentro desse envelope, ou seja, encapsulamos a carta.
 
-O raciocínio aqui é o mesmo, `vamos pegar todas aquelas informações extras que queremos da execução de um método em um envelope que vai encapsular a resposta do método`. Assim conseguimos padronizar os retornos dentro do sistema e não ter os problemas que mencionei anteriormente!
+O raciocínio aqui é o mesmo: `vamos pegar todas aquelas informações extras que queremos da execução de um método em um envelope que vai encapsular a resposta do método`. Assim, conseguimos padronizar os retornos dentro do sistema e evitar os problemas mencionados anteriormente!
 
 <br/>
 
 > [!TIP]
-> Criar encapsulamentos nos permitem padronizar os objetos melhorando a manitenabilidade e compreensão da aplicação!
+> Criar encapsulamentos nos permite padronizar os objetos, melhorando a manutenibilidade e compreensão da aplicação!
 
 <br/>
 
@@ -692,15 +690,16 @@ O raciocínio aqui é o mesmo, `vamos pegar todas aquelas informações extras q
 
 Vamos analisar essas duas opções primeiro que acabamos de ver. Vamos começar pelo retorno de um array vazio ou um retorno nulo quando não houverem mensagens. Nós vamos analisar pelo viés da usabilidade e do desempenho.
 
-Ao olhar pelo viés da usabilidade, é mais interessante ter um array vazio do que um valor nulo pois evita possíveis exceções de referências nulas. Utilizar um array vazio vindo de uma constante do .NET como um Array.Empty também não causará pressão no Garbage Collector pois não haverá instanciações de novos arrays. Para reproduzir e validar esse cenário que acabei de afirmar, vamos executar dois benchamrks (detalhes sobre os benchmarks podem ser encontrados na [documentação sobre benchmark](BENCHMARKS-PT.md)).
+Ao olhar pelo viés da usabilidade, é mais interessante ter um array vazio do que um valor nulo, pois evita possíveis exceções de referências nulas. Utilizar um array vazio vindo de uma constante do .NET como um `Array.Empty` também não causará pressão no Garbage Collector, pois não haverá instanciações de novos arrays. Para reproduzir e validar esse cenário que acabei de afirmar, vamos executar dois benchmarks (detalhes sobre os benchmarks podem ser encontrados na [documentação sobre benchmark](BENCHMARKS-PT.md)).
 
-A seguir temos parte do código do objeto [OutputEnvelop.cs](../src/OutputEnvelop/OutputEnvelop.cs). No construtor do objeto recebemos alguns parâmetros e definimos algumas propriedades que são readonly.
+A seguir, temos parte do código do objeto [OutputEnvelop.cs](../src/OutputEnvelop/OutputEnvelop.cs). No construtor do objeto, recebemos alguns parâmetros e definimos algumas propriedades que são readonly.
 
-Como a biblioteca é feita para o .NET Standard 2.0, não existe suporte a deixar explícito o nullable para arrays, porém, é possível mesmo assim passar `null` no array. Sendo assim, as parâmetros `OutputMessage[] outputMessageCollection` e `Exception[] exceptionCollection` do construtor podem vir nulos.
+Como a biblioteca é feita para o .NET Standard 2.0, não existe suporte para deixar explícito o nullable para arrays. No entanto, mesmo assim, é possível passar `null` no array. Sendo assim, os parâmetros `OutputMessage[] outputMessageCollection` e `Exception[] exceptionCollection` do construtor podem vir nulos.
 
-Note que esses parâmetros do construtor mencionados anteriormente alimentam duas propriedades com o modificador de acesso `internal`. Nós falaremos disso posteriormente.
+Note que esses parâmetros do construtor mencionados anteriormente alimentam duas propriedades com o modificador de acesso `internal`. Nós falaremos sobre isso posteriormente.
 
-O ponto de agora é que o código atual permite que as propriedades `internal` tenham valores nulos, conforme demontrado a seguir:
+O ponto agora é que o código atual permite que as propriedades `internal` tenham valores nulos, conforme demonstrado a seguir:
+
 
 ```csharp
 // Versão que aceita nulo
@@ -729,7 +728,8 @@ public readonly struct OutputEnvelop<TOutput>
 }
 ```
 
-Uma alternativa para que esse objeto passe um Array vazio ao invés de permitir nulo seria checar se o parâmetro do construtor é nulo e substituir por uma constante de um Array vazio conforme a seguir:
+Uma alternativa para fazer com que esse objeto retorne um Array vazio em vez de permitir nulo seria verificar se o parâmetro do construtor é nulo e substituí-lo por uma constante de um Array vazio, conforme a seguir:
+
 
 ```csharp
 // Versão que não aceita nulo
@@ -758,7 +758,8 @@ public readonly struct OutputEnvelop<TOutput>
 }
 ```
 
-Para medir o impacto dessas duas versões, vamos executar o benchmark do arquivo [CreateOutputEnvelopBenchmark.cs](../benchs/Benchmarks/OutputEnvelopBenchs/CreateOutputEnvelopBenchmark.cs) e analisar o teste `CreateOutputEnvelopWithoutMessageAndException` que vai passar uma coleção de mensagens e exceptions nulas para o cenário que queremos testar. Para cada uma das variações acima vamos executar o mesmo teste e vamos analisar o retorno. Primeiro, vamos aos resultados brutos dos benchmarks:
+Para medir o impacto dessas duas versões, vamos executar o benchmark do arquivo [CreateOutputEnvelopBenchmark.cs](../benchs/Benchmarks/OutputEnvelopBenchs/CreateOutputEnvelopBenchmark.cs) e analisar o teste `CreateOutputEnvelopWithoutMessageAndException`, que passará uma coleção de mensagens e exceções nulas para o cenário que queremos testar. Para cada uma das variações acima, vamos executar o mesmo teste e analisar o retorno. Primeiro, vamos aos resultados brutos dos benchmarks:
+
 
 | Type             | Method                                        | Mean (ns) | Error (ns) | StdDev (ns) | CacheMisses/Op | TotalIssues/Op | TotalCycles/Op | BranchInstructions/Op | BranchMispredictions/Op | Gen0 | Allocated (B) |
 |------------------|-----------------------------------------------|-----------|------------|-------------|----------------|----------------|----------------|-----------------------|-------------------------|------|---------------|
@@ -767,24 +768,25 @@ Para medir o impacto dessas duas versões, vamos executar o benchmark do arquivo
 
 A primeira coluna (`Type`) refere-se aos nossos dois cenários passando o valor nulo ou o array vazio. Agora vamos analisar esses dados com mais detalhes.
 
-Na coluna `Mean (ns)` temos o tempo médio de execução e já conseguimos notar algo já bem impactante. A versão com o `valor nulo` fez em `8,6 nanosegundos`, já a `versão com o Array.Empty` foi de `117,26`. Isso quer dizer que o código passando o `Array.Empty foi cerca de 13,6 vezes pior`.
+Na coluna `Mean (ns)`, temos o tempo médio de execução, e já conseguimos notar algo bem impactante. A versão com o `valor nulo` executou em `8,6 nanosegundos`, enquanto a `versão com o Array.Empty` foi de `117,26 nanosegundos`. Isso quer dizer que o código passando o `Array.Empty` foi cerca de 13,6 vezes pior.
 
-Na coluna `Erros (ns)` temos o tempo total gasto com erros durante a execução e, ao comparar os dados, conseguimos ver que o código com o `Array.Empty foi 88 vezes pior`.
+Na coluna `Erros (ns)`, temos o tempo total gasto com erros durante a execução, e ao comparar os dados, conseguimos ver que o código com o `Array.Empty` foi 88 vezes pior.
 
-Na coluna `StdDev (ns)` conseguirmos ver o desvio padrão das execuções. Quanto menor o desvio padrão, mais estável o código é e menores serão os picos para baixo ou para cima. No arquivo sobre [benchmarks](BENCHMARKS-PT.md) tem mais detalhes sobre o que é o desvio padrão. A versão com `Array.Empty foi bem mais instável`.
+Na coluna `StdDev (ns)`, conseguimos ver o desvio padrão das execuções. Quanto menor o desvio padrão, mais estável o código é e menores serão os picos para baixo ou para cima. No arquivo sobre [benchmarks](BENCHMARKS-PT.md), há mais detalhes sobre o que é o desvio padrão. A versão com `Array.Empty` foi bem mais instável.
 
-Quando analisamos `TotalIssues/Op`, `TotalCycles/Op` e `BranchInstructions/Op` também vemos a clara diferença onde com `Array.Empty` apresentou muito `mais erros e quantidade de instruções`.
+Quando analisamos `TotalIssues/Op`, `TotalCycles/Op` e `BranchInstructions/Op`, também vemos a clara diferença, onde com `Array.Empty` apresentou muito `mais erros e quantidade de instruções`.
 
 Agora, quando analisamos a alocação de memória, ambos os cenários não geraram alocação.
 
 O que podemos concluir disso?
 - :white_check_mark: Conclusão 1 - A versão com o valor nulo é mais rápida.
 - :white_check_mark: Conclusão 2 - A versão com o valor nulo é mais estável.
-- :white_check_mark: Conclusão 3 - A versão com o valor nulo tem uma usabilidade pior pois joga a responsabilidade de tratar o valor nulo para o método chamador.
+- :white_check_mark: Conclusão 3 - A versão com o valor nulo tem uma usabilidade pior, pois joga a responsabilidade de tratar o valor nulo para o método chamador.
 
-Então temos duas conclusões a favor de usar a opção com o valor nulo (todos relacionados ao desempenho) e uma conclusão a favor de utilizar o Array.Empty (que é relacionado a usabilidade do código). Então qual das duas abordagens escolher? Na verdade, nós não precisamos escolher uma ou outra, tem uma alternativa que podemos utilizar onde podemos nos beneficiar das duas abordagens.
+Então, temos duas conclusões a favor de usar a opção com o valor nulo (todas relacionadas ao desempenho) e uma conclusão a favor de utilizar o Array.Empty (que está relacionada à usabilidade do código). Então, qual das duas abordagens escolher? Na verdade, não precisamos escolher uma ou outra; há uma alternativa que podemos utilizar para nos beneficiarmos das duas abordagens.
 
-Para entender o ponto, vamos analisar o diagrama abaixo que representa uma Web API com seus componentes internos (o objetivo desse diagrama não é apresentar um modelo de componentes de referência e nem dizer se a divisão é boa ou ruim, ela serve somente para o nosso exemplo).
+Para entender o ponto, vamos analisar o diagrama abaixo, que representa uma Web API com seus componentes internos (o objetivo desse diagrama não é apresentar um modelo de componentes de referência e nem dizer se a divisão é boa ou ruim; ele serve somente para o nosso exemplo).
+
 
 <br/>
 <div align="center">
@@ -792,7 +794,8 @@ Para entender o ponto, vamos analisar o diagrama abaixo que representa uma Web A
 </div>
 <br/>
 
-Nesse diagrama temos a representação de um Web App que solicita para uma Web API a importação de um pedido. Durante essa importação, tanto o pedido quanto os produtos do pedido são importados. Para ajudar a compreender esse fluxo, repare no diagrama de sequência a seguir:
+Nesse diagrama, temos a representação de um Web App que solicita para uma Web API a importação de um pedido. Durante essa importação, tanto o pedido quanto os produtos do pedido são importados. Para ajudar a compreender esse fluxo, repare no diagrama de sequência a seguir:
+
 
 <br/>
 <div align="center">
@@ -800,21 +803,21 @@ Nesse diagrama temos a representação de um Web App que solicita para uma Web A
 </div>
 <br/>
 
-Cada execução de cada método de cada componente retornaria um envelope de resposta, então nesse fluxo acima, teríamos os seguintes envelopes de resposta:
+Cada execução de cada método de cada componente retornaria um envelope de resposta. Nesse fluxo acima, teríamos os seguintes envelopes de resposta:
 
-- Evelope de resposta da execução do método do componente ProductRepository.
-- Evelope de resposta da execução do método do componente OrderRepository.
-- Evelope de resposta da execução do método do componente ProductDomainService.
-- Evelope de resposta da execução do método do componente OrderDomainService.
-- Evelope de resposta da execução do método do componente ImportOrderUseCase.
-- Evelope de resposta da execução do método do componente OrdersController.
+- Envelope de resposta da execução do método do componente ProductRepository.
+- Envelope de resposta da execução do método do componente OrderRepository.
+- Envelope de resposta da execução do método do componente ProductDomainService.
+- Envelope de resposta da execução do método do componente OrderDomainService.
+- Envelope de resposta da execução do método do componente ImportOrderUseCase.
+- Envelope de resposta da execução do método do componente OrdersController.
 
-De todos os seis envelopes de repostas que seriam criados, somente em um momento a leitura das notificações seria feita que seria na OrdersControllers (marcado de laranja) pois seria o momento que iria-se compor o retorno da chamada síncrona realizada pelo WebApp. Isso quer dizer que, no exemplo acima, `enquanto seis criações de envelopes de resposta são feitas, somente uma leitura das notificações é realizada`, ou seja, nesse cenário de aplicações *LOB (Line of Business)*, iremos realizar muito mais criações de envelopes de respostas do que a leitura das notificações.
+De todos os seis envelopes de respostas que seriam criados, somente em um momento a leitura das notificações seria feita, marcado em laranja na OrdersControllers. Isso quer dizer que, no exemplo acima, `enquanto seis criações de envelopes de resposta são feitas, somente uma leitura das notificações é realizada`. Ou seja, nesse cenário de aplicações *LOB (Line of Business)*, iremos realizar muito mais criações de envelopes de respostas do que a leitura das notificações.
 
 <br/>
 
 > [!TIP]
-> Devemos compreender o perfil de utilização de cada objeto
+> Devemos compreender o perfil de utilização de cada objeto.
 
 <br/>
 
@@ -822,11 +825,12 @@ De todos os seis envelopes de repostas que seriam criados, somente em um momento
 
 [voltar ao topo](#book-conteúdo)
 
-E onde isso ajuda em decidir se vamos usar referência nula ou array vazio?
+E onde isso ajuda a decidir se vamos usar referência nula ou array vazio?
 
-Como vimos que criamos muito mais notificações do que lemos, nós podemos fazer algo simples, mas que vai resolver nosso problema e permitir usar o melhor dos dois cenários. `Nós podemos remover o código que resolveria um problema de leitura do momento da criação`!
+Como vimos que criamos muito mais notificações do que lemos, podemos fazer algo simples, mas que vai resolver nosso problema e permitir usar o melhor dos dois cenários. `Podemos remover o código que resolveria um problema de leitura no momento da criação`!
 
 Note novamente o código que usamos para tratar o Array.Empty com os devidos comentários no código:
+
 
 ```csharp
 // Versão que não aceita nulo
@@ -859,7 +863,8 @@ public readonly struct OutputEnvelop<TOutput>
 }
 ```
 
-Agora vamos remover essa tratativa de nulo do construtor e encapsular em uma propriedade. Note que como a classe tem os arrays como propriedades `internal`, nós precisamos export essess valores publicamente para outras classes acessarem. A implementação da solução ficaria assim:
+Agora, vamos remover essa tratativa de nulo do construtor e encapsular em uma propriedade. Note que, como a classe tem os arrays como propriedades `internal`, precisamos exportar esses valores publicamente para outras classes acessarem. A implementação da solução ficaria assim:
+
 
 ```csharp
 public readonly struct OutputEnvelop<TOutput>
@@ -918,5 +923,6 @@ public readonly struct OutputEnvelop<TOutput>
 }
 ```
 
-Com isso conseguimos obter o desempenho da criação com valores nulos mas manter a usabilidade de permitir uma leitura que evitará instâncias nulas! Vamos ver com mais detalhes a solução aplicada.
+Com isso, conseguimos obter o desempenho da criação com valores nulos, mas mantemos a usabilidade de permitir uma leitura que evitará instâncias nulas! Vamos ver com mais detalhes a solução aplicada.
+
 
