@@ -12,6 +12,7 @@
   - [:pushpin: Mitos sobre benchmarks](#pushpin-mitos-sobre-benchmarks)
     - [:pushpin: Mito 1: A única coisa que temos que avaliar é o tempo de execução do código](#pushpin-mito-1-a-única-coisa-que-temos-que-avaliar-é-o-tempo-de-execução-do-código)
     - [:pushpin: Mito 2: O código que eu escrevi é o mesmo que é executado](#pushpin-mito-2-o-código-que-eu-escrevi-é-o-mesmo-que-é-executado)
+    - [:pushpin: Mito 3: Uma vez o benchmark feito, basta executá-lo a qualquer momento](#pushpin-mito-3-uma-vez-o-benchmark-feito-basta-executá-lo-a-qualquer-momento)
 
 ## :pushpin: O que é um benchmark?
 
@@ -439,3 +440,59 @@ Observe como o código sofreu alterações significativas, principalmente nos lo
 > O benchmark deve ser semelhante ao cenário real para evitar medições com situações que não ocorreram em produção.
 
 <br/> 
+
+### :pushpin: Mito 3: Uma vez o benchmark feito, basta executá-lo a qualquer momento
+
+[voltar ao topo](#book-conteúdo)
+
+Imagine um veículo que você deseja testar o consumo de combustível na cidade. Se você medir esse consumo em um dia frio e em um dia quente, os resultados serão diferentes. Da mesma forma, testar com o motor frio ou quente, ou com pneus calibrados de maneiras diferentes, resultará em variações nos resultados. Em outras palavras, as condições do ambiente de teste influenciam diretamente nos resultados obtidos.
+
+
+<br/>
+
+> [!IMPORTANT]
+> As condições do ambiente do nosso teste influenciam no resultado.
+
+<br/>
+
+No nosso cenário onde estamos validando uma biblioteca onde queremos analisar o comportamento de uso de CPU e memória RAM, nós temos que tomar alguns cuidados durante a execução:
+
+- É importante que tentemos garantir as mesmas condições do PC em todas as execuções do benchmark (processos em execução, equipamentos conectados etc.).
+- Tanto a memória RAM quanto a CPU mantém informações em cache, então temos que executar o benchmark mais de uma vez e comprar os resultados.
+- Devemos estabelecer condições próximas ao do ambiente que queremos validar.
+
+Note o cenário a seguir de execução do benchmark [ThrowExceptionBenchmark](../benchs/Benchmarks/ExceptionBenchs/ThrowExceptionBenchmark.cs):
+
+- Windows 11 - .NET 8
+```pwsh
+BenchmarkDotNet v0.13.11, Windows 11 (10.0.22631.2861/23H2/2023Update/SunValley3)
+AMD Ryzen 5 5600X, 1 CPU, 12 logical and 6 physical cores
+.NET SDK 8.0.100
+  [Host]     : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  Job-NYRBNL : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+
+Server=True  RunStrategy=Throughput
+
+| Method        | Mean          | Error      | StdDev     | Ratio     | RatioSD | Allocated | Alloc Ratio |
+|-------------- |--------------:|-----------:|-----------:|----------:|--------:|----------:|------------:|
+| NoException   |     0.1405 ns |  0.0043 ns |  0.0040 ns |      1.00 |    0.00 |         - |          NA |
+| WithException | 3,551.3669 ns | 12.0084 ns | 10.0276 ns | 25,309.80 |  778.20 |     232 B |          NA |
+```
+
+- Ubuntu 22.04 WSL - .NET 8
+```pwsh
+BenchmarkDotNet v0.13.11, Ubuntu 22.04.3 LTS (Jammy Jellyfish) WSL
+AMD Ryzen 5 5600X, 1 CPU, 8 logical and 4 physical cores
+.NET SDK 8.0.100
+  [Host]     : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  Job-ZMPFWB : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+
+Server=True  RunStrategy=Throughput
+
+| Method        | Mean          | Error       | StdDev     | Ratio     | RatioSD  | Allocated | Alloc Ratio |
+|-------------- |--------------:|------------:|-----------:|----------:|---------:|----------:|------------:|
+| NoException   |     0.1352 ns |   0.0088 ns |  0.0074 ns |      1.00 |     0.00 |         - |          NA |
+| WithException | 6,207.4252 ns | 106.1501 ns | 94.0993 ns | 45,931.00 | 2,275.69 |     232 B |          NA |
+```
+
+O mesmo benchmark foi executado utilizando o `.NET 8.0.0 (8.0.23.53103)` nos ambientes `Windows 11 (10.0.22631.2861/23H2/2023Update/SunValley3)` e `Ubuntu 22.04.3 LTS (Jammy Jellyfish) WSL`. Note que o mesmo benchmark apresentou resultados diferentes em sistemas diferentes e com configurações diferentes.
