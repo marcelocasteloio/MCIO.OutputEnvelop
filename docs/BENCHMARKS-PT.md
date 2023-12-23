@@ -71,7 +71,7 @@ Para entender melhor esse ponto, vamos fazer uma ilustração com duas máquinas
 
 <td>
 
-| Máquina A | Total: 50 minutos |
+| Máquina A ||
 |:----:|:----:|
 | Número peça | Duração (minutos) |
 |1|5|
@@ -84,12 +84,15 @@ Para entender melhor esse ponto, vamos fazer uma ilustração com duas máquinas
 |8|4|
 |9|4|
 |10|5|
+| Total | 50 minutos |
+| Média | 5 minutos |
+| Desvio Padrão | 0,77 |
 
 </td>
 
 <td>
 
-| Máquina B | Total: 50 minutos |
+| Máquina B ||
 |:----:|:----:|
 | Número peça | Duração (minutos) |
 |1|6|
@@ -102,6 +105,9 @@ Para entender melhor esse ponto, vamos fazer uma ilustração com duas máquinas
 |8|3|
 |9|3|
 |10|6|
+| Total | 50 minutos |
+| Média | 5 minutos |
+| Desvio Padrão | 1,67 |
 
 </td>
 
@@ -120,25 +126,13 @@ Note que tanto a `máquina A` quanto a `máquina B` levaram um total de `50 minu
 
 Vamos expressar essas duas tabelas em dois gráficos:
 
+<br/>
 <div align="center">
 
-<table>
-
-<td>
-
-![MaquinaA](images/machine-a.png)
-
-</td>
-
-<td>
-
-![MaquinaA](images/machine-b.png)
-
-</td>
-
-</table>
+![MaquinaA](diagrams/diagram4.png)
 
 </div>
+<br/>
 
 Incluir uma série (em laranja) que representa a média móvel. Mas por quê isso? Quanto mais próximo o valor (série em azul) estiver da média móvel (série em laranja), menos variação teve, ou seja, mais estável e previsível o valor é.
 
@@ -180,6 +174,19 @@ Note que a coluna `StdDev (ns)` tem o menor valor do `desvio padrão` para o tes
 
 Se estivéssemos falando de memória RAM, por exemplo, poderíamos ter um código que demorasse o mesmo tempo, mas, por causa do desvio padrão alto, poderiam ocorrer picos de uso de memória RAM, exigindo um servidor com uma quantidade maior de memória RAM, por exemplo: o código executa com 500 MB de memória RAM, mas como o uso de memória está com um alto desvio padrão, em algum momento esse código atinge um pico de 900 MB de memória. Isso quer dizer que teríamos que ter reservado (em uma máquina, um cluster K8S etc.) um total de 1 GB de memória somente para atender a um possível pico de consumo de memória. Um código mais estável poderia demorar o mesmo tempo final, mas, por ter um desvio padrão menor, não ultrapassaria 750 MB de RAM, por exemplo.
 
+Vamos finalizar esse assunto vendo um gráfico hipotético de uso de memória RAM de dois programas que demoram o mesmo tempo para executar o processo:
+
+<br/>
+<div align="center">
+
+![MaquinaA](diagrams/diagram5.png)
+
+</div>
+<br/>
+
+Embora tanto o `Programa A` quanto o `Programa B` demorem o `mesmo tempo para executar`, conseguimos ver como o `Programa B varia muito mais no uso de memória RAM`. Isso quer dizer que enquanto o `Programa A` executaria com até `1 GB de memória RAM`, o `Programa B` precisaria de `1,5 GB de memória RAM` devido à sua instabilidade no uso de memória RAM, ou seja, o `Programa A é mais eficiente no uso de memória` embora ambos utilizem o mesmo tempo de execução.
+
+
 <br/>
 
 > [!IMPORTANT]
@@ -191,4 +198,244 @@ Se estivéssemos falando de memória RAM, por exemplo, poderíamos ter um códig
 
 [voltar ao topo](#book-conteúdo)
 
-Nós podemos acreditar que o código que é gerado é o mesmo código que executamos, mas isso não é verdade.
+Nós podemos acreditar que o código gerado é o mesmo que executamos, mas isso não é verdade. Independentemente de sua aplicação ser compilada ou interpretada, o código executado não coincide exatamente com o que você escreveu. Se você deseja entender mais sobre esse assunto, recomendo assistir ao vídeo do Fabio Akita, disponível neste [link](https://www.youtube.com/watch?v=SNyh-cubxaU).
+
+O ponto crucial é que, ao escrevermos o código para benchmark, é imperativo levar isso em consideração. Vou explicar brevemente e de forma resumida (apenas o necessário para o exemplo) o que ocorre no .NET quando compilamos nosso código no modo Release. Observe o diagrama a seguir:
+
+
+<br/>
+<div align="center">
+
+![MaquinaA](diagrams/diagram6.svg)
+
+</div>
+<br/>
+
+Vamos compreender o que está acontecendo:
+
+- Temos nosso projeto C# (arquivo .csproj) com seus respectivos arquivos de código (arquivos .cs).
+- **Passo 1:** Executamos o comando `dotnet build -c Release` para compilar o projeto no modo `Release`.
+- **Passo 2:** Durante a compilação no modo Release, ocorre um processo de `otimização` em nosso código realizado pelo `Roslyn`, o compilador do C#.
+- **Passo 3:** O resultado desse processo é o nosso assembly.
+- **Passo 4:** Utilizamos o comando `dotnet` para executar o código contido no arquivo gerado no passo 3.
+- A `CLR (Common Language Runtime)` executa nosso assembly.
+
+No .NET 8, houve a inclusão do suporte ao [AOT](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=net8plus%2Cwindows), mas isso não impactará no ponto abordado em nosso exemplo.
+
+<br/>
+
+> [!IMPORTANT]
+> A compilação no modo Release realiza otimizações em nosso código durante o processo de compilação.
+
+
+<br/> 
+
+Essa otimização realizada tem um impacto direto em nosso benchmark. Vamos analisar alguns exemplos de códigos que escrevemos e como eles se comportarão após a compilação no modo Release:
+
+- Exemplo 1
+
+<center>
+
+<table>
+
+<td>
+
+```csharp
+// Código original
+public class SampleClass {
+    public int SampleMethod() {
+        
+        var number1 = 10;
+        var number2 = 12;
+        var sum = number1 + number2;
+        
+        return sum;
+    }
+}
+```
+
+</td>
+
+<td>
+
+```csharp
+// Código compilado em modo release
+public class SampleClass
+{
+    public int SampleMethod()
+    {
+        int num = 10;
+        int num2 = 12;
+        return num + num2;
+    }
+}
+
+```
+
+</td>
+
+</table>
+
+</center>
+
+- Exemplo 2
+
+<center>
+
+<table>
+
+<td>
+
+```csharp
+// Código original
+public class SampleClass {
+    public String SampleMethod(string[] names) {
+        
+        var sb = new StringBuilder();
+        
+        foreach(var name in names)
+        {
+            sb.Append(name);
+        }
+        
+        return sb.ToString();
+    }
+}
+
+
+
+```
+
+</td>
+
+<td>
+
+```csharp
+// Código compilado em modo release
+public class SampleClass
+{
+    [NullableContext(1)]
+    public string SampleMethod(string[] names)
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        int num = 0;
+        while (num < names.Length)
+        {
+            string value = names[num];
+            stringBuilder.Append(value);
+            num++;
+        }
+        return stringBuilder.ToString();
+    }
+}
+```
+
+</td>
+
+</table>
+
+</center>
+
+- Exemplo 3
+
+<center>
+
+<table>
+
+<td>
+
+```csharp
+// Código original
+public class SampleClass {
+    public String SampleMethod1(
+        String logradouro, 
+        String numero
+    )
+    {
+        return $"{logradouro}, n {numero}";
+    }
+    public String SampleMethod2(
+        String logradouro, 
+        String numero, 
+        String bairro, 
+        String cidade, 
+        String estado
+    ) 
+    {
+        return $"{logradouro}, n {numero} - {bairro} - {cidade}/{estado}";
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+</td>
+
+<td>
+
+```csharp
+// Código compilado em modo release
+[NullableContext(1)]
+[Nullable(0)]
+public class SampleClass
+{
+    public string SampleMethod1(
+      string logradouro, 
+      string numero
+    )
+    {
+        return string.Concat(logradouro, ", n ", numero);
+    }
+
+    public string SampleMethod2(
+      string logradouro, 
+      string numero, 
+      string bairro, 
+      string cidade, 
+      string estado
+    )
+    {
+        DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = 
+          new DefaultInterpolatedStringHandler(11, 5);
+        defaultInterpolatedStringHandler.AppendFormatted(logradouro);
+        defaultInterpolatedStringHandler.AppendLiteral(", n ");
+        defaultInterpolatedStringHandler.AppendFormatted(numero);
+        defaultInterpolatedStringHandler.AppendLiteral(" - ");
+        defaultInterpolatedStringHandler.AppendFormatted(bairro);
+        defaultInterpolatedStringHandler.AppendLiteral(" - ");
+        defaultInterpolatedStringHandler.AppendFormatted(cidade);
+        defaultInterpolatedStringHandler.AppendLiteral("/");
+        defaultInterpolatedStringHandler.AppendFormatted(estado);
+        return defaultInterpolatedStringHandler.ToStringAndClear();
+    }
+}
+```
+
+</td>
+
+</table>
+
+</center>
+
+Observe como o código sofreu alterações significativas, principalmente nos loops. Portanto, ao realizar um benchmark, é crucial considerar essas mudanças e escrever um código de benchmark que represente de perto o cenário real. Como demonstrado no exemplo 3, até mesmo os objetos que serão utilizadas no código podem sofrer alterações.
+
+
+<br/>
+
+> [!IMPORTANT]
+> O benchmark deve ser semelhante ao cenário real para evitar medições com situações que não ocorreram em produção.
+
+<br/> 
