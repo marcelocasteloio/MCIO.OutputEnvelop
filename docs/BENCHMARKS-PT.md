@@ -234,7 +234,7 @@ Essa otimização realizada tem um impacto direto em nosso benchmark. Vamos anal
 
 - Exemplo 1
 
-<center>
+<div align="center">
 
 <table>
 
@@ -276,11 +276,11 @@ public class SampleClass
 
 </table>
 
-</center>
+</div>
 
 - Exemplo 2
 
-<center>
+<div align="center">
 
 <table>
 
@@ -334,11 +334,11 @@ public class SampleClass
 
 </table>
 
-</center>
+</div>
 
 - Exemplo 3
 
-<center>
+<div align="center">
 
 <table>
 
@@ -428,7 +428,7 @@ public class SampleClass
 
 </table>
 
-</center>
+</div>
 
 Observe como o código sofreu alterações significativas, principalmente nos loops. Portanto, ao realizar um benchmark, é crucial considerar essas mudanças e escrever um código de benchmark que represente de perto o cenário real. Como demonstrado no exemplo 3, até mesmo os objetos que serão utilizadas no código podem sofrer alterações.
 
