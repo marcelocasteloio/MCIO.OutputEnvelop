@@ -218,7 +218,7 @@ Vamos compreender o que está acontecendo:
 - **Passo 2:** Durante a compilação no modo Release, ocorre um processo de `otimização` em nosso código realizado pelo `Roslyn`, o compilador do C#.
 - **Passo 3:** O resultado desse processo é o nosso assembly.
 - **Passo 4:** Utilizamos o comando `dotnet` para executar o código contido no arquivo gerado no passo 3.
-- A `CLR (Common Language Runtime)` executa nosso assembly.
+- **Passo 5:** A `CLR (Common Language Runtime)` executa nosso assembly.
 
 No .NET 8, houve a inclusão do suporte ao [AOT](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=net8plus%2Cwindows), mas isso não impactará no ponto abordado em nosso exemplo.
 
