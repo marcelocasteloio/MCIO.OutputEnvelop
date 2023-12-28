@@ -546,6 +546,8 @@ Agora, considerando uma definição mais formal, se você for um iniciante ou n�
 
 ### :pushpin: Mean (Média)
 
+[voltar ao topo](#book-conteúdo)
+
 A média é uma medida estatística básica, mas pode nos surpreender em alguns casos. A média é definida como a `soma dos elementos dividido pela quantidade de elementos`. Por exemplo:
 
 Dado os números 10, 9, 8 e 7, a média seria calculada como a `soma dos elementos (10 + 9 + 8 + 7)` `dividido pela quantidade de elementos (4 elementos)`. A fórmula matemática seria $(10 + 9 + 8 + 7)/4$ e o resultado é `8,5`.
