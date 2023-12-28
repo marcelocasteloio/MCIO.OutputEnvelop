@@ -2,15 +2,21 @@
 
 Um `envelope de resposta` que seja `leve`, de `alto desempenho` e que forneça uma `API de alto nível` para ser usado em aplicações *LOB (line of business)*.
 
-> [!IMPORTANT]
-> Se você gostar do projeto, não deixe de dar uma estrela para ajudar na divulgação, isso ajuda muito. Obrigado!
+Não deixe de ver:
+
+- Documentação sobre as [Decisões de design](docs/DESIGN-DECISIONS-PT.md).
+- Documentação sobre os [Benchmarks](docs/BENCHMARKS-PT.md).
+
+<br/>
 
 > [!IMPORTANT]
 > Para entender qual foi o raciocínio para construir essa biblioteca, não deixe de ver o documento [decisões de design](docs/DESIGN-DECISIONS-PT.md)
 
+<br/>
+
 ## :label: Labels
 
-| Categoria | Descrição | Labels |
+| Categoria | Descrição | Labels (todos os ícones são clicáveis e levam as ferramentas externas) |
 |-|-|-|
 | Licença | MIT | [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/) |
 | Nuget | [MarceloCastelo.IO.OutputEnvelop](https://www.nuget.org/packages/MarceloCastelo.IO.OutputEnvelop) | ![Nuget](https://img.shields.io/nuget/v/MarceloCastelo.IO.OutputEnvelop) |

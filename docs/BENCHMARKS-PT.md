@@ -3,6 +3,8 @@
 > [!IMPORTANT]
 > DOCUMENTO NÃO FINALIZADO! EM CONSTRUÇÃO
 
+> [!IMPORTANT]
+> Este documento não é um tutorial sobre benchmarks, mas sim, uma explicação dos fundamentos utilizados para os benchmarks realizados nesse projeto.
 
 ## :book: Conteúdo
 - [Benchmarks](#benchmarks)
@@ -13,6 +15,8 @@
     - [:pushpin: Mito 1: A única coisa que temos que avaliar é o tempo de execução do código](#pushpin-mito-1-a-única-coisa-que-temos-que-avaliar-é-o-tempo-de-execução-do-código)
     - [:pushpin: Mito 2: O código que eu escrevi é o mesmo que é executado](#pushpin-mito-2-o-código-que-eu-escrevi-é-o-mesmo-que-é-executado)
     - [:pushpin: Mito 3: Uma vez o benchmark feito, basta executá-lo a qualquer momento](#pushpin-mito-3-uma-vez-o-benchmark-feito-basta-executá-lo-a-qualquer-momento)
+  - [:pushpin: Como interpretar os valores do resultado do benchmark?](#pushpin-como-interpretar-os-valores-do-resultado-do-benchmark)
+    - [:pushpin: Mean (Média)](#pushpin-mean-média)
 
 ## :pushpin: O que é um benchmark?
 
@@ -495,4 +499,112 @@ Server=True  RunStrategy=Throughput
 | WithException | 6,207.4252 ns | 106.1501 ns | 94.0993 ns | 45,931.00 | 2,275.69 |     232 B |          NA |
 ```
 
-O mesmo benchmark foi executado utilizando o `.NET 8.0.0 (8.0.23.53103)` nos ambientes `Windows 11 (10.0.22631.2861/23H2/2023Update/SunValley3)` e `Ubuntu 22.04.3 LTS (Jammy Jellyfish) WSL`. Note que o mesmo benchmark apresentou resultados diferentes em sistemas diferentes e com configurações diferentes.
+O mesmo benchmark foi executado utilizando o `.NET 8.0.0 (8.0.23.53103)` nos ambientes `Windows 11 (10.0.22631.2861/23H2/2023Update/SunValley3)` e `Ubuntu 22.04.3 LTS (Jammy Jellyfish) WSL`. Note que o mesmo benchmark apresentou resultados diferentes em sistemas diferentes e com configurações diferentes. Por isso que o objetivo de quando formos executar um benchmark em um ambiente diferente do ambiente que o programa realmente será utilizado, ele servirá somente como um guia, um norte para comparar cenários e não como um valor absoluto.
+
+<br/>
+
+> [!IMPORTANT]
+> Quando o benchmark está sendo feito fora do ambiente final em que o programa estará, devemos utilizar o resultado de um benchmark para comprar um cenário com relação a outro e não como uma referência absoluta
+
+<br/>
+
+## :pushpin: Como interpretar os valores do resultado do benchmark?
+
+[voltar ao topo](#book-conteúdo)
+
+Essa é uma biblioteca para ser utilizada em .NET que foi feita usando o [.NET Standard 2.0](https://learn.microsoft.com/pt-br/dotnet/standard/net-standard?tabs=net-standard-2-0). Isso quer dizer que vamos analisar o ocmportamento de RAM e CPU desse código pois ele não realiza conexão de rede e não realiza gravação ou leitura no disco. Foi utilizado a biblioteca [BenchmarkDotNet](https://benchmarkdotnet.org/articles/overview.html). O objetivo desse documento não é dar um treinamento dessa biblioteca, mas sim, explicar como os resultados serão interpretados para o nosso objetivo. Deixo como sugestão ler a documentação da biblioteca [BenchmarkDotNet](https://benchmarkdotnet.org/articles/overview.html) caso queira saber como utilizá-la.
+
+Vamos analisar o retorno de uma execução e entender o que isso significa:
+
+<br/>
+
+| Method        | Mean           | Error       | StdDev      | Ratio     | RatioSD  | TotalCycles/Op | TotalIssues/Op | BranchInstructions/Op | Timer/Op | BranchMispredictions/Op | CacheMisses/Op | Allocated | Alloc Ratio |
+|-------------- |---------------:|------------:|------------:|----------:|---------:|---------------:|---------------:|----------------------:|---------:|------------------------:|---------------:|----------:|------------:|
+| NoException   |      0.4783 ns |   0.0276 ns |   0.0245 ns |      1.00 |     0.00 |              1 |              3 |                     0 |        0 |                       0 |             -0 |         - |          NA |
+| WithException | 23,434.1564 ns | 292.3356 ns | 273.4509 ns | 49,158.82 | 2,651.56 |         54,006 |         78,379 |                17,448 |      235 |                     137 |            382 |     232 B |          NA |
+
+<br/>
+
+- **Method:** O nome do método que está sendo testado.
+- **Mean (Média):** A média aritmética dos tempos de execução medidos para o método. É a principal medida de desempenho e representa o tempo médio que leva para executar uma iteração do método.
+- **Error (Erro):** O intervalo de confiança em torno da média, expresso como um desvio padrão. Indica a variabilidade nos resultados. 
+- **StdDev (Desvio Padrão):** O desvio padrão dos tempos de execução. Ele fornece uma medida da dispersão dos resultados em relação à média.
+- **Ratio (Proporção):** A relação entre o tempo médio do método em teste e o tempo médio do método de referência (geralmente o método mais rápido).
+- **RatioSD (Desvio Padrão da Proporção):** O desvio padrão da relação entre os tempos médios. Indica a variabilidade na proporção.
+- **TotalCycles/Op (Ciclos Totais por Operação):** O número total de ciclos de CPU por operação. Fornece informações sobre o uso da CPU.
+- **TotalIssues/Op (Total de Problemas por Operação):** O número total de problemas de execução por operação. Pode indicar problemas de execução de instruções.
+- **BranchInstructions/Op (Instruções de Ramificação por Operação):** O número total de instruções de ramificação por operação. Fornece informações sobre o comportamento do fluxo de controle no código.
+- **Timer/Op (Temporizador por Operação):** O tempo médio, em nanossegundos, que leva para executar uma operação. Pode ser usado para avaliar o desempenho absoluto em termos de tempo.
+- **BranchMispredictions/Op (Predições Incorretas de Ramificação por Operação):** O número de predições de ramificação incorretas por operação. Indica o desempenho do processador em relação às instruções de ramificação.
+- **CacheMisses/Op (Faltas de Cache por Operação):** O número de falhas de cache por operação. Indica o comportamento de acesso à memória e a eficiência do cache.
+- **Allocated (Alocado):** A quantidade total de memória alocada durante a execução do método.
+- **Alloc Ratio (Razão de Alocação):** A relação entre a quantidade de memória alocada pelo método em teste e a quantidade de memória alocada pelo método de referência.
+
+<br/>
+
+Agora, considerando uma definição mais formal, se você for um iniciante ou não tiver familiaridade com arquitetura de computadores ou alguns conceitos matemáticos, pode ser que não tenha compreendido completamente. Vamos, então, analisar de forma simplificada.
+
+### :pushpin: Mean (Média)
+
+A média é uma medida estatística básica, mas pode nos surpreender em alguns casos. A média é definida como a `soma dos elementos dividido pela quantidade de elementos`. Por exemplo:
+
+Dado os números 10, 9, 8 e 7, a média seria calculada como a `soma dos elementos (10 + 9 + 8 + 7)` `dividido pela quantidade de elementos (4 elementos)`. A fórmula matemática seria $(10 + 9 + 8 + 7)/4$ e o resultado é `8,5`.
+
+Até aqui, parece que está tudo bem; no entanto, a média pode nos enganar se não tratarmos algo chamado de `outliers`. Outliers são valores que se diferenciam drasticamente dos demais dados. Vamos entender melhor com um exemplo:
+
+Vamos considerar duas turmas hipotéticas de 5 alunos cada, a `Turma A` e a `Turma B`. Foi aplicada uma prova idêntica para os alunos de ambas as turmas, e os resultados foram os seguintes:
+
+
+<div align="center">
+
+<table>
+
+<td>
+
+| Turma A | |
+|:-:|:-:|
+| Aluno | Nota |
+| 1 | 10 |
+| 2 | 9,5 |
+| 3 | 10 |
+| 4 | 9 |
+| 5 | 2 |
+| Média: | 7,9 |
+
+</td>
+
+<td>
+
+| Turma B | |
+|:-:|:-:|
+| Aluno | Nota |
+| 1 | 8 |
+| 2 | 8,5 |
+| 3 | 9 |
+| 4 | 8 |
+| 5 | 8,5 |
+| Média: | 8,4 |
+
+</td>
+
+</table>
+
+</div>
+
+Com base nesses dados, ao `analisar a média`, podemos concluir que a `Turma B` possui `alunos com notas melhores`, afinal, a `média de notas da Turma B foi maior`. Mas isso reflete a realidade? Não!
+
+O que aconteceu para a média não refletir a realidade? Na turma A, tivemos uma nota que divergiu completamente das demais: o aluno 5 tirou a nota 2! Isso impactou significativamente na média, dando a impressão de que os alunos da turma A tiveram uma nota abaixo do que realmente foi.
+
+Como resolver isso? Temos duas opções: `(1) Utilizar a mediana no lugar da média` ou `(2) remover os outliers da análise`.
+
+O caminho que vamos adotar é o de remover os outliers, pois a biblioteca BenchmarkDotnet segue essa abordagem na coluna `mean`.
+
+Ao remover a nota 2 do aluno 5 da turma A, a média da turma seria `9,38`, refletindo muito mais a realidade!
+
+
+<br/>
+
+> [!IMPORTANT]
+> Não devemos analisar os valores isoladamente. É essencial contextualizá-los com o negócio para verificar se fazem sentido.
+
+<br/>
