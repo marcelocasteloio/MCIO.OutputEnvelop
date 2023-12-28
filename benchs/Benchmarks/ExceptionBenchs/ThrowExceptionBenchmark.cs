@@ -5,7 +5,8 @@ using MCIO.OutputEnvelop.Benchmarks.Interfaces;
 
 namespace MCIO.OutputEnvelop.Benchmarks;
 
-[SimpleJob(RunStrategy.Throughput, launchCount: 1)]
+[SimpleJob(RunStrategy.Throughput)]
+[GcServer(true)]
 [HardwareCounters(
     HardwareCounter.CacheMisses,
     HardwareCounter.Timer,
