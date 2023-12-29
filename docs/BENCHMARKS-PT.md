@@ -1,9 +1,6 @@
 # Benchmarks
 
 > [!IMPORTANT]
-> DOCUMENTO NÃO FINALIZADO! EM CONSTRUÇÃO
-
-> [!IMPORTANT]
 > Este documento não é um tutorial sobre benchmarks, mas sim, uma explicação dos fundamentos utilizados para os benchmarks realizados nesse projeto.
 
 ## :book: Conteúdo
@@ -17,6 +14,12 @@
     - [:pushpin: Mito 3: Uma vez o benchmark feito, basta executá-lo a qualquer momento](#pushpin-mito-3-uma-vez-o-benchmark-feito-basta-executá-lo-a-qualquer-momento)
   - [:pushpin: Como interpretar os valores do resultado do benchmark?](#pushpin-como-interpretar-os-valores-do-resultado-do-benchmark)
     - [:pushpin: Mean (Média)](#pushpin-mean-média)
+    - [:pushpin: Análise de uso de CPU](#pushpin-análise-de-uso-de-cpu)
+      - [:pushpin: Hardware counters disponíveis](#pushpin-hardware-counters-disponíveis)
+        - [:pushpin: Exemplo simplificado](#pushpin-exemplo-simplificado)
+      - [:pushpin: Relação entre os indicadores](#pushpin-relação-entre-os-indicadores)
+    - [:pushpin: Análise de uso de memória RAM](#pushpin-análise-de-uso-de-memória-ram)
+  - [:pushpin: Considerações finais](#pushpin-considerações-finais)
 
 ## :pushpin: O que é um benchmark?
 
@@ -610,3 +613,291 @@ Ao remover a nota 2 do aluno 5 da turma A, a média da turma seria `9,38`, refle
 > Não devemos analisar os valores isoladamente. É essencial contextualizá-los com o negócio para verificar se fazem sentido.
 
 <br/>
+
+
+### :pushpin: Análise de uso de CPU
+
+[voltar ao topo](#book-conteúdo)
+
+Hardware counters, ou contadores de hardware, são elementos embutidos nos processadores de um computador que monitoram e contam eventos específicos relacionados ao desempenho do sistema. Esses eventos podem incluir coisas como instruções executadas, acessos à memória, ciclos de clock, entre outros. Os hardware counters fornecem métricas valiosas para avaliar o desempenho de um programa ou sistema em nível de baixo nível, permitindo aos desenvolvedores otimizar o código para melhor eficiência.
+
+**Principais Pontos:**
+- São elementos internos dos processadores.
+- Monitoram eventos específicos relacionados ao desempenho.
+- Contam coisas como instruções executadas, acessos à memória, ciclos de clock, etc.
+- Fornecem métricas para avaliação de desempenho.
+- Permitem otimização de código para maior eficiência.
+
+#### :pushpin: Hardware counters disponíveis
+
+[voltar ao topo](#book-conteúdo)
+
+Na biblioteca [BenchmarkDotnet](https://www.nuget.org/packages/BenchmarkDotNet) (até a versão 0.13.11), os hardware counters disponíveis são:
+
+1. **Timer:**
+   - **O que é:** Mede o tempo total que o teste levou para ser executado.
+   - **Exemplo prático:** Medição do tempo de execução de um algoritmo de ordenação de uma lista de números.
+   - **Consequência Negativa:** Tempos de execução longos podem resultar em tempos de resposta lentos para os usuários, prejudicando a experiência do usuário.
+   - **Sugestões de Melhoria:** Refatorar o código para otimizar algoritmos, reduzir operações desnecessárias e minimizar chamadas a recursos externos.
+
+2. **TotalIssues:**
+   - **O que é:** Conta quantas "coisas" o processador faz durante o teste.
+   - **Exemplo prático:** Processamento de uma grande quantidade de dados.
+   - **Consequência Negativa:** Um número excessivo de operações pode indicar ineficiências no código, resultando em maior consumo de recursos e possível lentidão.
+   - **Sugestões de Melhoria:** Identificar e eliminar redundâncias no código, usar estruturas de dados mais eficientes e empregar algoritmos mais otimizados.
+
+3. **BranchInstructions:**
+   - **O que é:** Conta quantas vezes o computador toma decisões sobre qual caminho seguir no código.
+   - **Exemplo prático:** Verificação de paridade de um número.
+   - **Consequência Negativa:** Muitas instruções de branch podem levar a previsões incorretas, resultando em penalidades de desempenho.
+   - **Sugestões de Melhoria:** Simplificar lógica condicional, evitar instruções de branch desnecessárias e usar estruturas de controle mais eficientes.
+
+4. **CacheMisses:**
+   - **O que é:** Conta quantas vezes o computador precisa buscar informações fora de sua "memória rápida".
+   - **Exemplo prático:** Acesso a dados em uma matriz grande.
+   - **Consequência Negativa:** Alto número de CacheMisses indica a necessidade frequente de buscar dados em memória mais lenta, resultando em atrasos.
+   - **Sugestões de Melhoria:** Melhorar a localidade de dados, reorganizar estruturas de dados para melhor aproveitamento da cache e considerar o uso de prefetching.
+
+5. **BranchMispredictions:**
+   - **O que é:** Conta quantas vezes o computador prevê erroneamente qual caminho o código seguirá.
+   - **Exemplo prático:** Loop que deve ser repetido várias vezes.
+   - **Consequência Negativa:** Previsões incorretas podem resultar em ciclos desperdiçados e redução de desempenho.
+   - **Sugestões de Melhoria:** Simplificar lógica de controle de fluxo, reduzir aninhamentos excessivos e usar estratégias que favoreçam previsões mais eficientes.
+
+6. **TotalCycles:**
+   - **O que é:** Conta quantas vezes o relógio do processador completa uma volta completa.
+   - **Exemplo prático:** Desempenho de um algoritmo de criptografia.
+   - **Consequência Negativa:** Número elevado de ciclos pode indicar código não otimizado e tempo de execução mais longo.
+   - **Sugestões de Melhoria:** Otimizar algoritmos, minimizar operações de E/S, reduzir instruções redundantes e empregar paralelismo quando possível.
+
+7. **UnhaltedCoreCycles:**
+   - **O que é:** Conta quantas vezes o processador está realmente "pensando" durante o teste.
+   - **Exemplo prático:** Cálculos complexos em um programa.
+   - **Consequência Negativa:** Subutilização do processador pode resultar em ineficiência do código.
+   - **Sugestões de Melhoria:** Identificar e remover gargalos, otimizar loops e operações críticas, e explorar o potencial de paralelismo.
+
+8. **InstructionRetired:**
+   - **O que é:** Conta quantas instruções foram executadas pelo processador.
+   - **Exemplo prático:** Operações matemáticas em um código.
+   - **Consequência Negativa:** Muitas instruções podem indicar redundâncias ou ineficiências no código, resultando em execução mais lenta.
+   - **Sugestões de Melhoria:** Utilizar algoritmos mais eficientes, minimizar operações redundantes e remover código não utilizado.
+
+9. **UnhaltedReferenceCycles:**
+   - **O que é:** Conta quantas vezes o processador faz referência a algo sem parar.
+   - **Exemplo prático:** Streaming de dados em um programa.
+   - **Consequência Negativa:** Muitas referências não paradas podem indicar uso ineficiente de recursos e maior consumo de energia.
+   - **Sugestões de Melhoria:** Otimizar operações de leitura e escrita, reduzir acesso à memória principal e considerar estratégias de pré-busca de dados.
+
+10. **LlcReference:**
+    - **O que é:** Conta quantas vezes o código acessa um nível específico de memória (cache).
+    - **Exemplo prático:** Leituras frequentes de dados em um programa.
+    - **Consequência Negativa:** Eficiência do cache pode ser comprometida, resultando em desempenho insatisfatório.
+    - **Sugestões de Melhoria:** Utilizar técnicas de cache-conscious programming, ajustar o tamanho e a organização de estruturas de dados e minimizar leituras sequenciais.
+
+11. **LlcMisses:**
+    - **O que é:** Conta quantas vezes o código tenta acessar informações que não estão na memória cache.
+    - **Exemplo prático:** Acesso frequente a dados fora da memória cache.
+    - **Consequência Negativa:** Acesso mais lento à memória devido a uma hierarquia de cache não otimizada.
+    - **Sugestões de Melhoria:** Reorganizar dados para melhorar a localidade espacial e temporal, otimizar algoritmos para reduzir acessos à memória principal e considerar a implementação de estratégias de pré-carregamento.
+12. **BranchInstructionRetired:**
+    - **O que é:** Conta quantas instruções de decisão (branch) foram executadas.
+    - **Exemplo prático:** Instruções de controle de fluxo (if, else) em um código.
+    - **Consequência Negativa:** Muitas instruções de decisão podem indicar complexidade excessiva no código, resultando em desempenho inferior.
+    - **Sugestões de Melhoria:** Simplificar lógica de controle de fluxo, utilizar estruturas de dados que minimizem a necessidade de instruções de branch e considerar otimizações específicas do compilador.
+
+13. **BranchMispredictsRetired:**
+    - **O que é:** Conta quantas previsões de decisões erradas foram feitas e corrigidas.
+    - **Exemplo prático:** Previsões incorretas em um loop.
+    - **Consequência Negativa:** Muitas previsões incorretas podem resultar em penalidades significativas de desempenho devido a fluxos de execução ineficientes.
+    - **Sugestões de Melhoria:** Revisar e simplificar lógica condicional, reduzir aninhamentos excessivos e favorecer estruturas de controle que minimizem previsões incorretas.
+
+Vamos reanalisar esses indicadores com um exemplo mais lúdico para ajudar nosso entendendimento:
+
+##### :pushpin: Exemplo simplificado
+
+[voltar ao topo](#book-conteúdo)
+
+Imagine que seu computador é como um carro. O **tempo de execução** (Timer) é quanto tempo leva para o carro ir do ponto A ao ponto B. É importante saber quanto tempo leva para completar uma tarefa, mas também queremos saber o que está acontecendo dentro do carro para que possamos melhorar o desempenho.
+
+Os contadores de hardware são como sensores que nos dizem o que está acontecendo dentro do processador, o "motor" do computador.
+
+
+1. **TotalIssues:**
+
+   - Conta quantas vezes o motor "pisa no acelerador" para enviar instruções para as rodas.
+   - Mais "pisadas" significam que o motor está trabalhando duro.
+
+2. **BranchInstructions:**
+
+   - Conta quantas vezes o motorista precisa decidir qual caminho seguir.
+   - Muitas decisões podem significar que o trajeto é confuso e pode ser otimizado.
+
+3. **CacheMisses:**
+
+   - Conta quantas vezes o motorista precisa parar para procurar o mapa em outro lugar porque não está no porta-luvas.
+   - Muitas paradas podem significar que o motorista não está organizado e precisa planejar melhor.
+
+4. **BranchMispredictions:**
+
+   - Conta quantas vezes o motorista decide ir por um caminho errado e precisa voltar.
+   - Erros podem atrasar a viagem e significam que o motorista precisa se concentrar mais.
+
+5. **TotalCycles:**
+
+   - Conta quantas vezes o motor gira as rodas.
+   - Mais giros significam que o carro está se movendo, mas não necessariamente rápido.
+
+6. **UnhaltedCoreCycles:**
+
+   - Conta quantas vezes o motor está ligado e funcionando.
+   - É importante saber quanto tempo o motor está realmente trabalhando, sem contar o tempo que ele está parado no farol.
+
+7. **InstructionRetired:**
+
+   - Conta quantas vezes o motorista pisa no freio e a engrenagem finalmente muda.
+   - É importante saber quantas instruções o motor realmente conseguiu completar.
+
+8. **UnhaltedReferenceCycles:**
+
+   - Conta quantas vezes o motor precisa procurar informações no banco de dados do carro.
+   - Muitas buscas podem significar que o banco de dados está mal organizado e precisa ser otimizado.
+
+9. **LlcReference:**
+
+   - Conta quantas vezes o motorista precisa procurar informações no porta-malas do carro.
+   - Muitas buscas podem significar que o porta-malas está bagunçado e precisa ser organizado.
+
+10. **LlcMisses:**
+
+    - Conta quantas vezes o motorista procura algo no porta-malas e não encontra.
+    - Muitas falhas podem significar que o motorista precisa planejar melhor o que levar na viagem.
+
+11. **BranchInstructionRetired:**
+
+    - Conta quantas vezes o motorista decide qual caminho seguir e finalmente faz a curva.
+    - É importante saber quantas decisões o motorista realmente conseguiu tomar e executar.
+
+12. **BranchMispredictsRetired:**
+
+    - Conta quantas vezes o motorista decide ir por um caminho errado, volta e finalmente faz a curva correta.
+    - Erros podem atrasar a viagem, mas é importante aprender com eles para melhorar no futuro.
+
+
+É importante notar que esses indicadores se relacionam. Um caminho que podemos seguir ao relacionar esses indicadores é:
+
+#### :pushpin: Relação entre os indicadores
+
+[voltar ao topo](#book-conteúdo)
+
+1. **Timer, TotalCycles, UnhaltedCoreCycles:**
+   - **Relação:** O Timer está relacionado diretamente com o TotalCycles, que por sua vez está relacionado com os UnhaltedCoreCycles. Se o tempo de execução (Timer) é alto, isso pode indicar uma alta contagem de ciclos totais e de ciclos de núcleo não interrompidos.
+   - **Implicações Negativas:** Altos tempos de execução podem indicar ineficiências no código, resultando em uma utilização excessiva de ciclos e núcleos do processador.
+   - **Resolução:** Otimizar algoritmos, minimizar operações desnecessárias e explorar paralelismo são estratégias para reduzir ciclos e melhorar o tempo de execução.
+
+2. **CacheMisses, LlcMisses, LlcReference:**
+   - **Relação:** CacheMisses está relacionado com LlcMisses, que por sua vez está relacionado com LlcReference. Um alto número de referências à memória cache (LlcReference) e poucos acertos (LlcMisses) indicam uma boa utilização da cache.
+   - **Implicações Negativas:** Muitos CacheMisses e LlcMisses indicam que o código está acessando frequentemente a memória principal, resultando em atrasos significativos.
+   - **Resolução:** Melhorar a localidade de dados, reorganizar estruturas de dados e otimizar algoritmos para tirar melhor proveito da hierarquia de cache são estratégias para reduzir missões de cache.
+
+3. **BranchInstructions, BranchMispredictions, BranchInstructionRetired, BranchMispredictsRetired:**
+   - **Relação:** BranchInstructions está relacionado com BranchMispredictions, BranchInstructionRetired e BranchMispredictsRetired. Altas contagens de instruções de branch e previsões incorretas indicam decisões de controle de fluxo ineficientes.
+   - **Implicações Negativas:** Muitos BranchMispredictions resultam em penalidades significativas de desempenho devido a fluxos de execução ineficientes.
+   - **Resolução:** Simplificar lógica condicional, reduzir aninhamentos excessivos, usar estruturas de controle eficientes e considerar estratégias de previsão de branch mais eficazes são abordagens para melhorar o desempenho.
+
+4. **InstructionRetired, UnhaltedReferenceCycles:**
+   - **Relação:** A contagem de InstructionRetired está relacionada com UnhaltedReferenceCycles, indicando a execução de instruções e referências à memória.
+   - **Implicações Negativas:** Muitas instruções e referências não interrompidas podem indicar uma utilização ineficiente dos recursos do processador.
+   - **Resolução:** Otimizar operações de leitura e escrita, reduzir acessos à memória principal e explorar estratégias de pré-busca de dados são maneiras de melhorar a eficiência.
+
+5. **TotalIssues:**
+   - **Relação:** TotalIssues conta a quantidade total de trabalho realizado pela CPU, incluindo operações e decisões de controle de fluxo.
+   - **Implicações Negativas:** Um alto número de TotalIssues pode indicar uma sobrecarga de trabalho, resultando em maior consumo de recursos e possíveis lentidões.
+   - **Resolução:** Identificar e eliminar redundâncias no código, usar estruturas de dados eficientes e otimizar algoritmos são estratégias para reduzir o número total de issues.
+
+<br/>
+
+> [!WARNING]
+> Nós temos que ter cautela no momento de analisar os Hardware Counters pois podemos cair na armadilha de querer otimizar tudo. Nós temos que ver onde faz sentido empregar esforço. O software tem um objetivo e um custo, temos que tomar ações que façam sentido para isso!
+
+<br/>
+
+### :pushpin: Análise de uso de memória RAM
+
+[voltar ao topo](#book-conteúdo)
+
+A biblioteca [BenchmarkDotnet](https://www.nuget.org/packages/BenchmarkDotNet) (até a versão 0.13.11)
+
+1. **Gen 0 (Geração 0):**
+    - **O que é:** Representa a geração mais recente do coletor de lixo. Ela contém objetos que foram alocados recentemente e são considerados candidatos para coleta de lixo.
+    - **Exemplo prático:** A alocação frequente de objetos temporários em curtos períodos de tempo pode aumentar o conteúdo da Geração 0.
+    - **Consequência Negativa:** Uma Geração 0 frequentemente cheia pode levar a mais coletas de lixo, impactando o desempenho.
+    - **Sugestões de Melhoria:** Reduzir a alocação de objetos temporários e promover a reutilização de objetos sempre que possível.
+
+2. **Gen 1 (Geração 1):**
+    - **O que é:** Representa objetos que sobreviveram a uma coleta de lixo na Geração 0. Esses objetos têm uma probabilidade menor de serem coletados.
+    - **Exemplo prático:** Objetos que persistem por mais tempo, mas ainda não são considerados de longa duração.
+    - **Consequência Negativa:** Um aumento significativo na Geração 1 pode indicar que objetos estão persistindo mais do que o necessário, potencialmente levando a coletas de lixo mais frequentes.
+    - **Sugestões de Melhoria:** Analisar e ajustar a vida útil dos objetos, evitando que permaneçam na Geração 1 por muito tempo.
+
+3. **Gen 2 (Geração 2):**
+    - **O que é:** Representa objetos que sobreviveram a coletas de lixo em ambas as Gerações 0 e 1. Esses objetos têm uma probabilidade ainda menor de serem coletados.
+    - **Exemplo prático:** Objetos de longa duração que persistem por um tempo significativo.
+    - **Consequência Negativa:** Um aumento excessivo na Geração 2 pode indicar que objetos estão persistindo por períodos mais longos, impactando negativamente o desempenho.
+    - **Sugestões de Melhoria:** Rever a vida útil de objetos persistentes, considerar a reutilização de instâncias e avaliar estratégias de gerenciamento de cache.
+
+4. **Allocated (Alocado):**
+    - **O que é:** Indica a quantidade total de memória alocada durante a execução do benchmark.
+    - **Exemplo prático:** A soma de todas as alocações de memória feitas pelo código benchmarked.
+    - **Consequência Negativa:** Alocar excessivamente pode levar a um aumento no uso de memória e, potencialmente, afetar o desempenho do sistema.
+    - **Sugestões de Melhoria:** Identificar e reduzir alocações desnecessárias, otimizar o uso de estruturas de dados e considerar padrões de design que minimizem a alocação de memória.
+
+<br/>
+
+## :pushpin: Considerações finais
+
+[voltar ao topo](#book-conteúdo)
+
+O que significa ter ciência do impacto do código no desempenho? Imagine que você está cozinhando um bolo. Você pode usar a receita tradicional, que é mais simples e leva um pouco mais de tempo, ou você pode usar uma versão otimizada com ingredientes pré-misturados e técnicas que aceleram o processo.
+
+No mundo da programação, o código é como a receita e o desempenho é como o tempo que leva para o bolo ficar pronto. Ter ciência do impacto do código no desempenho significa entender como suas escolhas de programação afetam a velocidade e a eficiência com que seu programa é executado.
+
+**Nem tudo precisa ser otimizado**
+
+Assim como nem todo bolo precisa ser feito da maneira mais rápida possível, nem todo código precisa ser otimizado. Às vezes, a simplicidade é mais importante.
+
+**Exemplo**
+
+Imagine um programa que calcula a média de 10 números. A maneira mais rápida de fazer isso seria usar um algoritmo complexo, mas isso tornaria o código mais difícil de ler e entender.
+
+Nesse caso, pode ser mais vantajoso usar um algoritmo mais simples, mesmo que seja um pouco mais lento.
+
+**Quando otimizar?**
+
+É importante analisar o seu cenário e escolher bem quais partes do código otimizar.
+
+**Exemplo**
+
+Se você estiver criando um programa que será usado milhões de vezes por dia, então a performance é crucial. Nesse caso, vale a pena investir tempo otimizando o código.
+
+Por outro lado, se você estiver criando um programa que será usado apenas algumas vezes, então a performance não é tão importante. Nesse caso, você pode se concentrar em escrever um código simples e fácil de entender.
+
+**Quais indicadores analisar?**
+
+Existem vários indicadores que você pode usar para avaliar o desempenho do seu código, como:
+
+* Tempo de execução: quanto tempo leva para o programa ser executado?
+* Uso de memória: quanta memória o programa usa?
+* Uso da CPU: quanto da capacidade da CPU o programa usa?
+
+**Conclusão**
+
+Ter ciência do impacto do código no desempenho é uma habilidade essencial para qualquer programador. Ao analisar o seu cenário e escolher bem quais partes do código otimizar, você pode criar programas mais eficientes e eficazes.
+
+**Lembre-se**
+
+* Nem tudo precisa ser otimizado.
+* A simplicidade é importante.
+* Analise o seu cenário e escolha bem quais indicadores analisar.
+* Use ferramentas para te ajudar.
+
+Espero que essa explicação tenha ajudado!
