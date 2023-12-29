@@ -35,8 +35,6 @@ Não deixe de ver:
 
 ## :page_facing_up: Introdução
 
-Esse projeto nasceu de uma necessidade pessoal. Quando estamos desenvolvendo um sistema temos que tomar diversas decisões com relação ao design do código e manter o equilíbrio entre legibilidade, manutenabilidade e performance e isso sempre é um desafio pois, no fim das contas, nós escrevemos código para outra pessoa entender e não para o computador.
-
 Esse projeto nasceu de uma necessidade pessoal. Quando estamos desenvolvendo um sistema temos que tomar diversas decisões com relação ao design do código e manter o equilíbrio entre legibilidade, manutenabilidade e performance é sempre um desafio pois, no fim das contas, nós escrevemos código para outra pessoa entender e não para o computador.
 
 Como assim? Existem diferentes tipos de sistemas, mas o mais comum são os que chamamos de sistemas *LOB (line of business)* que são aplicações que tem como o objetivo automatizar processos de negócios em corporações como processos de venda, compras, pedidos, chamados, suportes, processos financeiros etc. Esses sistemas possuem algumas características que costumam se repetir:
