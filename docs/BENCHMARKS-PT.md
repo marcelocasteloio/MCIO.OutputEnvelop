@@ -1,9 +1,6 @@
 # Benchmarks
 
 > [!IMPORTANT]
-> DOCUMENTO NÃO FINALIZADO! EM CONSTRUÇÃO
-
-> [!IMPORTANT]
 > Este documento não é um tutorial sobre benchmarks, mas sim, uma explicação dos fundamentos utilizados para os benchmarks realizados nesse projeto.
 
 ## :book: Conteúdo
@@ -22,6 +19,7 @@
         - [:pushpin: Exemplo simplificado](#pushpin-exemplo-simplificado)
       - [:pushpin: Relação entre os indicadores](#pushpin-relação-entre-os-indicadores)
     - [:pushpin: Análise de uso de memória RAM](#pushpin-análise-de-uso-de-memória-ram)
+  - [:pushpin: Considerações finais](#pushpin-considerações-finais)
 
 ## :pushpin: O que é um benchmark?
 
@@ -852,3 +850,54 @@ A biblioteca [BenchmarkDotnet](https://www.nuget.org/packages/BenchmarkDotNet) (
     - **Exemplo prático:** A soma de todas as alocações de memória feitas pelo código benchmarked.
     - **Consequência Negativa:** Alocar excessivamente pode levar a um aumento no uso de memória e, potencialmente, afetar o desempenho do sistema.
     - **Sugestões de Melhoria:** Identificar e reduzir alocações desnecessárias, otimizar o uso de estruturas de dados e considerar padrões de design que minimizem a alocação de memória.
+
+<br/>
+
+## :pushpin: Considerações finais
+
+[voltar ao topo](#book-conteúdo)
+
+O que significa ter ciência do impacto do código no desempenho? Imagine que você está cozinhando um bolo. Você pode usar a receita tradicional, que é mais simples e leva um pouco mais de tempo, ou você pode usar uma versão otimizada com ingredientes pré-misturados e técnicas que aceleram o processo.
+
+No mundo da programação, o código é como a receita e o desempenho é como o tempo que leva para o bolo ficar pronto. Ter ciência do impacto do código no desempenho significa entender como suas escolhas de programação afetam a velocidade e a eficiência com que seu programa é executado.
+
+**Nem tudo precisa ser otimizado**
+
+Assim como nem todo bolo precisa ser feito da maneira mais rápida possível, nem todo código precisa ser otimizado. Às vezes, a simplicidade é mais importante.
+
+**Exemplo**
+
+Imagine um programa que calcula a média de 10 números. A maneira mais rápida de fazer isso seria usar um algoritmo complexo, mas isso tornaria o código mais difícil de ler e entender.
+
+Nesse caso, pode ser mais vantajoso usar um algoritmo mais simples, mesmo que seja um pouco mais lento.
+
+**Quando otimizar?**
+
+É importante analisar o seu cenário e escolher bem quais partes do código otimizar.
+
+**Exemplo**
+
+Se você estiver criando um programa que será usado milhões de vezes por dia, então a performance é crucial. Nesse caso, vale a pena investir tempo otimizando o código.
+
+Por outro lado, se você estiver criando um programa que será usado apenas algumas vezes, então a performance não é tão importante. Nesse caso, você pode se concentrar em escrever um código simples e fácil de entender.
+
+**Quais indicadores analisar?**
+
+Existem vários indicadores que você pode usar para avaliar o desempenho do seu código, como:
+
+* Tempo de execução: quanto tempo leva para o programa ser executado?
+* Uso de memória: quanta memória o programa usa?
+* Uso da CPU: quanto da capacidade da CPU o programa usa?
+
+**Conclusão**
+
+Ter ciência do impacto do código no desempenho é uma habilidade essencial para qualquer programador. Ao analisar o seu cenário e escolher bem quais partes do código otimizar, você pode criar programas mais eficientes e eficazes.
+
+**Lembre-se**
+
+* Nem tudo precisa ser otimizado.
+* A simplicidade é importante.
+* Analise o seu cenário e escolha bem quais indicadores analisar.
+* Use ferramentas para te ajudar.
+
+Espero que essa explicação tenha ajudado!
