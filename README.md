@@ -7,7 +7,7 @@ Um `envelope de resposta` que seja `leve`, de `alto desempenho` e que forneça u
 | Status | Nome | PT-BR |
 | :- | :- | :- |
 | :green_circle: Finalizado | Benchmarks | [BENCHMARKS-PT.md](docs/BENCHMARKS-PT.md) |
-| :black_circle: Em construção | Decisões de Design | [DESIGN-DECISIONS-PT.md](docs/DESIGN-DECISIONS-PT.md) |
+| :black_circle: Em construção | Decisões de design | [DESIGN-DECISIONS-PT.md](docs/DESIGN-DECISIONS-PT.md) |
 
 ## :package: Pacotes
 
@@ -55,6 +55,8 @@ Além disso, nesse tipo de sistema, os retornos dos métodos vão além de um ú
 
 ## :book: Conteúdo
 - [MCIO.OutputEnvelop](#mciooutputenvelop)
+  - [:book: Documentos](#book-documentos)
+  - [:package: Pacotes](#package-pacotes)
   - [:label: Labels](#label-labels)
   - [:page\_facing\_up: Introdução](#page_facing_up-introdução)
   - [:book: Conteúdo](#book-conteúdo)
