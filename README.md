@@ -2,24 +2,24 @@
 
 Um `envelope de resposta` que seja `leve`, de `alto desempenho` e que forneça uma `API de alto nível` para ser usado em aplicações *LOB (line of business)*.
 
-Não deixe de ver:
+## :book: Documentos
 
-- Documentação sobre as [Decisões de design](docs/DESIGN-DECISIONS-PT.md).
-- Documentação sobre os [Benchmarks](docs/BENCHMARKS-PT.md).
+| Status | Nome | PT-BR |
+| :- | :- | :- |
+| :green_circle: Finalizado | Benchmarks | [BENCHMARKS-PT.md](docs/BENCHMARKS-PT.md) |
+| :black_circle: Em construção | Decisões de Design | [DESIGN-DECISIONS-PT.md](docs/DESIGN-DECISIONS-PT.md) |
 
-<br/>
+## :package: Pacotes
 
-> [!IMPORTANT]
-> Para entender qual foi o raciocínio para construir essa biblioteca, não deixe de ver o documento [decisões de design](docs/DESIGN-DECISIONS-PT.md)
-
-<br/>
+| Nome | Versão | Link |
+| :- | :- | :- |
+| MarceloCastelo.IO.OutputEnvelop |  ![Nuget](https://img.shields.io/nuget/v/MarceloCastelo.IO.OutputEnvelop) | [Nuget.org](https://img.shields.io/nuget/v/MarceloCastelo.IO.OutputEnvelop) |
 
 ## :label: Labels
 
 | Categoria | Descrição | Labels (todos os ícones são clicáveis e levam as ferramentas externas) |
 |-|-|-|
 | Licença | MIT | [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/) |
-| Nuget | [MarceloCastelo.IO.OutputEnvelop](https://www.nuget.org/packages/MarceloCastelo.IO.OutputEnvelop) | ![Nuget](https://img.shields.io/nuget/v/MarceloCastelo.IO.OutputEnvelop) |
 | Segurança | Vulnerabilidades | [![CodeQL](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/marcelocasteloio/MCIO.OutputEnvelop/actions/workflows/github-code-scanning/codeql) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) |
 | Qualidade | Visão geral | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) |
 | Qualidade | Cobertura de testes | [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=marcelocasteloio_MCIO.OutputEnvelop&metric=coverage)](https://sonarcloud.io/summary/new_code?id=marcelocasteloio_MCIO.OutputEnvelop) |
