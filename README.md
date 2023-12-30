@@ -13,7 +13,7 @@ Um `envelope de resposta` que seja `leve`, de `alto desempenho` e que forneça u
 
 | Nome | Versão | Link |
 | :- | :- | :- |
-| MarceloCastelo.IO.OutputEnvelop |  ![Nuget](https://img.shields.io/nuget/v/MarceloCastelo.IO.OutputEnvelop) | [Nuget.org](https://img.shields.io/nuget/v/MarceloCastelo.IO.OutputEnvelop) |
+| MarceloCastelo.IO.OutputEnvelop |  ![Nuget](https://img.shields.io/nuget/v/MarceloCastelo.IO.OutputEnvelop) | [Nuget.org](https://www.nuget.org/packages/MarceloCastelo.IO.OutputEnvelop/) |
 
 ## :label: Labels
 
