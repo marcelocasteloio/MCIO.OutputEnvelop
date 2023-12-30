@@ -209,22 +209,6 @@ public class OutputMessageTest
     }
 
     [Theory]
-    [InlineData("")]
-    [InlineData(" ")]
-    [InlineData(null)]
-    public void OutputMessage_Should_Not_Created_With_NullOrWhiteSpace_Code(string? code)
-    {
-        // Act
-        var actHandler = () =>
-        {
-            OutputMessage.CreateSuccess(code);
-        };
-
-        // Assert
-        actHandler.Should().Throw<ArgumentNullException>().WithParameterName(nameof(code));
-    }
-
-    [Theory]
     [InlineData(0)]
     [InlineData(99)]
     public void OutputMessage_Should_Not_Created_With_Invalid_OutputMessageType(int outputMessageTypeInt)

@@ -831,6 +831,5 @@ namespace MCIO.OutputEnvelop
             else
                 return OutputEnvelopType.Success; 
         }
-        
     }
 }
