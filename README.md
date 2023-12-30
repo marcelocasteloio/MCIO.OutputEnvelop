@@ -100,16 +100,16 @@ Esse projeto tem como objetivo fornecer um `envelope de resposta` que segue os s
 
 [voltar ao topo](#book-conteúdo)
 
-- [x] Versão 1.0.0
-  - [x] Suporte para mensagens de saída dos tipos `information`, `success`, `warning` e `error`.
-  - [x] Notificações imutáveis.
-  - [x] Envelope de resposta com encapsulamento de mensagens de saída, exceções e suporte a processamento parcial.
-  - [x] Envelope de resposta encapsulando a execução para captura automática de exceções.
-  - [x] Envelopes de resposta imutáveis.
-- [ ] Versão 1.1.0
-  - [ ] Suporte para tipagem da propriedade `Code` do objeto [OutputMessage](src/OutputEnvelop/Models/OutputMessage.cs) a partir de generics.
-  - [ ] Remoção da obrigatoriedade do campo `Code` no objeto [OutputMessage](src/OutputEnvelop/Models/OutputMessage.cs).
-- [ ] Criação do pacote `MarceloCastelo.IO.OutputEnvelop.FluentValidation` para integração com o pacote [FluentValidation](https://www.nuget.org/packages/FluentValidation).
+- :green_circle: Versão 1.0.0
+  - :green_circle: Suporte para mensagens de saída dos tipos `information`, `success`, `warning` e `error`.
+  - :green_circle: Notificações imutáveis.
+  - :green_circle: Envelope de resposta com encapsulamento de mensagens de saída, exceções e suporte a processamento parcial.
+  - :green_circle: Envelope de resposta encapsulando a execução para captura automática de exceções.
+  - :green_circle: Envelopes de resposta imutáveis.
+- :green_circle: Versão 1.1.0
+  - :green_circle: Suporte para tipagem da propriedade `Code` do objeto [OutputMessage](src/OutputEnvelop/Models/OutputMessage.cs) a partir de generics.
+  - :green_circle: Remoção da obrigatoriedade do campo `Code` no objeto [OutputMessage](src/OutputEnvelop/Models/OutputMessage.cs).
+- :black_circle: Criação do pacote `MarceloCastelo.IO.OutputEnvelop.FluentValidation` para integração com o pacote [FluentValidation](https://www.nuget.org/packages/FluentValidation).
 
 ## :books: Utilização básica
 
