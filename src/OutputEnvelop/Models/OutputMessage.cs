@@ -55,24 +55,15 @@ namespace MCIO.OutputEnvelop.Models
         }
 
         // Public Methods
-        public OutputMessage ChangeType(OutputMessageType type) => new OutputMessage(OutputMessage<string>.Create(type, _outputMessage.Code, _outputMessage.Description));
-        public OutputMessage ChangeDescription(string description) => new OutputMessage(OutputMessage<string>.Create(_outputMessage.Type, _outputMessage.Code, description));
-        public OutputMessage ChangeTypeAndDescription(OutputMessageType type, string description) => new OutputMessage(OutputMessage<string>.Create(type, _outputMessage.Code, description));
+        public OutputMessage ChangeType(OutputMessageType type) => new OutputMessage(_outputMessage.ChangeType(type));
+        public OutputMessage ChangeDescription(string description) => new OutputMessage(_outputMessage.ChangeDescription(description));
+        public OutputMessage ChangeTypeAndDescription(OutputMessageType type, string description) => new OutputMessage(_outputMessage.ChangeTypeAndDescription(type, description));
 
         // Builders
-        public static OutputMessage Create(OutputMessageType type, string code, string description = null)
-        {
-            // Validate
-            InvalidOutputMessageTypeException.ThrowIfInvalid(type);
-
-            // Process and return
-            return new OutputMessage(
-                OutputMessage<string>.Create(type, code, description)
-            );
-        }
-        public static OutputMessage CreateInformation(string code, string description = null) => Create(OutputMessageType.Information, code, description);
-        public static OutputMessage CreateSuccess(string code, string description = null) => Create(OutputMessageType.Success, code, description);
-        public static OutputMessage CreateWarning(string code, string description = null) => Create(OutputMessageType.Warning, code, description);
-        public static OutputMessage CreateError(string code, string description = null) => Create(OutputMessageType.Error, code, description);
+        public static OutputMessage Create(OutputMessageType type, string code, string description = null) => new OutputMessage(OutputMessage<string>.Create(type, code, description));
+        public static OutputMessage CreateInformation(string code, string description = null) => new OutputMessage(OutputMessage<string>.CreateInformation(code, description));
+        public static OutputMessage CreateSuccess(string code, string description = null) => new OutputMessage(OutputMessage<string>.CreateSuccess(code, description));
+        public static OutputMessage CreateWarning(string code, string description = null) => new OutputMessage(OutputMessage<string>.CreateWarning(code, description));
+        public static OutputMessage CreateError(string code, string description = null) => new OutputMessage(OutputMessage<string>.CreateError(code, description));
     }
 }
