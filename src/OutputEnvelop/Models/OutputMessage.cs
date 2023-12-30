@@ -1,6 +1,5 @@
 ﻿using MCIO.OutputEnvelop.Enums;
 using MCIO.OutputEnvelop.Exceptions.InvalidOutputMessageType;
-using System;
 
 namespace MCIO.OutputEnvelop.Models
 {
