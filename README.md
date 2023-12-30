@@ -110,6 +110,7 @@ Esse projeto tem como objetivo fornecer um `envelope de resposta` que segue os s
   - [x] Envelopes de resposta imutáveis.
 - [ ] Versão 1.1.0
   - [ ] Suporte para tipagem da propriedade `Code` do objeto [OutputMessage](src/OutputEnvelop/Models/OutputMessage.cs) a partir de generics.
+  - [ ] Remoção da obrigatoriedade do campo `Code` no objeto [OutputMessage](src/OutputEnvelop/Models/OutputMessage.cs).
 - [ ] Criação do pacote `MarceloCastelo.IO.OutputEnvelop.FluentValidation` para integração com o pacote [FluentValidation](https://www.nuget.org/packages/FluentValidation).
 
 ## :books: Utilização básica
