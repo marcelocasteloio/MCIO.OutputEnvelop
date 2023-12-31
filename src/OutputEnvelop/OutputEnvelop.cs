@@ -419,7 +419,7 @@ namespace MCIO.OutputEnvelop
 
         public static implicit operator OutputEnvelop(OutputEnvelop<TOutput> outputEnvelop)
         {
-            return outputEnvelop.AsProcessResult();
+            return outputEnvelop.AsOutputEnvelop();
         }
 
         // Public Methods
@@ -588,7 +588,7 @@ namespace MCIO.OutputEnvelop
             }
         }
 
-        public OutputEnvelop AsProcessResult()
+        public OutputEnvelop AsOutputEnvelop()
         {
             return OutputEnvelop.Create(this);
         }
