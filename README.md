@@ -111,6 +111,8 @@ Esse projeto tem como objetivo fornecer um `envelope de resposta` que segue os s
 - :green_circle: Versão 1.1.0
   - :green_circle: Suporte para tipagem da propriedade `Code` do objeto [OutputMessage](src/OutputEnvelop/Models/OutputMessage.cs) a partir de generics.
   - :green_circle: Remoção da obrigatoriedade do campo `Code` no objeto [OutputMessage](src/OutputEnvelop/Models/OutputMessage.cs).
+- :green_circle: Versão 2.0.0
+  - - :green_circle: Correção do termo `ProcessResult` para `OutputEnvelop`.
 - :black_circle: Criação do pacote `MarceloCastelo.IO.OutputEnvelop.FluentValidation` para integração com o pacote [FluentValidation](https://www.nuget.org/packages/FluentValidation).
 
 ## :books: Utilização básica
