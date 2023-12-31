@@ -29,7 +29,7 @@ public class CustomerDomainService
         if (!checkByEmailOutputEnvelop.IsSuccess)
             return OutputEnvelop <RegisterNewOutput>.CreateError(
                 output: CreateFailedRegisterNewOutput(ref input),
-                checkByEmailOutputEnvelop.AsProcessResult()
+                checkByEmailOutputEnvelop.AsOutputEnvelop()
             );
 
         if (checkByEmailOutputEnvelop.Output)
@@ -45,8 +45,8 @@ public class CustomerDomainService
             // create a new output envelop to preserve all returned messages
             return OutputEnvelop<RegisterNewOutput>.CreateError(
                 output: CreateFailedRegisterNewOutput(ref input),
-                checkByEmailOutputEnvelop.AsProcessResult(),
-                registerNewOutputEnvelop.AsProcessResult()
+                checkByEmailOutputEnvelop.AsOutputEnvelop(),
+                registerNewOutputEnvelop.AsOutputEnvelop()
             );
 
         var customer = registerNewOutputEnvelop.Output;
@@ -60,8 +60,8 @@ public class CustomerDomainService
             // create a new output envelop to preserve all returned messages
             return OutputEnvelop<RegisterNewOutput>.CreateError(
                 output: CreateFailedRegisterNewOutput(ref input),
-                checkByEmailOutputEnvelop.AsProcessResult(),
-                registerNewOutputEnvelop.AsProcessResult(),
+                checkByEmailOutputEnvelop.AsOutputEnvelop(),
+                registerNewOutputEnvelop.AsOutputEnvelop(),
                 persistOutputEnvelop
             );
 
@@ -69,8 +69,8 @@ public class CustomerDomainService
         // to preserve all returned messages
         return OutputEnvelop<RegisterNewOutput>.CreateSuccess(
             output: CreateSuccessRegisterNewOutput(ref input, ref customer!),
-            checkByEmailOutputEnvelop.AsProcessResult(),
-            registerNewOutputEnvelop.AsProcessResult(),
+            checkByEmailOutputEnvelop.AsOutputEnvelop(),
+            registerNewOutputEnvelop.AsOutputEnvelop(),
             persistOutputEnvelop
         );
     }
