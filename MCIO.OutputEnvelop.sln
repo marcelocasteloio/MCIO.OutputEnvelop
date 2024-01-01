@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MCIO.OutputEnvelop.Samples.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B61F12E0-2A43-4235-A34D-FE47CEC2877B}"
 	ProjectSection(SolutionItems) = preProject
+		build-local-script.ps1 = build-local-script.ps1
+		clear-local-script.ps1 = clear-local-script.ps1
 		images\icon.png = images\icon.png
 		README.md = README.md
 	EndProjectSection
