@@ -62,6 +62,7 @@ Além disso, nesse tipo de sistema, os retornos dos métodos vão além de um ú
   - [:label: Labels](#label-labels)
   - [:page\_facing\_up: Introdução](#page_facing_up-introdução)
   - [:book: Conteúdo](#book-conteúdo)
+  - [:package: Dependências](#package-dependências)
   - [:computer: Tecnologias](#computer-tecnologias)
   - [:star: Funcionalidades-chave](#star-funcionalidades-chave)
   - [:star: Roadmap](#star-roadmap)
@@ -69,6 +70,10 @@ Além disso, nesse tipo de sistema, os retornos dos métodos vão além de um ú
   - [:books: Exemplos](#books-exemplos)
   - [:people\_holding\_hands: Contribuindo](#people_holding_hands-contribuindo)
   - [:people\_holding\_hands: Autores](#people_holding_hands-autores)
+
+## :package: Dependências
+
+- [.NET Standard 2.0](https://learn.microsoft.com/pt-br/dotnet/standard/net-standard?tabs=net-standard-2-0).
 
 ## :computer: Tecnologias
 
