@@ -66,6 +66,7 @@ Além disso, nesse tipo de sistema, os retornos dos métodos vão além de um ú
   - [:computer: Tecnologias](#computer-tecnologias)
   - [:star: Funcionalidades-chave](#star-funcionalidades-chave)
   - [:star: Roadmap](#star-roadmap)
+  - [:rocket: Executando localmente](#rocket-executando-localmente)
   - [:books: Utilização básica](#books-utilização-básica)
   - [:books: Exemplos](#books-exemplos)
   - [:people\_holding\_hands: Contribuindo](#people_holding_hands-contribuindo)
@@ -121,6 +122,23 @@ Esse projeto tem como objetivo fornecer um `envelope de resposta` que segue os s
 - :green_circle: Versão 2.0.0
   - :green_circle: Correção do termo `ProcessResult` para `OutputEnvelop`.
 - :green_circle: Criação do pacote `MarceloCastelo.IO.OutputEnvelop.FluentValidation` para integração com o pacote [FluentValidation](https://www.nuget.org/packages/FluentValidation).
+
+## :rocket: Executando localmente
+
+Por se tratar de um pacote nuget, não existe uma execução. Porém, existe o script [build-local-script](build-local-script.ps1) que pode ser executado via PowerShell que realizará as seguintes ações:
+
+1. Instalará a CLI do ReportGenerator localmente para visualização do relatório de cobertura no formato opencover.
+2. Instalará a CLI do Stryker localmente para execução e visualização do relatório do teste de mutação.
+3. Restore do projeto.
+4. Build do projeto em modo release.
+5. Execução dos testes de unidade.
+6. Execução do teste de mutação.
+7. Abertura do relatório de cobertura no navegador web padrão.
+8. Abertura do relatório de teste mutante no navegador web padrão.
+
+A partir do `diretóio raiz` do repositório, no `PowerShell`, execute o comando `.\build-local-script.ps1`.
+
+Caso queira limpar todos os arquivos gerados, a partir do `diretóio raiz` do repositório, no `PowerShell`, execute o comando `.\clear-local-script.ps1`.
 
 ## :books: Utilização básica
 
