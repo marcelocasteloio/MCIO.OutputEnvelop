@@ -1,7 +1,7 @@
 # Decisões de design
 
 > [!IMPORTANT]
-> DOCUMENTO NÃO FINALIZADO! EM CONSTRUÇÃO
+> :construction: DOCUMENTO NÃO FINALIZADO! EM CONSTRUÇÃO
 
 ## :book: Conteúdo
 - [Decisões de design](#decisões-de-design)

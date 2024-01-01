@@ -1,8 +1,5 @@
 # Manual de Contribuição
 
-> [!IMPORTANT]
-> DOCUMENTO NÃO FINALIZADO! EM CONSTRUÇÃO
-
 Se você tem vontade de contribuir com o projeto, sinta-se à vontade; toda contribuição é bem-vinda e incentivada.
 
 ## :book: Conteúdo
@@ -48,7 +45,7 @@ Se deseja submeter alguma alteração, é necessário abrir uma pull request. Es
 
 Além dos requisitos da pipeline, analisarei os seguintes aspectos:
 
-- O SAST tem requisito padrão de 80% de cobertura, mas aceitarei apenas pull requests com:
+- Aceitarei apenas pull requests com:
   -  100% de cobertura de testes de unidade
   -  0 Bugs
   -  0 Vulberabilities
