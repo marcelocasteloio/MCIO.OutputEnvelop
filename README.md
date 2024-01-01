@@ -74,6 +74,8 @@ Além disso, nesse tipo de sistema, os retornos dos métodos vão além de um ú
 
 ## :package: Dependências
 
+[voltar ao topo](#book-conteúdo)
+
 - [.NET Standard 2.0](https://learn.microsoft.com/pt-br/dotnet/standard/net-standard?tabs=net-standard-2-0).
 
 ## :computer: Tecnologias
@@ -125,6 +127,8 @@ Esse projeto tem como objetivo fornecer um `envelope de resposta` que segue os s
 
 ## :rocket: Executando localmente
 
+[voltar ao topo](#book-conteúdo)
+
 Por se tratar de um pacote nuget, não existe uma execução. Porém, existe o script [build-local-script](build-local-script.ps1) que pode ser executado via PowerShell que realizará as seguintes ações:
 
 1. Instalará a CLI do ReportGenerator localmente para visualização do relatório de cobertura no formato opencover.
@@ -141,6 +145,8 @@ A partir do `diretóio raiz` do repositório, no `PowerShell`, execute o comando
 Caso queira limpar todos os arquivos gerados, a partir do `diretóio raiz` do repositório, no `PowerShell`, execute o comando `.\clear-local-script.ps1`.
 
 ## :books: Utilização básica
+
+[voltar ao topo](#book-conteúdo)
 
 O trecho do código abaixo foi extraído da classe [Customer](samples/SampleApi/Domain/Entities/Customer.cs)] do projeto de exemplo na pasta `samples/SampleApi`.
 
