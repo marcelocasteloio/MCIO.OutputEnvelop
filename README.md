@@ -11,9 +11,11 @@ Um `envelope de resposta` que seja `leve`, de `alto desempenho` e que forneça u
 
 ## :package: Pacotes
 
-| Nome | Versão | Link |
-| :- | :- | :- |
-| MarceloCastelo.IO.OutputEnvelop |  ![Nuget](https://img.shields.io/nuget/v/MarceloCastelo.IO.OutputEnvelop) | [Nuget.org](https://www.nuget.org/packages/MarceloCastelo.IO.OutputEnvelop/) |
+| Nome | Versão | Link | Repository |
+| :- | :- | :- | :- |
+| MarceloCastelo.IO.OutputEnvelop |  ![Nuget](https://img.shields.io/nuget/v/MarceloCastelo.IO.OutputEnvelop) | [Nuget.org](https://www.nuget.org/packages/MarceloCastelo.IO.OutputEnvelop/) | Esse aqui :) |
+| MarceloCastelo.IO.OutputEnvelop.FluentValidation |  ![Nuget](https://img.shields.io/nuget/v/MarceloCastelo.IO.OutputEnvelop.FluentValidation) | [Nuget.org](https://www.nuget.org/packages/MarceloCastelo.IO.OutputEnvelop.FluentValidation/) | [Link](https://github.com/marcelocasteloio/MCIO.OutputEnvelop.FluentValidation) |
+
 
 ## :label: Labels
 
@@ -113,7 +115,7 @@ Esse projeto tem como objetivo fornecer um `envelope de resposta` que segue os s
   - :green_circle: Remoção da obrigatoriedade do campo `Code` no objeto [OutputMessage](src/OutputEnvelop/Models/OutputMessage.cs).
 - :green_circle: Versão 2.0.0
   - :green_circle: Correção do termo `ProcessResult` para `OutputEnvelop`.
-- :black_circle: Criação do pacote `MarceloCastelo.IO.OutputEnvelop.FluentValidation` para integração com o pacote [FluentValidation](https://www.nuget.org/packages/FluentValidation).
+- :green_circle: Criação do pacote `MarceloCastelo.IO.OutputEnvelop.FluentValidation` para integração com o pacote [FluentValidation](https://www.nuget.org/packages/FluentValidation).
 
 ## :books: Utilização básica
 
