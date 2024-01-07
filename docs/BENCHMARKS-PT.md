@@ -142,10 +142,6 @@ Vamos expressar essas duas tabelas em dois gráficos:
 </div>
 <br/>
 
-Incluir uma série (em laranja) que representa a média móvel. Mas por quê isso? Quanto mais próximo o valor (série em azul) estiver da média móvel (série em laranja), menos variação teve, ou seja, mais estável e previsível o valor é.
-
-Note que a `máquina A` ficou com os valores `mais próximos` da média móvel, já a `máquina B` ficou com valores `mais distantes` da média móvel. Isso quer dizer que a máquina B é mais instável. Então o que podemos concluir da análise dessas duas máquinas?
-
 **Conclusões:**
 - As máquinas A e B utilizaram o mesmo tempo total para produzir as 10 peças.
 - A máquina A foi mais estável e previsível na duração por peça do que a máquina B.
