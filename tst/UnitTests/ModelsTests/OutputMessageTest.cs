@@ -1,4 +1,5 @@
-﻿using MCIO.OutputEnvelop.Enums;
+﻿using FluentAssertions.Equivalency;
+using MCIO.OutputEnvelop.Enums;
 using MCIO.OutputEnvelop.Exceptions.InvalidOutputMessageType;
 using MCIO.OutputEnvelop.Models;
 
@@ -224,5 +225,27 @@ public class OutputMessageTest
 
         // Assert
         actHandler.Should().Throw<InvalidOutputMessageTypeException>().Which.OutputMessageType.Should().Be(outputMessageType);
+    }
+
+    [Fact]
+    public void OutputMessage_Should_Correctly_Represented_By_ToString()
+    {
+        // Arrange
+        var outputMessageTypeCollection = Enum.GetValues<OutputMessageType>();
+
+        // Act and Assert
+        foreach (var outputMessageType in outputMessageTypeCollection)
+        {
+            var code = Guid.NewGuid().ToString();
+            var description = Guid.NewGuid().ToString();
+
+            var outputMessageA = OutputMessage.Create(outputMessageType, code, description);
+            var outputMessageB = OutputMessage<string>.Create(outputMessageType, code, description);
+
+            var expectedOutputMessage = $"[{outputMessageType}] {code}: {description}";
+
+            outputMessageA.ToString().Should().Be(expectedOutputMessage);
+            outputMessageB.ToString().Should().Be(expectedOutputMessage);
+        }
     }
 }

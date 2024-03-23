@@ -23,6 +23,8 @@ namespace MCIO.OutputEnvelop.Models
         public OutputMessage<T> ChangeDescription(string description) => Create(Type, Code, description);
         public OutputMessage<T> ChangeTypeAndDescription(OutputMessageType type, string description) => Create(type, Code, description);
 
+        public override string ToString() => $"[{Type}] {Code}: {Description}";
+
         // Builders
         public static OutputMessage<T> Create(OutputMessageType type, T code, string description = null)
         {
@@ -57,6 +59,8 @@ namespace MCIO.OutputEnvelop.Models
         public OutputMessage ChangeType(OutputMessageType type) => new OutputMessage(_outputMessage.ChangeType(type));
         public OutputMessage ChangeDescription(string description) => new OutputMessage(_outputMessage.ChangeDescription(description));
         public OutputMessage ChangeTypeAndDescription(OutputMessageType type, string description) => new OutputMessage(_outputMessage.ChangeTypeAndDescription(type, description));
+
+        public override string ToString() => $"[{Type}] {Code}: {Description}";
 
         // Builders
         public static OutputMessage Create(OutputMessageType type, string code, string description = null) => new OutputMessage(OutputMessage<string>.Create(type, code, description));
